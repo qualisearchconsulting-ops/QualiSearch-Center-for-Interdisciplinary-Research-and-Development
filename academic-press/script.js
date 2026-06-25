@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentPath = window.location.pathname.split('/').pop();
       const isActive = currentPath === dashboardUrl ? 'active' : '';
 
-      mainNavUl.innerHTML = `<li><a href="${dashboardUrl}" class="nav-link ${isActive}">Dashboard</a></li>`;
+      mainNavUl.innerHTML = `<li><a href="../index.html" class="nav-link" style="color: var(--gold-light); font-weight: 600;">&larr; QCIRD Home</a></li><li><a href="${dashboardUrl}" class="nav-link ${isActive}">Dashboard</a></li>`;
     }
   }
 
