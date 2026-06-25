@@ -302,7 +302,7 @@
       }
       
       let role = 'researcher';
-      const { data: roleData } = await sbClient.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle();
+      const { data: roleData } = await db.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle();
       if (roleData) role = roleData.role;
       
       if (role !== 'peer_reviewer') {
