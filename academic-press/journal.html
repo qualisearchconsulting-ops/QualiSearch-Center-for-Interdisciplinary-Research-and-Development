@@ -62,8 +62,15 @@
       <div class="journals-inner">
         <a href="journals.html" class="browse-btn" style="display:inline-block; margin-bottom:24px; background:transparent; color:var(--gold); border:1px solid var(--gold);">Back to Journals</a>
         <div class="section-label light" id="journal-code-label">Journal</div>
-        <h1 class="about-title" id="journal-title" style="color:var(--text-primary);">Loading Journal...</h1>
-        <p class="journal-description" id="journal-description" style="max-width:900px; margin-bottom:28px;"></p>
+        <div style="display:flex; align-items:flex-start; gap:24px; margin-bottom:28px;">
+          <div class="journal-cover-container" id="journal-cover-wrapper" style="width:140px; display:none;">
+            <img src="" id="journal-cover-img" alt="Journal Cover" class="journal-cover" />
+          </div>
+          <div>
+            <h1 class="about-title" id="journal-title" style="color:var(--text-primary); margin-bottom:12px;">Loading Journal...</h1>
+            <p class="journal-description" id="journal-description" style="max-width:900px; margin-bottom:0;"></p>
+          </div>
+        </div>
         <div class="about-divider"></div>
 
         <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:28px 0 16px;">Published Articles</h2>
@@ -122,6 +129,21 @@
       document.getElementById('journal-code-label').textContent = code;
       document.getElementById('journal-title').textContent = journal.name;
       document.getElementById('journal-description').textContent = journal.description;
+
+      const imageMap = {
+        'QJERP': 'educationalresearchandpractice.png',
+        'QJHS': 'healthandsciences.png',
+        'QJBG': 'businessandgovernance.png',
+        'QJTI': 'Technologyandinnovation.png',
+        'QJPLC': 'philipineslanguageandculture.png'
+      };
+      
+      const coverImg = document.getElementById('journal-cover-img');
+      const coverWrapper = document.getElementById('journal-cover-wrapper');
+      if (imageMap[code]) {
+        coverImg.src = 'journals_images/' + imageMap[code];
+        coverWrapper.style.display = 'block';
+      }
 
       const db = window.qsSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON);
       if (!db) {

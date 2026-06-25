@@ -528,15 +528,19 @@ body {
   gap: 18px;
 }
 
-.journal-acronym {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--gold);
+.journal-cover-container {
   flex-shrink: 0;
-  padding-top: 2px;
-  min-width: 60px;
+  width: 90px;
+}
+
+.journal-cover {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: block;
 }
 
 .journal-info {
@@ -2046,8 +2050,8 @@ input, select, textarea, button {
     gap: 12px;
   }
 
-  .journal-acronym {
-    min-width: 0;
+  .journal-cover-container {
+    width: 60px;
   }
 
   .footer-inner {
