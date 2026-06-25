@@ -225,8 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
     panelReg.hidden    = isSignin;
   }
 
-  // Open modal via navbar button
-  if (navLoginBtn) navLoginBtn.addEventListener('click', () => openAuthModal('signin'));
+    // Open modal via any login button
+    const loginBtns = document.querySelectorAll('.nav-login-btn');
+    loginBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openAuthModal('signin');
+      });
+    });
 
   // Tabs
   if (tabSignin) tabSignin.addEventListener('click', () => switchTab('signin'));
