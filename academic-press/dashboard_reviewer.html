@@ -301,7 +301,9 @@
         return;
       }
       
-      let role = session.user.user_metadata?.account_type;
+      let role = 'researcher';
+      const { data: roleData } = await sbClient.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle();
+      if (roleData) role = roleData.role;
       
       if (role !== 'peer_reviewer') {
         const { data: revData } = await db.from('reviewers').select('*').eq('email', session.user.email).maybeSingle();

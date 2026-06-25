@@ -73,19 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const navDropdown   = document.getElementById('nav-user-dropdown');
   const navSignoutBtn = document.getElementById('nav-signout-btn');
 
+  async function getUserRole(user) {
+    if (!supabase) return 'researcher';
+    const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
+    if (data && data.role) return data.role;
+    return user.user_metadata?.account_type || 'researcher';
+  }
+
   async function setNavLoggedIn(user) {
     if (!navUser || !navAvatar || !navUserName || !navFullname || !navRoleBadge) return;
     const meta      = user.user_metadata || {};
     const fullName  = meta.full_name  || user.email || 'Account';
-    let role        = meta.account_type || 'researcher';
-    
-    // Check if researcher is actually a reviewer
-    if (role === 'researcher' && supabase) {
-        const { data: revData } = await supabase.from('reviewers').select('id').eq('email', user.email).maybeSingle();
-        if (revData) {
-            role = 'peer_reviewer';
-        }
-    }
+    let role        = await getUserRole(user);
 
     const initials  = fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
@@ -342,14 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`Welcome back, ${data.user.user_metadata?.full_name?.split(' ')[0] || 'Scholar'}!`, 'success');
     
     // Redirect based on role
-    let role = data.user.user_metadata?.account_type;
-    
-    if (role === 'researcher') {
-      const { data: revData } = await supabase.from('reviewers').select('*').eq('email', data.user.email).maybeSingle();
-      if (revData) {
-        role = 'peer_reviewer';
-      }
-    }
+    let role = await getUserRole(data.user);
 
     if (role === 'researcher') {
       setTimeout(() => { window.location.href = 'dashboard_researcher.html'; }, 800);
@@ -454,7 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast(`Welcome to QualiSearch, ${fullName.split(' ')[0]}!`, 'success');
       
       // Redirect if researcher
-      if (data.user.user_metadata?.account_type === 'researcher') {
+      let role = await getUserRole(data.user);
+      if (role === 'researcher') {
         setTimeout(() => {
           window.location.href = 'dashboard_researcher.html';
         }, 800);
@@ -518,13 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user) {
       // If logged in and on a public page, redirect to dashboard
       if (publicPages.includes(currentPath)) {
-        let role = user.user_metadata?.account_type || 'researcher';
-        
-        // Double check for reviewer role if researcher
-        if (role === 'researcher' && supabase) {
-            const { data: revData } = await supabase.from('reviewers').select('id').eq('email', user.email).maybeSingle();
-            if (revData) role = 'peer_reviewer';
-        }
+        let role = await getUserRole(user);
         
         let dashboardUrl = 'dashboard_researcher.html';
         if (role === 'admin' || role === 'editor') dashboardUrl = 'dashboard_admin.html';

@@ -412,7 +412,10 @@
         return;
       }
 
-      const role = session.user.user_metadata?.account_type;
+      let role = 'researcher';
+      const { data: roleData } = await sbClient.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle();
+      if (roleData) role = roleData.role;
+      
       if (!['admin', 'editor'].includes(role)) {
         window.location.href = 'index.html';
         return;
