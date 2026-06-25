@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Policies - QualiSearch Academic Press</title>
+  <meta name="description" content="Publishing standards and publication ethics of QualiSearch Academic Press." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar" id="top-bar">
+    <div class="top-bar-inner">
+      <div class="top-bar-brand">
+        <a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+          <img src="qs_logo.png" alt="QualiSearch Logo" class="top-bar-logo" />
+          <span class="top-bar-name">QualiSearch Academic Press</span>
+        </a>
+      </div>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="journals.html" class="nav-link">Journals</a></li>
+          <li><a href="publish.html" class="nav-link">Call for Papers</a></li>
+          <li><a href="policies.html" class="nav-link">Standards & Ethics</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-auth-controls" id="nav-auth-controls">
+        <button class="nav-login-btn" id="nav-login-btn" aria-label="Sign in">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Sign In
+        </button>
+        <div class="nav-user" id="nav-user" hidden>
+          <button class="nav-user-btn" id="nav-user-btn" aria-expanded="false">
+            <span class="nav-avatar" id="nav-avatar">?</span>
+            <span class="nav-user-name" id="nav-user-name">Account</span>
+            <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-user-dropdown" id="nav-user-dropdown">
+            <div class="nav-user-info">
+              <span class="nav-user-fullname" id="nav-user-fullname">—</span>
+              <span class="nav-role-badge" id="nav-role-badge">—</span>
+            </div>
+            <div class="nav-dropdown-divider"></div>
+            <button class="nav-signout-btn" id="nav-signout-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div style="padding-top: 60px;">
+    <section class="policies-section" id="policies" style="min-height: calc(100vh - 350px);">
+      <div class="policies-inner">
+        <div class="section-label">Governance</div>
+        <h2 class="policies-title">EDITORIAL POLICIES</h2>
+        <div class="policies-divider"></div>
+        
+        <div class="reveal" style="margin-bottom: 48px;">
+          <p class="about-body">QualiSearch Academic Press is committed to maintaining high standards of scholarly publishing through transparent editorial practices, ethical research dissemination, and rigorous peer review. All journals under the publisher operate in accordance with principles of academic integrity, editorial independence, fairness, and responsible scholarly communication.</p>
+          <p class="about-body">The publisher upholds policies designed to ensure the credibility, quality, accessibility, and long-term preservation of published scholarly works.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">PEER REVIEW POLICY</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">All manuscripts submitted to journals under QualiSearch Academic Press undergo a double-blind peer review process. Authors and reviewers remain anonymous throughout the review procedure to promote impartiality, fairness, and objective scholarly evaluation.</p>
+          <p class="about-body">Each submission is initially screened by the editorial office to determine alignment with the journal’s aims and scope, formatting requirements, and ethical standards. Manuscripts that pass preliminary evaluation are forwarded to at least two independent reviewers with expertise relevant to the manuscript’s subject area.</p>
+          <p class="about-body">Reviewers evaluate submissions based on:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Originality and scholarly contribution</li>
+            <li>Methodological rigor</li>
+            <li>Clarity and organization</li>
+            <li>Relevance to the journal’s scope</li>
+            <li>Ethical compliance</li>
+            <li>Overall academic quality</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">Editorial decisions may include:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Acceptance</li>
+            <li>Acceptance with minor revisions</li>
+            <li>Major revisions</li>
+            <li>Resubmission for review</li>
+            <li>Rejection</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">Final editorial decisions are based solely on scholarly merit, reviewer recommendations, editorial evaluation, and compliance with publication standards.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">PUBLICATION ETHICS</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">QualiSearch Academic Press adheres to recognized standards of publication ethics and research integrity. Authors, reviewers, editors, and editorial staff are expected to uphold ethical scholarly practices throughout the publication process.</p>
+          <p class="about-body">The publisher does not tolerate:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Plagiarism</li>
+            <li>Fabricated or falsified data</li>
+            <li>Duplicate submission</li>
+            <li>Redundant publication</li>
+            <li>Unethical research practices</li>
+            <li>Citation manipulation</li>
+            <li>Undisclosed conflicts of interest</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">All manuscripts may undergo plagiarism screening prior to peer review and publication.</p>
+          <p class="about-body">Authors are responsible for ensuring:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>The originality of submitted work</li>
+            <li>Proper citation and attribution</li>
+            <li>Accuracy of data and findings</li>
+            <li>Ethical treatment of research participants</li>
+            <li>Compliance with institutional and legal research requirements</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">The publisher reserves the right to reject, retract, or correct published works when ethical violations are identified.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">COPYRIGHT & LICENSING</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">Authors retain copyright of their published works unless otherwise specified by journal policy.</p>
+          <p class="about-body">By submitting and publishing with QualiSearch Academic Press, authors grant the publisher the non-exclusive right to publish, archive, distribute, and preserve the scholarly work in digital formats.</p>
+          <p class="about-body">Published articles are made openly accessible to promote wider dissemination of scholarly knowledge. Licensing arrangements and reuse permissions may vary depending on the journal and publication agreement.</p>
+          <p class="about-body">Authors are responsible for securing permission to use copyrighted materials, including images, tables, figures, and extensive quoted content.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">ARCHIVING & PRESERVATION POLICY</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">QualiSearch Academic Press recognizes the importance of preserving scholarly content for long-term accessibility and academic continuity.</p>
+          <p class="about-body">Published articles are maintained within the publisher’s digital archive infrastructure to ensure persistent accessibility and citation stability. The publisher supports responsible digital preservation practices through:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>DOI registration</li>
+            <li>Stable article landing pages</li>
+            <li>Structured issue archiving</li>
+            <li>Metadata preservation</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">The publisher continuously works toward strengthening long-term digital preservation systems and archival accessibility.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">USE OF ARTIFICIAL INTELLIGENCE</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">QualiSearch Academic Press acknowledges the increasing role of artificial intelligence (AI) technologies in research and scholarly writing. The publisher permits responsible and transparent use of AI-assisted tools within clearly defined ethical boundaries.</p>
+          <p class="about-body">Authors must disclose the use of AI tools when such technologies significantly contribute to:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Manuscript drafting</li>
+            <li>Language editing</li>
+            <li>Data processing</li>
+            <li>Image generation</li>
+            <li>Analytical assistance</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">AI tools cannot be credited as authors because they cannot assume responsibility for the integrity, originality, accuracy, or ethical accountability of scholarly work.</p>
+          <p class="about-body">Authors remain fully responsible for:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Factual accuracy</li>
+            <li>Originality</li>
+            <li>Citation integrity</li>
+            <li>Ethical compliance</li>
+            <li>Final manuscript content</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">The publisher reserves the right to request clarification regarding AI-assisted content when necessary.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">FEES AND BUSINESS MODEL</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">QualiSearch Academic Press operates as an open-access scholarly publisher.</p>
+          <p class="about-body">Some journals may require an Article Processing Charge (APC) to support:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Peer review management</li>
+            <li>Editorial processing</li>
+            <li>Digital publication</li>
+            <li>DOI registration</li>
+            <li>Publication maintenance</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">APC policies are disclosed transparently within each journal’s publication guidelines.</p>
+          <p class="about-body">Payment of APCs does not guarantee manuscript acceptance and does not influence editorial decisions. Editorial evaluation and peer review remain independent of financial considerations.</p>
+          <p class="about-body">There are no submission fees unless otherwise specified by individual journal policies.</p>
+        </div>
+
+        <h3 class="policies-title reveal" style="font-size: 20px; margin-top: 48px;">COMPLAINTS AND APPEALS</h3>
+        <div class="policies-divider" style="width: 30px; margin-bottom: 24px;"></div>
+        <div class="reveal">
+          <p class="about-body">QualiSearch Academic Press provides authors, reviewers, and readers with mechanisms for raising concerns regarding editorial decisions, publication ethics, or procedural matters.</p>
+          <p class="about-body">Authors may submit appeals regarding editorial decisions when substantial evidence or clarification is available. Appeals are evaluated objectively by the editorial office and, when appropriate, by additional editorial or reviewer consultation.</p>
+          <p class="about-body">Complaints related to:</p>
+          <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 24px; margin-bottom: 16px; font-size: 15px;">
+            <li>Ethical concerns</li>
+            <li>Conflicts of interest</li>
+            <li>Plagiarism</li>
+            <li>Editorial conduct</li>
+            <li>Publication integrity</li>
+          </ul>
+          <p class="about-body" style="margin-top: 16px;">will be handled confidentially, fairly, and in accordance with established ethical procedures.</p>
+          <p class="about-body">The publisher reserves the right to conduct investigations and implement appropriate corrective actions when necessary.</p>
+        </div>
+
+        <div class="reveal" style="margin-top: 64px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.05);">
+          <p class="about-body" style="margin-bottom: 8px;">For policy-related concerns or inquiries, please contact:</p>
+          <p class="about-body">
+            <strong style="color: var(--text-primary);">QualiSearch Academic Press</strong><br>
+            <span style="font-size: 14px;">Published by QualiSearch Center for Interdisciplinary Research and Development</span><br>
+            <span style="margin-top: 8px; display: inline-block;">Email: qualisearchconsulting@gmail.com</span><br>
+            Website: www.qualisearchjournal.org
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="qs_logo.png" alt="QualiSearch Logo" class="footer-logo" />
+        <div class="footer-brand-text">
+          <span class="footer-name">QualiSearch</span>
+          <span class="footer-sub">ACADEMIC PRESS</span>
+          <span class="footer-tag">Advancing Interdisciplinary Scholarship</span>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h5>Navigation</h5>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="journals.html">Journals</a></li>
+            <li><a href="publish.html">Call for Papers</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Resources</h5>
+          <ul>
+            <li><a href="policies.html">Standards & Ethics</a></li>
+            <li><a href="#">Author Guidelines</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Journals</h5>
+          <ul>
+            <li><a href="#">QJERP</a></li>
+            <li><a href="#" style="opacity: 0.5;">QJHS</a></li>
+            <li><a href="#" style="opacity: 0.5;">QJBG</a></li>
+            <li><a href="#" style="opacity: 0.5;">QJTI</a></li>
+            <li><a href="#" style="opacity: 0.5;">QJPLC</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 QualiSearch Academic Press · QualiSearch Center for Interdisciplinary Research and Development · All Rights Reserved</p>
+      <p class="footer-cc">Published under Creative Commons Attribution License</p>
+    </div>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div class="auth-backdrop" id="auth-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+    <div class="auth-modal" id="auth-modal">
+      <div class="auth-modal-header">
+        <div class="auth-modal-logo"><img src="qs_logo.png" alt="QualiSearch" /></div>
+        <div class="auth-modal-brand">
+          <span class="auth-brand-name">QualiSearch</span>
+          <span class="auth-brand-sub">ACADEMIC PRESS</span>
+        </div>
+        <button class="auth-close-btn" id="auth-close-btn" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab active" id="tab-signin" role="tab" aria-selected="true" aria-controls="panel-signin">Sign In</button>
+        <button class="auth-tab" id="tab-register" role="tab" aria-selected="false" aria-controls="panel-register">Create Account</button>
+      </div>
+      <div class="auth-panel" id="panel-signin" role="tabpanel" aria-labelledby="tab-signin">
+        <h2 class="auth-panel-title" id="auth-modal-title">Welcome Back</h2>
+        <p class="auth-panel-sub">Sign in to your QualiSearch account</p>
+        <form class="auth-form" id="signin-form" novalidate>
+          <div class="auth-field">
+            <label for="signin-email">Email Address</label>
+            <input type="email" id="signin-email" name="email" placeholder="researcher@institution.edu" required />
+          </div>
+          <div class="auth-field">
+            <label for="signin-password">
+              Password
+              <a href="#" class="auth-forgot-link" id="forgot-password-link">Forgot password?</a>
+            </label>
+            <div class="auth-input-wrap">
+              <input type="password" id="signin-password" name="password" placeholder="Enter your password" required />
+              <button type="button" class="auth-eye-btn" id="signin-eye">
+                <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="auth-error" id="signin-error" hidden></div>
+          <button type="submit" class="auth-submit-btn" id="signin-submit">
+            <span class="auth-btn-label">Sign In</span><span class="auth-spinner" hidden></span>
+          </button>
+        </form>
+        <p class="auth-switch-text">Don't have an account? <button class="auth-switch-btn" id="switch-to-register">Create one</button></p>
+      </div>
+      <div class="auth-panel" id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden>
+        <h2 class="auth-panel-title">Join QualiSearch</h2>
+        <p class="auth-panel-sub">Create your scholarly account</p>
+        <form class="auth-form" id="register-form" novalidate>
+          <div class="auth-field">
+            <label for="reg-fullname">Full Name</label>
+            <input type="text" id="reg-fullname" name="fullname" placeholder="Dr. Jane Smith" required />
+          </div>
+          <div class="auth-field">
+            <label for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" name="email" placeholder="researcher@institution.edu" required />
+          </div>
+
+          <div class="auth-field">
+            <label for="reg-password">Password</label>
+            <div class="auth-input-wrap">
+              <input type="password" id="reg-password" name="password" placeholder="Min. 8 characters" required />
+              <button type="button" class="auth-eye-btn" id="reg-eye">
+                <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <div class="auth-strength" id="reg-strength"><div class="auth-strength-bar" id="reg-strength-bar"></div></div>
+          </div>
+          <div class="auth-field">
+            <label for="reg-confirm">Confirm Password</label>
+            <input type="password" id="reg-confirm" name="confirm" placeholder="Re-enter your password" required />
+          </div>
+          <div class="auth-error" id="register-error" hidden></div>
+          <button type="submit" class="auth-submit-btn" id="register-submit"><span class="auth-btn-label">Create Account</span><span class="auth-spinner" hidden></span></button>
+        </form>
+        <p class="auth-switch-text">Already have an account? <button class="auth-switch-btn" id="switch-to-signin">Sign in</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qs-toast" id="qs-toast" role="alert" aria-live="polite" hidden>
+    <span class="qs-toast-icon" id="qs-toast-icon"></span>
+    <span class="qs-toast-msg" id="qs-toast-msg"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

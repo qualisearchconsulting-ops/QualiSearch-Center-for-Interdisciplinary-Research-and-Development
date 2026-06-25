@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journal Articles - QualiSearch Academic Press</title>
+  <meta name="description" content="Browse published articles from QualiSearch Academic Press journals." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+  <div class="top-bar" id="top-bar">
+    <div class="top-bar-inner">
+      <div class="top-bar-brand">
+        <a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+          <img src="qs_logo.png" alt="QualiSearch Logo" class="top-bar-logo" />
+          <span class="top-bar-name">QualiSearch Academic Press</span>
+        </a>
+      </div>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="journals.html" class="nav-link active">Journals</a></li>
+          <li><a href="publish.html" class="nav-link">Call for Papers</a></li>
+          <li><a href="policies.html" class="nav-link">Standards & Ethics</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-auth-controls" id="nav-auth-controls">
+        <button class="nav-login-btn" id="nav-login-btn" aria-label="Sign in">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Sign In
+        </button>
+        <div class="nav-user" id="nav-user" hidden>
+          <button class="nav-user-btn" id="nav-user-btn" aria-expanded="false">
+            <span class="nav-avatar" id="nav-avatar">?</span>
+            <span class="nav-user-name" id="nav-user-name">Account</span>
+            <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-user-dropdown" id="nav-user-dropdown">
+            <div class="nav-user-info">
+              <span class="nav-user-fullname" id="nav-user-fullname">-</span>
+              <span class="nav-role-badge" id="nav-role-badge">-</span>
+            </div>
+            <div class="nav-dropdown-divider"></div>
+            <button class="nav-signout-btn" id="nav-signout-btn">Sign Out</button>
+          </div>
+        </div>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+
+  <main style="padding-top:100px; min-height:calc(100vh - 260px);">
+    <section class="journals-section" style="border-top:none; padding-top:48px;">
+      <div class="journals-inner">
+        <a href="journals.html" class="browse-btn" style="display:inline-block; margin-bottom:24px; background:transparent; color:var(--gold); border:1px solid var(--gold);">Back to Journals</a>
+        <div class="section-label light" id="journal-code-label">Journal</div>
+        <h1 class="about-title" id="journal-title" style="color:var(--text-primary);">Loading Journal...</h1>
+        <p class="journal-description" id="journal-description" style="max-width:900px; margin-bottom:28px;"></p>
+        <div class="about-divider"></div>
+
+        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:28px 0 16px;">Published Articles</h2>
+        <div id="articles-list" style="display:grid; gap:14px;">
+          <div class="journal-card" style="padding:20px; color:var(--text-muted);">Loading published articles...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <p>© 2024 QualiSearch Academic Press · QualiSearch Center for Interdisciplinary Research and Development · All Rights Reserved</p>
+      <p class="footer-cc">Published under Creative Commons Attribution License</p>
+    </div>
+  </footer>
+
+  <div class="auth-backdrop" id="auth-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden></div>
+  <div class="qs-toast" id="qs-toast" role="alert" aria-live="polite" hidden>
+    <span class="qs-toast-icon" id="qs-toast-icon"></span>
+    <span class="qs-toast-msg" id="qs-toast-msg"></span>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const journals = {
+        QJERP: {
+          name: 'QualiSearch Journal of Educational Research and Practice',
+          description: 'An international peer-reviewed open-access journal focusing on educational research, pedagogy, leadership, curriculum studies, inclusive education, educational technology, teacher education, and applied educational practices.'
+        },
+        QJHS: {
+          name: 'QualiSearch Journal of Health Sciences',
+          description: 'A peer-reviewed journal dedicated to health sciences, nursing, allied health, public health, healthcare systems, and medical education.'
+        },
+        QJBG: {
+          name: 'QualiSearch Journal of Business and Governance',
+          description: 'A multidisciplinary journal focusing on business, management, leadership, governance, entrepreneurship, organizational studies, and public administration.'
+        },
+        QJTI: {
+          name: 'QualiSearch Journal of Technology and Innovation',
+          description: 'A scholarly journal dedicated to technology-driven research, digital transformation, artificial intelligence, innovation systems, and emerging technological practices.'
+        },
+        QJPLC: {
+          name: 'QualiSearch Journal of Philippine Languages and Culture',
+          description: 'A multilingual peer-reviewed journal supporting research in Filipino and Philippine languages, local cultures, indigenous knowledge systems, translation studies, and Philippine-centered scholarship.'
+        }
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get('code') || 'QJERP').toUpperCase();
+      const journal = journals[code] || journals.QJERP;
+      const list = document.getElementById('articles-list');
+
+      document.title = `${code} Articles - QualiSearch Academic Press`;
+      document.getElementById('journal-code-label').textContent = code;
+      document.getElementById('journal-title').textContent = journal.name;
+      document.getElementById('journal-description').textContent = journal.description;
+
+      const db = window.qsSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON);
+      if (!db) {
+        list.innerHTML = '<div class="journal-card" style="padding:20px; color:var(--text-muted);">Supabase is not configured.</div>';
+        return;
+      }
+
+      let { data, error } = await db
+        .from('submissions')
+        .select('id,title,abstract,journal,created_at,landing_authors,landing_summary,landing_keywords')
+        .eq('status', 'Published')
+        .eq('journal', code)
+        .order('created_at', { ascending: false });
+
+      if (error && error.message && error.message.includes('schema cache')) {
+        const fallback = await db
+          .from('submissions')
+          .select('id,title,abstract,journal,created_at')
+          .eq('status', 'Published')
+          .eq('journal', code)
+          .order('created_at', { ascending: false });
+        data = fallback.data;
+        error = fallback.error;
+      }
+
+      if (error) {
+        list.innerHTML = `<div class="journal-card" style="padding:20px; color:#ffb3b3;">Error loading published articles: ${error.message}</div>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        list.innerHTML = `<div class="journal-card" style="padding:20px; color:var(--text-muted);">No published articles yet for ${code}.</div>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      data.forEach(article => {
+        const card = document.createElement('a');
+        const date = new Date(article.created_at).toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        const summary = article.landing_summary || article.abstract || '';
+        const keywords = (article.landing_keywords || '').split(',').map(item => item.trim()).filter(Boolean).slice(0, 5);
+
+        card.href = `article.html?id=${article.id}`;
+        card.className = 'journal-card';
+        card.style.cssText = 'display:block; text-decoration:none; padding:22px 24px;';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="flex:1; min-width:260px;">
+              <p class="journal-full-name" style="margin:0 0 8px; color:var(--text-primary); font-size:1.05rem;">${escapeHtml(article.title)}</p>
+              ${article.landing_authors ? `<p style="margin:0 0 8px; color:var(--gold-pale); font-size:0.88rem;">${escapeHtml(article.landing_authors)}</p>` : ''}
+              <p class="journal-description" style="margin:0; line-height:1.7;">${escapeHtml(summary).slice(0, 260)}${summary.length > 260 ? '...' : ''}</p>
+              ${keywords.length ? `<div style="display:flex; gap:7px; flex-wrap:wrap; margin-top:12px;">${keywords.map(keyword => `<span class="nav-role-badge" style="background:rgba(214,178,94,0.08); color:var(--gold-pale); border:1px solid rgba(214,178,94,0.25);">${escapeHtml(keyword)}</span>`).join('')}</div>` : ''}
+            </div>
+            <div style="color:var(--text-muted); font-size:0.82rem; white-space:nowrap;">${date}</div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, (char) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[char]));
+      }
+    });
+  </script>
+</body>
+</html>

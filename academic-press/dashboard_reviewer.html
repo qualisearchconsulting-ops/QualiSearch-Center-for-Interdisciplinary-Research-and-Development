@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reviewer Dashboard - QualiSearch Academic Press</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    .admin-dashboard {
+      padding-top: 120px;
+      padding-bottom: 80px;
+      min-height: 80vh;
+      background-color: var(--color-bg);
+      position: relative;
+      z-index: 1;
+    }
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 5%;
+    }
+    .admin-header {
+      margin-bottom: 40px;
+    }
+    .admin-title {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      color: var(--color-gold);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .admin-subtitle {
+      color: var(--color-text-muted);
+      font-size: 1.1rem;
+    }
+    
+    .table-wrapper {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+    
+    .admin-table th, .admin-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: top;
+    }
+    
+    .admin-table th {
+      color: var(--color-gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    .admin-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .admin-table .title-col {
+      font-weight: 500;
+      color: var(--color-text);
+      max-width: 300px;
+      line-height: 1.4;
+    }
+    
+    .admin-table .meta-text {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .feedback-input {
+      background: rgba(0,0,0,0.2);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px;
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      width: 100%;
+      min-height: 80px;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+
+    .feedback-input:focus {
+      outline: none;
+      border-color: var(--color-gold);
+    }
+    
+    .btn-action {
+      background: transparent;
+      color: var(--color-gold);
+      border: 1px solid var(--color-gold);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-action:hover {
+      background: var(--color-gold);
+      color: var(--color-bg);
+    }
+
+    .btn-submit {
+      background: var(--color-gold);
+      color: var(--color-bg);
+      border: none;
+    }
+    .btn-submit:hover {
+      background: var(--color-gold-light);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--color-text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar" id="top-bar">
+    <div class="top-bar-inner">
+      <div class="top-bar-brand">
+        <a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+          <img src="qs_logo.png" alt="QualiSearch Logo" class="top-bar-logo" />
+          <span class="top-bar-name">QualiSearch Academic Press</span>
+        </a>
+      </div>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="dashboard_reviewer.html" class="nav-link active">Reviewer Dashboard</a></li>
+        </ul>
+      </nav>
+
+      <!-- Auth Controls -->
+      <div class="nav-auth-controls" id="nav-auth-controls">
+        <div class="nav-user" id="nav-user">
+          <button class="nav-user-btn" id="nav-user-btn" aria-label="Account menu" aria-expanded="false">
+            <span class="nav-avatar" id="nav-avatar">?</span>
+            <span class="nav-user-name" id="nav-user-name">Account</span>
+            <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-user-dropdown" id="nav-user-dropdown">
+            <div class="nav-user-info">
+              <span class="nav-user-fullname" id="nav-user-fullname">—</span>
+              <span class="nav-role-badge" id="nav-role-badge">—</span>
+            </div>
+            <div class="nav-dropdown-divider"></div>
+            <button class="nav-signout-btn" id="nav-signout-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="admin-dashboard">
+    <div class="admin-container">
+      <div class="admin-header">
+        <h1 class="admin-title">Reviewer Dashboard</h1>
+        <p class="admin-subtitle">View and review manuscripts assigned to you.</p>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="color:var(--text-secondary); font-size:0.9rem;">My Assigned Journal:</span>
+          <select id="my-journal-select" style="background: rgba(0,0,0,0.2); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 10px; border-radius: 4px; font-size: 0.9rem;">
+            <option value="QJERP">Journal of Educational Research (QJERP)</option>
+            <option value="QJHS">Journal of Health Sciences (QJHS)</option>
+            <option value="QJBG">Journal of Business and Governance (QJBG)</option>
+            <option value="QJTI">Journal of Technology and Innovation (QJTI)</option>
+            <option value="QJPLC">Philippine Languages and Culture (QJPLC)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin: 28px 0 12px;">
+        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">For Review</h2>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Manuscript Details</th>
+              <th>Date Assigned</th>
+              <th>Review Feedback</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="reviewer-submissions-body">
+            <tr>
+              <td colspan="4" class="empty-state">Loading assigned submissions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin: 34px 0 12px;">
+        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Revision Requested</h2>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Manuscript Details</th>
+              <th>Date Assigned</th>
+              <th>Review Feedback</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reviewer-revision-body">
+            <tr>
+              <td colspan="4" class="empty-state">Loading revision requests...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin: 34px 0 12px;">
+        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Passed to Editor</h2>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Manuscript Details</th>
+              <th>Date Assigned</th>
+              <th>Review Feedback</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reviewer-passed-body">
+            <tr>
+              <td colspan="4" class="empty-state">Loading passed manuscripts...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="qs-toast" id="qs-toast" role="alert" aria-live="polite" hidden>
+    <span class="qs-toast-icon" id="qs-toast-icon"></span>
+    <span class="qs-toast-msg" id="qs-toast-msg"></span>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const db = window.qsSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON);
+      const tbody = document.getElementById('reviewer-submissions-body');
+      const revisionTbody = document.getElementById('reviewer-revision-body');
+      const passedTbody = document.getElementById('reviewer-passed-body');
+      if (!db) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
+        revisionTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
+        passedTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
+        return;
+      }
+      
+      const { data: { session }, error: sessionError } = await db.auth.getSession();
+      if (sessionError || !session) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      let role = session.user.user_metadata?.account_type;
+      
+      if (role !== 'peer_reviewer') {
+        const { data: revData } = await db.from('reviewers').select('*').eq('email', session.user.email).maybeSingle();
+        if (revData) {
+          role = 'peer_reviewer';
+        }
+      }
+
+      if (role !== 'peer_reviewer') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      loadAssignedSubmissions();
+
+      async function loadAssignedSubmissions() {
+        const currentUserEmail = session.user.email;
+
+        // Fetch current reviewer's journal
+        const { data: revData } = await db.from('reviewers').select('*').eq('email', currentUserEmail).maybeSingle();
+        if (revData) {
+          document.getElementById('my-journal-select').value = revData.journal;
+        }
+
+        // Add listener to change journal
+        document.getElementById('my-journal-select').onchange = async (e) => {
+          const newJournal = e.target.value;
+          const { error } = await db.from('reviewers').update({ journal: newJournal }).eq('email', currentUserEmail);
+          if (error) {
+            alert('Error changing journal: ' + error.message);
+          } else {
+            const toast = document.getElementById('qs-toast');
+            const msg = document.getElementById('qs-toast-msg');
+            if(toast && msg) {
+              msg.textContent = 'Successfully transferred to ' + newJournal + '!';
+              toast.hidden = false;
+              toast.className = 'qs-toast toast-success';
+              setTimeout(() => toast.hidden = true, 3000);
+            }
+          }
+        };
+
+        const { data, error } = await db
+          .from('submissions')
+          .select('*')
+          .eq('reviewer_email', currentUserEmail)
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          console.error('Error fetching submissions:', error);
+          tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
+          revisionTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
+          passedTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No manuscripts waiting for review.</td></tr>`;
+          revisionTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No revision requests yet.</td></tr>`;
+          passedTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No manuscripts passed to editor yet.</td></tr>`;
+          return;
+        }
+
+        const activeSubmissions = data.filter(sub => !['Ready for Admin', 'Published', 'Rejected', 'Revisions Required'].includes(sub.status));
+        const revisionSubmissions = data.filter(sub => sub.status === 'Revisions Required');
+        const passedSubmissions = data.filter(sub => ['Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
+
+        renderReadOnlyRows(revisionSubmissions, revisionTbody, 'No revision requests yet.');
+        renderReadOnlyRows(passedSubmissions, passedTbody, 'No manuscripts passed to editor yet.');
+
+        tbody.innerHTML = '';
+        
+        if (activeSubmissions.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No manuscripts waiting for review.</td></tr>`;
+        }
+
+        activeSubmissions.forEach(sub => {
+          const date = new Date(sub.created_at).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric'
+          });
+          
+          const tr = document.createElement('tr');
+          
+          tr.innerHTML = `
+            <td>
+              <div class="title-col">
+                ${sub.title}
+                <span class="meta-text">${sub.journal}</span>
+                <span class="meta-text" style="margin-top:8px;">Status: <strong>${sub.status}</strong></span>
+                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                  <span style="font-size: 0.8rem; color: var(--color-text-muted);">Transfer to another journal:</span><br/>
+                  <select class="transfer-journal-select" data-id="${sub.id}" style="background: rgba(0,0,0,0.2); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px;">
+                    <option value="" disabled selected>Select Journal</option>
+                    <option value="QJERP" ${sub.journal === 'QJERP' ? 'disabled' : ''}>Journal of Educational Research (QJERP)</option>
+                    <option value="QJHS" ${sub.journal === 'QJHS' ? 'disabled' : ''}>Journal of Health Sciences (QJHS)</option>
+                    <option value="QJBG" ${sub.journal === 'QJBG' ? 'disabled' : ''}>Journal of Business and Governance (QJBG)</option>
+                    <option value="QJTI" ${sub.journal === 'QJTI' ? 'disabled' : ''}>Journal of Technology and Innovation (QJTI)</option>
+                    <option value="QJPLC" ${sub.journal === 'QJPLC' ? 'disabled' : ''}>Philippine Languages and Culture (QJPLC)</option>
+                  </select>
+                  <button class="btn-action transfer-btn" data-id="${sub.id}" style="padding: 4px 8px; font-size: 0.75rem; margin-left: 5px;">Transfer</button>
+                </div>
+              </div>
+            </td>
+            <td>${date}</td>
+            <td>
+              <textarea class="feedback-input" data-id="${sub.id}" placeholder="Type your review feedback and decision here...">${sub.reviewer_feedback || ''}</textarea>
+              <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <input type="file" id="review-file-${sub.id}" class="review-file-input" data-id="${sub.id}" style="display:none;" />
+                <label for="review-file-${sub.id}" class="btn-action" style="background:var(--bg-secondary); color:var(--text-primary); cursor:pointer; font-size:0.75rem; padding:6px 10px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:-2px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Attach Reviewed File
+                </label>
+                <span id="review-file-name-${sub.id}" style="font-size: 0.75rem; color: var(--color-gold); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sub.reviewed_file_path ? 'Has attached file' : 'No file attached'}</span>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-action btn-submit btn-require-revision" data-id="${sub.id}" style="flex: 1; padding: 6px; font-size: 0.8rem; background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3);">Require Revision</button>
+                <button class="btn-action btn-submit btn-pass-admin" data-id="${sub.id}" style="flex: 1; padding: 6px; font-size: 0.8rem; background: rgba(111, 66, 193, 0.15); color: #d0bfff; border: 1px solid rgba(111, 66, 193, 0.3);">Pass to Admin</button>
+              </div>
+            </td>
+            <td>
+              <button class="btn-action download-btn" data-path="${sub.file_path}">Download Manuscript</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // File input listeners
+        document.querySelectorAll('.review-file-input').forEach(input => {
+          input.addEventListener('change', (e) => {
+            const subId = e.target.getAttribute('data-id');
+            const nameSpan = document.getElementById(`review-file-name-${subId}`);
+            if (e.target.files.length > 0) {
+              nameSpan.textContent = e.target.files[0].name;
+            } else {
+              nameSpan.textContent = 'No file attached';
+            }
+          });
+        });
+
+        // Add event listeners for feedback submission
+        document.querySelectorAll('.btn-require-revision, .btn-pass-admin').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const subId = e.target.getAttribute('data-id');
+            const textarea = document.querySelector(`.feedback-input[data-id="${subId}"]`);
+            const fileInput = document.getElementById(`review-file-${subId}`);
+            const feedbackText = textarea.value.trim();
+            const isPassAdmin = e.target.classList.contains('btn-pass-admin');
+            const targetStatus = isPassAdmin ? 'Ready for Admin' : 'Revisions Required';
+            const originalText = e.target.textContent;
+            
+            e.target.textContent = 'Saving...';
+
+            let reviewedFilePath = null;
+
+            // Upload file if selected
+            if (fileInput && fileInput.files.length > 0) {
+              const file = fileInput.files[0];
+              const fileExt = file.name.split('.').pop();
+              const fileName = `reviewed_${subId}_${Date.now()}.${fileExt}`;
+              
+              e.target.textContent = 'Uploading file...';
+              const { data: uploadData, error: uploadError } = await db.storage
+                .from('manuscripts')
+                .upload(fileName, file);
+
+              if (uploadError) {
+                alert('Error uploading reviewed file: ' + uploadError.message);
+                e.target.textContent = originalText;
+                return;
+              }
+              reviewedFilePath = uploadData.path;
+            }
+            
+            e.target.textContent = 'Saving data...';
+            
+            const updatePayload = { 
+              reviewer_feedback: feedbackText,
+              status: targetStatus 
+            };
+            if (reviewedFilePath) {
+              updatePayload.reviewed_file_path = reviewedFilePath;
+            }
+
+            const { error: updateError } = await db
+              .from('submissions')
+              .update(updatePayload)
+              .eq('id', subId);
+              
+            if (updateError) {
+              alert('Error saving feedback: ' + updateError.message);
+              e.target.textContent = originalText;
+            } else {
+              e.target.textContent = 'Saved!';
+              setTimeout(() => {
+                e.target.textContent = originalText;
+                loadAssignedSubmissions(); // reload to move it to the correct section
+              }, 2000);
+              
+              const toast = document.getElementById('qs-toast');
+              const msg = document.getElementById('qs-toast-msg');
+              if(toast && msg) {
+                msg.textContent = `Moved to ${targetStatus}!`;
+                toast.hidden = false;
+                toast.className = 'qs-toast toast-success';
+                setTimeout(() => toast.hidden = true, 3000);
+              }
+            }
+          });
+        });
+
+        // Add event listeners for download
+        document.querySelectorAll('.download-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const path = e.target.getAttribute('data-path');
+            const { data, error } = await db.storage.from('manuscripts').download(path);
+            
+            if (error) {
+              alert('Error downloading file: ' + error.message);
+              return;
+            }
+            
+            const url = URL.createObjectURL(data);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = path.split('/').pop() || 'manuscript.pdf';
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          });
+        });
+
+        // Add event listeners for transfer
+        document.querySelectorAll('.transfer-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const subId = e.target.getAttribute('data-id');
+            const select = document.querySelector(`.transfer-journal-select[data-id="${subId}"]`);
+            const newJournal = select.value;
+            
+            if (!newJournal) return;
+            
+            e.target.textContent = '...';
+            
+            // update journal and set reviewer_email to null so it gets removed from this reviewer's list
+            const { error: updateError } = await db
+              .from('submissions')
+              .update({ journal: newJournal, reviewer_email: null })
+              .eq('id', subId);
+              
+            if (updateError) {
+              alert('Error transferring manuscript: ' + updateError.message);
+              e.target.textContent = 'Transfer';
+            } else {
+              const toast = document.getElementById('qs-toast');
+              const msg = document.getElementById('qs-toast-msg');
+              if(toast && msg) {
+                msg.textContent = 'Manuscript transferred successfully!';
+                toast.hidden = false;
+                toast.className = 'qs-toast toast-success';
+                setTimeout(() => toast.hidden = true, 3000);
+              }
+              loadAssignedSubmissions(); // reload the list
+            }
+          });
+        });
+
+        function renderReadOnlyRows(rows, targetBody, emptyMessage) {
+          if (!rows.length) {
+            targetBody.innerHTML = `<tr><td colspan="4" class="empty-state">${emptyMessage}</td></tr>`;
+            return;
+          }
+
+          targetBody.innerHTML = '';
+          rows.forEach(sub => {
+            const date = new Date(sub.created_at).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'long', day: 'numeric'
+            });
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>
+                <div class="title-col">
+                  ${sub.title}
+                  <span class="meta-text">${sub.journal}</span>
+                </div>
+              </td>
+              <td>${date}</td>
+              <td>
+                <div style="white-space:pre-wrap; color:var(--text-primary); line-height:1.6;">${sub.reviewer_feedback || 'No feedback recorded.'}</div>
+                ${sub.reviewed_file_path ? '<span class="meta-text" style="color:var(--color-gold); margin-top:8px;">Reviewed file attached</span>' : ''}
+              </td>
+              <td>
+                <strong>${sub.status}</strong>
+                <span class="meta-text">${sub.status === 'Ready for Admin' ? 'Waiting for editor decision.' : sub.status === 'Published' ? 'Article has been published.' : sub.status === 'Rejected' ? 'Editor rejected this manuscript.' : 'Waiting for author revision.'}</span>
+              </td>
+            `;
+            targetBody.appendChild(tr);
+          });
+        }
+
+      }
+    });
+  </script>
+</body>
+</html>
