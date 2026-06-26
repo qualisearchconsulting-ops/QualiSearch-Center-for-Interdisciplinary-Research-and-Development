@@ -481,17 +481,13 @@
                 <p style="font-size: 0.85rem; color: #f0a500; font-weight: 600; margin-bottom: 5px;">Payment Required</p>
                 <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Your manuscript has passed peer review! Please scan the GCash QR code below and upload your proof of payment to proceed to publication.</p>
                 <div style="margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; display: inline-block;">
-                  <img src="gcashpaymentQR.jpeg" alt="GCash QR Code" style="max-width: 150px; display: block;" />
+                  <img src="gcashpaymentQR.jpeg" alt="GCash QR Code" style="max-width: 150px; display: block; cursor: pointer;" onclick="window.open(this.src)" title="Click to enlarge" />
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <input type="file" id="payment-file-${sub.id}" class="payment-file-input" style="display:none;" accept="image/*,.pdf" />
                   <label for="payment-file-${sub.id}" class="btn-action" style="background:rgba(220,150,50,0.15); color:#f0a500; border:1px solid rgba(220,150,50,0.3); cursor:pointer; font-size:0.75rem; padding: 5px 10px;">Select Proof of Payment</label>
                   <span id="payment-file-name-${sub.id}" style="font-size: 0.75rem; color: #f0a500;"></span>
                   <button class="btn-action submit-payment-btn" data-id="${sub.id}" style="display:none; padding: 5px 10px; font-size: 0.75rem; background:var(--gold); color:var(--bg);">Submit Payment Proof</button>
-                </div>
-                <div id="payment-preview-container-${sub.id}" style="margin-top: 10px; display: none;">
-                  <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 5px;">Preview:</p>
-                  <img id="payment-preview-${sub.id}" style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);" />
                 </div>
               </div>
             `;
@@ -622,28 +618,11 @@
             if (!nameSpan || !submitBtn) return; // Prevent crash if elements not found
 
             if (e.target.files.length > 0) {
-              const file = e.target.files[0];
-              nameSpan.textContent = file.name;
+              nameSpan.textContent = e.target.files[0].name;
               submitBtn.style.display = 'inline-block';
-              
-              const previewContainer = document.getElementById(`payment-preview-container-${subId}`);
-              const previewImg = document.getElementById(`payment-preview-${subId}`);
-              
-              if (previewContainer && previewImg && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                  previewImg.src = evt.target.result;
-                  previewContainer.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-              } else if (previewContainer) {
-                previewContainer.style.display = 'none';
-              }
             } else {
               nameSpan.textContent = '';
               submitBtn.style.display = 'none';
-              const previewContainer = document.getElementById(`payment-preview-container-${subId}`);
-              if (previewContainer) previewContainer.style.display = 'none';
             }
           });
         });
