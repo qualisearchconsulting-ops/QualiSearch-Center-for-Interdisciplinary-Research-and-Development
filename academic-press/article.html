@@ -314,7 +314,8 @@
           const url = URL.createObjectURL(fileData);
           const a = document.createElement('a');
           a.href = url;
-          a.download = data.title + '.pdf';
+          const ext = path.split('.').pop() || 'pdf';
+          a.download = data.title + '.' + ext;
           document.body.appendChild(a);
           a.click();
           URL.revokeObjectURL(url);
