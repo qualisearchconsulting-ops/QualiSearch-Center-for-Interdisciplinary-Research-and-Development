@@ -618,6 +618,16 @@
           });
 
           const matchedReviewers = allReviewers.filter(r => r.journal === sub.journal);
+          const hasLandingPage = Boolean(
+            sub.landing_authors ||
+            sub.landing_summary ||
+            sub.landing_keywords ||
+            sub.landing_doi ||
+            sub.landing_details ||
+            sub.landing_funding ||
+            sub.landing_references ||
+            sub.cover_image_path
+          );
           let reviewerOptions = '<option value="">None</option>';
           matchedReviewers.forEach(r => {
             const selected = (sub.reviewer_email === r.email) ? 'selected' : '';
@@ -656,8 +666,9 @@
               <div style="display:flex; flex-direction:column; gap:8px;">
                 <button class="btn-action download-btn" data-path="${sub.file_path}">Download File</button>
                 ${sub.payment_proof_path ? `<button class="btn-action view-payment-btn" data-path="${sub.payment_proof_path}" style="background:rgba(220,150,50,0.15); color:#f0a500;">View Payment Proof</button>` : ''}
-                ${sub.status === 'Published' ? `<button class="btn-action edit-lp-btn" data-id="${sub.id}">Edit Landing Page</button>` : ''}
-                ${sub.status === 'Ready for Admin' ? `<button class="btn-action publish-btn" data-id="${sub.id}" style="background:var(--gold); color:var(--navy-darkest);">Publish & Create Page</button>` : ''}
+                ${['Ready for Admin', 'Published'].includes(sub.status) ? `<button class="btn-action edit-lp-btn" data-id="${sub.id}">${hasLandingPage ? 'Edit Landing Page' : 'Create Landing Page'}</button>` : ''}
+                ${sub.status === 'Ready for Admin' && hasLandingPage ? `<button class="btn-action publish-btn" data-id="${sub.id}" style="background:var(--gold); color:var(--navy-darkest);">Publish Article</button>` : ''}
+                ${sub.status === 'Ready for Admin' && !hasLandingPage ? `<button class="btn-action" disabled style="opacity:0.5; cursor:not-allowed;">Publish after landing page</button>` : ''}
                 ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Article</a>` : ''}
               </div>
             </td>
@@ -750,7 +761,7 @@
           const toast = document.getElementById('qs-toast');
           const msg = document.getElementById('qs-toast-msg');
           if (toast && msg) {
-            msg.textContent = 'Article Published & Landing Page Created!';
+            msg.textContent = 'Article published successfully!';
             toast.hidden = false;
             toast.className = 'qs-toast toast-success';
             setTimeout(() => toast.hidden = true, 3000);
@@ -798,7 +809,7 @@
           });
         });
 
-    // Add event listeners for edit landing page
+    // Add event listeners for create/edit landing page
     document.querySelectorAll('.edit-lp-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const subId = e.target.getAttribute('data-id');
@@ -875,6 +886,7 @@
 
       const btnSave = document.getElementById('btn-save-edit');
       const origText = btnSave.textContent;
+      const savedDetails = details.trim() || '(c) 2026 QualiSearch Academic Press.';
       btnSave.textContent = 'Saving...';
       btnSave.disabled = true;
 
@@ -905,7 +917,7 @@
         landing_summary: summary,
         landing_keywords: keywords,
         landing_doi: doi,
-        landing_details: details,
+        landing_details: savedDetails,
         landing_funding: funding,
         landing_references: references,
         manuscript_received_date: receivedDate || null,
@@ -926,7 +938,7 @@
         const toast = document.getElementById('qs-toast');
         const msg = document.getElementById('qs-toast-msg');
         if(toast && msg) {
-          msg.textContent = 'Landing Page Updated Successfully!';
+          msg.textContent = 'Landing page saved. You can now publish the article.';
           toast.hidden = false;
           toast.className = 'qs-toast toast-success';
           setTimeout(() => toast.hidden = true, 3000);
@@ -955,7 +967,7 @@
 <!-- Edit Article Modal -->
 <div class="auth-backdrop" id="edit-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
   <div class="auth-modal" style="width:100%; max-width:760px; max-height:88vh; overflow-y:auto; padding:30px; border:1px solid rgba(255,255,255,0.1);">
-    <h2 style="color:var(--gold); margin-bottom:20px; font-family:'Cinzel', serif;">Edit Landing Page</h2>
+    <h2 style="color:var(--gold); margin-bottom:20px; font-family:'Cinzel', serif;">Create / Edit Landing Page</h2>
     <form id="edit-article-form" style="display:flex; flex-direction:column; gap:15px;">
       <input type="hidden" id="edit-article-id" />
       <input type="hidden" id="edit-cover-current" />
