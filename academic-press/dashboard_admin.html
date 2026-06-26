@@ -638,6 +638,7 @@
                 <option value="Under Review" ${sub.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
                 <option value="Revisions Required" ${sub.status === 'Revisions Required' ? 'selected' : ''}>Revisions Required</option>
                 <option value="Revision Submitted" ${sub.status === 'Revision Submitted' ? 'selected' : ''}>Revision Submitted</option>
+                <option value="Pending Payment" ${sub.status === 'Pending Payment' ? 'selected' : ''}>Pending Payment</option>
                 <option value="Ready for Admin" ${sub.status === 'Ready for Admin' ? 'selected' : ''}>Ready for Admin</option>
                 <option value="Published" ${sub.status === 'Published' ? 'selected' : ''}>Published</option>
                 <option value="Rejected" ${sub.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
@@ -652,6 +653,7 @@
             <td>
               <div style="display:flex; flex-direction:column; gap:8px;">
                 <button class="btn-action download-btn" data-path="${sub.file_path}">Download File</button>
+                ${sub.payment_proof_path ? `<button class="btn-action view-payment-btn" data-path="${sub.payment_proof_path}" style="background:rgba(220,150,50,0.15); color:#f0a500;">View Payment Proof</button>` : ''}
                 ${sub.status === 'Published' ? `<button class="btn-action edit-lp-btn" data-id="${sub.id}">Edit Landing Page</button>` : ''}
                 ${sub.status === 'Ready for Admin' ? `<button class="btn-action publish-btn" data-id="${sub.id}" style="background:var(--gold); color:var(--navy-darkest);">Publish & Create Page</button>` : ''}
                 ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Article</a>` : ''}
@@ -755,27 +757,44 @@
       });
     });
 
-    // Add event listeners for download
-    document.querySelectorAll('.download-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const path = e.target.getAttribute('data-path');
-        const { data, error } = await db.storage.from('manuscripts').download(path);
+        document.querySelectorAll('.download-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const path = e.target.getAttribute('data-path');
+            e.target.textContent = 'Downloading...';
+            const { data, error } = await db.storage.from('manuscripts').download(path);
+            if (error) {
+              alert('Error downloading file: ' + error.message);
+            } else {
+              const url = URL.createObjectURL(data);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = path.split('/').pop();
+              a.click();
+              URL.revokeObjectURL(url);
+            }
+            e.target.textContent = 'Download File';
+          });
+        });
 
-        if (error) {
-          alert('Error downloading file: ' + error.message);
-          return;
-        }
-
-        const url = URL.createObjectURL(data);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = path.split('/').pop() || 'manuscript.pdf';
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      });
-    });
+        // Add event listeners for viewing payment proof
+        document.querySelectorAll('.view-payment-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const path = e.target.getAttribute('data-path');
+            const originalText = e.target.textContent;
+            e.target.textContent = 'Opening...';
+            
+            const { data, error } = await db.storage.from('payments').download(path);
+            if (error) {
+              alert('Error viewing payment proof: ' + error.message);
+            } else {
+              const url = URL.createObjectURL(data);
+              window.open(url, '_blank');
+              // Optionally revoke after a delay if needed, but new window needs it active for a moment
+              setTimeout(() => URL.revokeObjectURL(url), 10000); 
+            }
+            e.target.textContent = originalText;
+          });
+        });
 
     // Add event listeners for edit landing page
     document.querySelectorAll('.edit-lp-btn').forEach(btn => {

@@ -393,10 +393,10 @@
         }
 
         const isReReview = (sub) => sub.status === 'Revision Submitted' || (sub.status === 'Under Review' && Boolean(sub.reviewed_file_path));
-        const activeSubmissions = data.filter(sub => !['Ready for Admin', 'Published', 'Rejected', 'Revisions Required', 'Revision Submitted'].includes(sub.status) && !isReReview(sub));
+        const activeSubmissions = data.filter(sub => !['Pending Payment', 'Ready for Admin', 'Published', 'Rejected', 'Revisions Required', 'Revision Submitted'].includes(sub.status) && !isReReview(sub));
         const rereviewSubmissions = data.filter(isReReview);
         const revisionSubmissions = data.filter(sub => sub.status === 'Revisions Required');
-        const passedSubmissions = data.filter(sub => ['Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
+        const passedSubmissions = data.filter(sub => ['Pending Payment', 'Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
 
         renderActionRows(activeSubmissions, tbody, 'No manuscripts waiting for review.', 'Under Review');
         renderActionRows(rereviewSubmissions, rereviewTbody, 'No revised manuscripts waiting for re-review.', 'Revision Submitted');
@@ -482,7 +482,7 @@
             const fileInput = document.getElementById(`review-file-${subId}`);
             const feedbackText = textarea.value.trim();
             const isPassAdmin = e.target.classList.contains('btn-pass-admin');
-            const targetStatus = isPassAdmin ? 'Ready for Admin' : 'Revisions Required';
+            const targetStatus = isPassAdmin ? 'Pending Payment' : 'Revisions Required';
             const originalText = e.target.textContent;
             
             e.target.textContent = 'Saving...';
@@ -627,7 +627,7 @@
               </td>
               <td>
                 <strong>${sub.status}</strong>
-                <span class="meta-text">${sub.status === 'Ready for Admin' ? 'Waiting for editor decision.' : sub.status === 'Published' ? 'Article has been published.' : sub.status === 'Rejected' ? 'Editor rejected this manuscript.' : 'Waiting for author revision.'}</span>
+                <span class="meta-text">${sub.status === 'Pending Payment' ? 'Waiting for author payment.' : sub.status === 'Ready for Admin' ? 'Waiting for editor decision.' : sub.status === 'Published' ? 'Article has been published.' : sub.status === 'Rejected' ? 'Editor rejected this manuscript.' : 'Waiting for author revision.'}</span>
                 ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="margin-top:10px; background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Article</a>` : ''}
               </td>
             `;

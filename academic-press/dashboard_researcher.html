@@ -178,6 +178,7 @@
     .status-review  { background: rgba(99, 136, 214, 0.15); color: #a3bffa; border: 1px solid rgba(99, 136, 214, 0.3); }
     .status-revisions { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3); }
     .status-ready { background: rgba(111, 66, 193, 0.15); color: #d0bfff; border: 1px solid rgba(111, 66, 193, 0.3); }
+    .status-payment { background: rgba(220, 150, 50, 0.15); color: #f0a500; border: 1px solid rgba(220, 150, 50, 0.3); }
     .status-published { background: rgba(42, 110, 58, 0.15); color: #4ade80; border: 1px solid rgba(42, 110, 58, 0.3); }
     .status-rejected { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3); }
     
@@ -431,6 +432,7 @@
           if (sub.status === 'Under Review') statusClass = 'status-review';
           if (sub.status === 'Accepted' || isPublished) statusClass = 'status-published';
           if (sub.status === 'Revisions Required') statusClass = 'status-revisions';
+          if (sub.status === 'Pending Payment') statusClass = 'status-payment';
           if (sub.status === 'Ready for Admin') statusClass = 'status-ready';
           if (sub.status === 'Rejected') statusClass = 'status-rejected';
           if (hasSubmittedRevision) statusClass = 'status-review';
@@ -457,6 +459,29 @@
             `;
           }
 
+          let paymentDocsHtml = '';
+          if (normalizedStatus === 'pending payment') {
+            paymentDocsHtml = `
+              <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <p style="font-size: 0.85rem; color: #f0a500; font-weight: 600; margin-bottom: 5px;">Payment Required</p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Your manuscript has passed peer review! Please upload your proof of payment to proceed to publication.</p>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <input type="file" id="payment-file-${sub.id}" class="payment-file-input" style="display:none;" accept="image/*,.pdf" />
+                  <label for="payment-file-${sub.id}" class="btn-action" style="background:rgba(220,150,50,0.15); color:#f0a500; border:1px solid rgba(220,150,50,0.3); cursor:pointer; font-size:0.75rem; padding: 5px 10px;">Select Proof of Payment</label>
+                  <span id="payment-file-name-${sub.id}" style="font-size: 0.75rem; color: #f0a500;"></span>
+                  <button class="btn-action submit-payment-btn" data-id="${sub.id}" style="display:none; padding: 5px 10px; font-size: 0.75rem; background:var(--gold); color:var(--bg);">Submit Payment Proof</button>
+                </div>
+              </div>
+            `;
+          } else if (sub.payment_proof_path) {
+            paymentDocsHtml = `
+              <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <p style="font-size: 0.85rem; color: #4ade80; font-weight: 600; margin-bottom: 5px;">Payment Proof Submitted</p>
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">Waiting for admin verification.</p>
+              </div>
+            `;
+          }
+
           const publishedArticleHtml = isPublished
             ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block; padding: 6px 12px; font-size: 0.8rem;">View Article</a>`
             : '';
@@ -477,6 +502,7 @@
               </div>
             </div>
             ${reviewDocsHtml}
+            ${paymentDocsHtml}
           `;
           subList.appendChild(el);
         });
@@ -485,6 +511,7 @@
         document.querySelectorAll('.download-reviewed-btn').forEach(btn => {
           btn.addEventListener('click', async (e) => {
             const path = e.target.getAttribute('data-path');
+            if(!path) return;
             e.target.textContent = 'Downloading...';
             const { data, error } = await supabase.storage.from('manuscripts').download(path);
             if (error) {
