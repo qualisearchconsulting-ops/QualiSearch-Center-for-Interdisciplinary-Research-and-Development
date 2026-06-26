@@ -433,6 +433,7 @@
           
           let reviewDocsHtml = '';
           if (sub.reviewed_file_path) {
+            const reviewedFileName = sub.reviewed_file_path.split('/').pop() || 'reviewed file';
             const revisionControlsHtml = canUploadRevision ? `
               <input type="file" id="revised-file-${sub.id}" class="revised-file-input" style="display:none;" />
               <label for="revised-file-${sub.id}" class="btn-action" style="background:var(--color-gold); color:var(--color-bg); cursor:pointer; font-size:0.75rem; padding: 5px 10px;">${hasSubmittedRevision ? 'Resubmit Revision' : 'Upload Revision'}</label>
@@ -447,6 +448,7 @@
                 ${hasSubmittedRevision ? `<div style="margin-bottom:10px; color:#4ade80; font-size:0.85rem; font-weight:600;">Revision submitted. Awaiting reviewer feedback.</div>` : ''}
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <button class="btn-action download-reviewed-btn" data-path="${sub.reviewed_file_path}" style="background:var(--bg-secondary); color:var(--text-primary); padding: 5px 10px; font-size: 0.75rem;">Download Reviewed File</button>
+                  <span style="font-size:0.75rem; color:var(--text-secondary);">${reviewedFileName}</span>
                   ${revisionControlsHtml}
                 </div>
               </div>
@@ -470,7 +472,7 @@
                 </div>
               </div>
             `;
-          } else if (sub.payment_proof_path) {
+          } else if (sub.payment_proof_path && !isPublished) {
             paymentDocsHtml = `
               <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <p style="font-size: 0.85rem; color: #4ade80; font-weight: 600; margin-bottom: 5px;">Payment Proof Submitted</p>
@@ -573,6 +575,7 @@
               .from('submissions')
               .update({ 
                 file_path: uploadData.path,
+                reviewed_file_path: null,
                 status: 'Revision Submitted'
               })
               .eq('id', subId);
@@ -683,7 +686,7 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const title      = document.getElementById('manu-title').value;
+        const title = document.getElementById('manu-title').value;
 
         const file = fileInput.files[0];
         const btn = document.getElementById('btn-submit-manuscript');

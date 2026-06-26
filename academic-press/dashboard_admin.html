@@ -12,6 +12,8 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="supabase-config.js"></script>
   <style>
     /* Force Hamburger Menu on Desktop to declutter screen */
@@ -177,6 +179,45 @@
       background: var(--color-bg);
       color: var(--color-text);
     }
+
+    .landing-file-drop {
+      width: 100%;
+      padding: 18px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px dashed rgba(255,255,255,0.24);
+      border-radius: 4px;
+      color: var(--text-muted);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      font-family: var(--font-body);
+    }
+
+    .landing-file-drop:hover,
+    .landing-file-drop.drag-over {
+      border-color: var(--gold);
+      background: rgba(214,178,94,0.08);
+    }
+
+    .landing-file-drop strong {
+      display: block;
+      color: var(--text-primary);
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+    }
+
+    .landing-file-drop span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .landing-file-status {
+      display: none;
+      margin-top: 7px;
+      color: var(--gold);
+      font-size: 0.82rem;
+    }
   </style>
 </head>
 
@@ -245,6 +286,18 @@
         <button class="dash-tab" data-tab="tab-ready">Ready for Decision</button>
         <button class="dash-tab" data-tab="tab-published">Published</button>
         <button class="dash-tab" data-tab="tab-settings">Journal Settings</button>
+      </div>
+      <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin:-10px 0 24px;">
+        <label for="admin-journal-filter" style="color:var(--text-muted); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.08em;">Sort / Filter Journal</label>
+        <select id="admin-journal-filter" class="reviewer-input" style="width:auto; min-width:230px; margin:0;">
+          <option value="all">All Journals</option>
+          <option value="QJERP">QJERP</option>
+          <option value="QJHS">QJHS</option>
+          <option value="QJBG">QJBG</option>
+          <option value="QJTI">QJTI</option>
+          <option value="QJPLC">QJPLC</option>
+          <option value="other">Others / Unassigned</option>
+        </select>
       </div>
 
       <!-- TAB 1: Pending / In Review -->
@@ -389,6 +442,10 @@
   <script src="script.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+
       const db = window.qsSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON);
       const tbody = document.getElementById('admin-submissions-body');
       const readyTbody = document.getElementById('admin-ready-body');
@@ -431,6 +488,36 @@
         { code: 'QJTI', name: 'QualiSearch Journal of Technology and Innovation' },
         { code: 'QJPLC', name: 'QualiSearch Journal of Philippine Languages and Culture' }
       ];
+      const journalOrder = journals.map(journal => journal.code);
+      let adminJournalFilter = 'all';
+
+      function getReviewersForJournal(journalCode) {
+        const journalMeta = journals.find(journal => journal.code === journalCode);
+        const matchesJournal = (reviewerJournal) => {
+          const value = String(reviewerJournal || '').trim();
+          if (!journalCode || journalCode === 'To be assigned') return false;
+          return value === journalCode || value.includes(journalCode) || (journalMeta?.name && value === journalMeta.name);
+        };
+        return allReviewers.filter(reviewer => matchesJournal(reviewer.journal));
+      }
+
+      function buildReviewerOptions(journalCode, selectedEmail = '') {
+        let options = '<option value="">None</option>';
+        getReviewersForJournal(journalCode)
+          .forEach((reviewer) => {
+            const selected = reviewer.email === selectedEmail ? 'selected' : '';
+            options += `<option value="${reviewer.email}" ${selected}>${reviewer.full_name}</option>`;
+          });
+        return options;
+      }
+
+      const adminJournalFilterSelect = document.getElementById('admin-journal-filter');
+      if (adminJournalFilterSelect) {
+        adminJournalFilterSelect.addEventListener('change', (e) => {
+          adminJournalFilter = e.target.value;
+          loadAllSubmissions();
+        });
+      }
 
       loadJournalControls();
 
@@ -484,17 +571,29 @@
           }
 
           let assignedCount = 0;
+          let skippedCount = 0;
           for (const sub of subs) {
-            const matchedReviewers = allReviewers.filter(r => r.journal === sub.journal);
+            const rowJournalSelect = document.querySelector(`.admin-journal-select[data-id="${sub.id}"]`);
+            const journal = rowJournalSelect?.value || sub.journal;
+            if (!journal || journal === 'To be assigned') {
+              skippedCount++;
+              continue;
+            }
+            const matchedReviewers = getReviewersForJournal(journal);
             if (matchedReviewers.length > 0) {
               const randomRev = matchedReviewers[Math.floor(Math.random() * matchedReviewers.length)];
-              const { error } = await db.from('submissions').update({ reviewer_email: randomRev.email }).eq('id', sub.id);
+              const { error } = await db
+                .from('submissions')
+                .update({ journal: journal, reviewer_email: randomRev.email })
+                .eq('id', sub.id);
               if (!error) assignedCount++;
+            } else {
+              skippedCount++;
             }
           }
 
           if (assignedCount > 0) {
-            alert(`Successfully auto-assigned ${assignedCount} manuscript(s).`);
+            alert(`Successfully auto-assigned ${assignedCount} manuscript(s).${skippedCount ? ` ${skippedCount} skipped because no journal/reviewer was available.` : ''}`);
             loadAllSubmissions();
           } else {
             alert('Could not auto-assign. Please ensure you have reviewers added for the corresponding journals.');
@@ -598,12 +697,29 @@
             return;
           }
 
-          const pendingSubmissions = data.filter(sub => !['Ready for Admin', 'Published'].includes(sub.status));
-          const readySubmissions = data.filter(sub => sub.status === 'Ready for Admin');
-          const publishedSubmissions = data.filter(sub => sub.status === 'Published');
+          const filteredByJournal = filterAndSortByJournal(data);
+          const pendingSubmissions = filteredByJournal.filter(sub => !['Ready for Admin', 'Published'].includes(sub.status));
+          const readySubmissions = filteredByJournal.filter(sub => sub.status === 'Ready for Admin');
+          const publishedSubmissions = filteredByJournal.filter(sub => sub.status === 'Published');
           renderSubmissionRows(pendingSubmissions, tbody, 'No manuscripts pending review.');
           renderSubmissionRows(readySubmissions, readyTbody, 'No manuscripts ready for editor decision.');
           renderSubmissionRows(publishedSubmissions, publishedTbody, 'No published articles yet.');
+
+        function filterAndSortByJournal(submissions) {
+          const filtered = submissions.filter((sub) => {
+            const code = sub.journal || '';
+            if (adminJournalFilter === 'all') return true;
+            if (adminJournalFilter === 'other') return !journalOrder.includes(code);
+            return code === adminJournalFilter;
+          });
+
+          return filtered.sort((a, b) => {
+            const journalA = journalOrder.includes(a.journal) ? journalOrder.indexOf(a.journal) : journalOrder.length;
+            const journalB = journalOrder.includes(b.journal) ? journalOrder.indexOf(b.journal) : journalOrder.length;
+            if (journalA !== journalB) return journalA - journalB;
+            return new Date(b.created_at) - new Date(a.created_at);
+          });
+        }
 
         function renderSubmissionRows(submissions, targetBody, emptyMessage) {
           if (!submissions.length) {
@@ -617,7 +733,7 @@
             year: 'numeric', month: 'long', day: 'numeric'
           });
 
-          const matchedReviewers = allReviewers.filter(r => r.journal === sub.journal);
+          const journalIsLocked = Boolean(sub.reviewed_file_path || sub.reviewer_feedback || ['Revisions Required', 'Revision Submitted', 'Pending Payment', 'Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
           const hasLandingPage = Boolean(
             sub.landing_authors ||
             sub.landing_summary ||
@@ -628,11 +744,23 @@
             sub.landing_references ||
             sub.cover_image_path
           );
-          let reviewerOptions = '<option value="">None</option>';
-          matchedReviewers.forEach(r => {
-            const selected = (sub.reviewer_email === r.email) ? 'selected' : '';
-            reviewerOptions += `<option value="${r.email}" ${selected}>${r.full_name}</option>`;
-          });
+          const hasPublishedFile = Boolean(sub.published_file_path);
+          const reviewerOptions = buildReviewerOptions(sub.journal, sub.reviewer_email || '');
+          const journalOptions = journals.map((journal) => {
+            const selected = sub.journal === journal.code ? 'selected' : '';
+            return `<option value="${journal.code}" ${selected}>${journal.code}</option>`;
+          }).join('');
+          const journalControlHtml = journalIsLocked
+            ? `<span class="meta-text">${sub.journal || 'To be assigned'} <span style="color:var(--text-muted);">locked</span></span>`
+            : `
+              <div style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                <select class="reviewer-input admin-journal-select" data-id="${sub.id}" style="width:145px; margin:0;">
+                  <option value="To be assigned" ${!sub.journal || sub.journal === 'To be assigned' ? 'selected' : ''}>To be assigned</option>
+                  ${journalOptions}
+                </select>
+                <button class="btn-action journal-save-btn" data-id="${sub.id}" style="padding:5px 9px; font-size:0.75rem;">Save Journal</button>
+              </div>
+            `;
 
           const tr = document.createElement('tr');
 
@@ -640,7 +768,7 @@
             <td>
               <div class="title-col">
                 ${sub.title}
-                <span class="meta-text">${sub.journal}</span>
+                ${journalControlHtml}
               </div>
             </td>
             <td>${date}</td>
@@ -667,8 +795,9 @@
                 <button class="btn-action download-btn" data-path="${sub.file_path}">Download File</button>
                 ${sub.payment_proof_path ? `<button class="btn-action view-payment-btn" data-path="${sub.payment_proof_path}" style="background:rgba(220,150,50,0.15); color:#f0a500;">View Payment Proof</button>` : ''}
                 ${['Ready for Admin', 'Published'].includes(sub.status) ? `<button class="btn-action edit-lp-btn" data-id="${sub.id}">${hasLandingPage ? 'Edit Landing Page' : 'Create Landing Page'}</button>` : ''}
-                ${sub.status === 'Ready for Admin' && hasLandingPage ? `<button class="btn-action publish-btn" data-id="${sub.id}" style="background:var(--gold); color:var(--navy-darkest);">Publish Article</button>` : ''}
+                ${sub.status === 'Ready for Admin' && hasLandingPage && hasPublishedFile ? `<button class="btn-action publish-btn" data-id="${sub.id}" style="background:var(--gold); color:var(--navy-darkest);">Publish Article</button>` : ''}
                 ${sub.status === 'Ready for Admin' && !hasLandingPage ? `<button class="btn-action" disabled style="opacity:0.5; cursor:not-allowed;">Publish after landing page</button>` : ''}
+                ${sub.status === 'Ready for Admin' && hasLandingPage && !hasPublishedFile ? `<button class="btn-action" disabled style="opacity:0.5; cursor:not-allowed;">Upload published file first</button>` : ''}
                 ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Article</a>` : ''}
               </div>
             </td>
@@ -700,7 +829,50 @@
                 toast.className = 'qs-toast toast-success';
                 setTimeout(() => toast.hidden = true, 3000);
               }
+            }
+          });
+        });
+
+        document.querySelectorAll('.journal-save-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const subId = e.target.getAttribute('data-id');
+            const select = document.querySelector(`.admin-journal-select[data-id="${subId}"]`);
+            const newJournal = select?.value || 'To be assigned';
+            const originalText = e.target.textContent;
+
+            e.target.textContent = 'Saving...';
+            e.target.disabled = true;
+
+            const { error: updateError } = await db
+              .from('submissions')
+              .update({ journal: newJournal, reviewer_email: null })
+              .eq('id', subId);
+
+            e.target.textContent = originalText;
+            e.target.disabled = false;
+
+            if (updateError) {
+              alert('Error updating journal: ' + updateError.message);
+            } else {
+              const toast = document.getElementById('qs-toast');
+              const msg = document.getElementById('qs-toast-msg');
+              if (toast && msg) {
+                msg.textContent = 'Journal assigned. Please assign a reviewer for that journal.';
+                toast.hidden = false;
+                toast.className = 'qs-toast toast-success';
+                setTimeout(() => toast.hidden = true, 3000);
+              }
               loadAllSubmissions();
+            }
+          });
+        });
+
+        document.querySelectorAll('.admin-journal-select').forEach(select => {
+          select.addEventListener('change', (e) => {
+            const subId = e.target.getAttribute('data-id');
+            const reviewerSelect = document.querySelector(`.reviewer-select[data-id="${subId}"]`);
+            if (reviewerSelect) {
+              reviewerSelect.innerHTML = buildReviewerOptions(e.target.value);
             }
           });
         });
@@ -710,21 +882,31 @@
           btn.addEventListener('click', async (e) => {
             const subId = e.target.getAttribute('data-id');
             const select = document.querySelector(`.reviewer-select[data-id="${subId}"]`);
+            const journalSelect = document.querySelector(`.admin-journal-select[data-id="${subId}"]`);
             const email = select.value;
+            const journal = journalSelect?.value;
 
             e.target.textContent = 'Saving...';
+            e.target.disabled = true;
+
+            const updatePayload = { reviewer_email: email || null };
+            if (journal) updatePayload.journal = journal;
 
             const { error: updateError } = await db
               .from('submissions')
-              .update({ reviewer_email: email || null })
+              .update(updatePayload)
               .eq('id', subId);
 
             if (updateError) {
               alert('Error assigning reviewer: ' + updateError.message);
               e.target.textContent = 'Save';
+              e.target.disabled = false;
             } else {
               e.target.textContent = 'Saved!';
-              setTimeout(() => e.target.textContent = 'Save', 2000);
+              setTimeout(() => {
+                e.target.textContent = 'Save';
+                e.target.disabled = false;
+              }, 2000);
 
               const toast = document.getElementById('qs-toast');
               const msg = document.getElementById('qs-toast-msg');
@@ -831,8 +1013,35 @@
           document.getElementById('edit-date-accepted').value = sub.manuscript_accepted_date || '';
           document.getElementById('edit-date-published').value = sub.published_date || '';
           document.getElementById('edit-cover-current').value = sub.cover_image_path || '';
+          document.getElementById('edit-template-current').value = sub.published_file_path || '';
           document.getElementById('edit-cover-file').value = '';
+          document.getElementById('edit-template-file').value = '';
           document.getElementById('edit-cover-name').textContent = sub.cover_image_path ? sub.cover_image_path.split('/').pop() : 'No cover selected';
+          document.getElementById('edit-template-name').textContent = sub.published_file_path ? sub.published_file_path.split('/').pop() : 'No published file selected';
+          const templateStatus = document.getElementById('edit-template-status');
+          if (templateStatus) {
+            templateStatus.textContent = '';
+            templateStatus.style.display = 'none';
+          }
+          [
+            'edit-article-title',
+            'edit-article-authors',
+            'edit-article-journal',
+            'edit-article-doi',
+            'edit-article-summary',
+            'edit-article-keywords',
+            'edit-article-details',
+            'edit-article-funding',
+            'edit-date-received',
+            'edit-date-revised',
+            'edit-date-accepted',
+            'edit-date-published',
+            'edit-article-references',
+            'edit-article-abstract'
+          ].forEach((fieldId) => {
+            const field = document.getElementById(fieldId);
+            if (field) field.style.borderColor = 'rgba(255,255,255,0.2)';
+          });
           document.getElementById('edit-modal-backdrop').style.display = 'flex';
         }
       });
@@ -872,13 +1081,323 @@
     });
   }
 
+  const editTemplateFile = document.getElementById('edit-template-file');
+  if (editTemplateFile) {
+    editTemplateFile.addEventListener('change', (e) => {
+      const templateName = document.getElementById('edit-template-name');
+      const file = e.target.files[0];
+      templateName.textContent = file ? file.name : 'No published file selected';
+      if (file) processLandingArticleFile(file);
+    });
+  }
+
+  const landingFileDrop = document.getElementById('landing-file-drop');
+  if (landingFileDrop && editTemplateFile) {
+    landingFileDrop.addEventListener('click', () => editTemplateFile.click());
+    landingFileDrop.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      landingFileDrop.classList.add('drag-over');
+    });
+    landingFileDrop.addEventListener('dragleave', () => landingFileDrop.classList.remove('drag-over'));
+    landingFileDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      landingFileDrop.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      editTemplateFile.files = transfer.files;
+      document.getElementById('edit-template-name').textContent = file.name;
+      processLandingArticleFile(file);
+    });
+  }
+
+  async function processLandingArticleFile(file) {
+    const status = document.getElementById('edit-template-status');
+    if (!status) return;
+    status.style.display = 'block';
+    status.style.color = 'var(--gold)';
+    status.textContent = 'Extracting article details...';
+
+    try {
+      const lowerName = file.name.toLowerCase();
+      let pages = [];
+
+      if (lowerName.endsWith('.docx')) {
+        if (typeof mammoth === 'undefined') throw new Error('DOCX parser is still loading. Please try again.');
+        const buffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+        pages = [result.value || ''];
+      } else if (lowerName.endsWith('.pdf')) {
+        if (typeof pdfjsLib === 'undefined') throw new Error('PDF parser is still loading. Please try again.');
+        pages = await extractLandingPdfPages(file);
+      } else {
+        throw new Error('Use a PDF or DOCX file for auto-fill.');
+      }
+
+      const parsed = parseLandingArticle(pages);
+      fillLandingArticleFields(parsed);
+      status.style.color = '#4caf50';
+      status.textContent = `${file.name} uploaded and fields auto-filled. Review before saving.`;
+    } catch (err) {
+      status.style.color = '#e57373';
+      status.textContent = err.message || 'Could not extract fields from this file.';
+    }
+  }
+
+  async function extractLandingPdfPages(file) {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+    const pages = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      let lastY = null;
+      let lineText = '';
+      let pageText = '';
+
+      content.items.forEach((item) => {
+        const y = item.transform[5];
+        if (lastY !== null && Math.abs(y - lastY) > 3) {
+          pageText += lineText.trim() + '\n';
+          lineText = '';
+        }
+        lineText += item.str + ' ';
+        lastY = y;
+      });
+
+      pageText += lineText.trim();
+      pages.push(pageText);
+    }
+
+    return pages;
+  }
+
+  function parseLandingArticle(pages) {
+    const fullText = pages.join('\n');
+    const lines = fullText.split('\n').map(line => line.trim()).filter(Boolean);
+    const skipPatterns = [
+      /Creative Commons/i, /open.access/i, /Published by/i, /Page \d/i,
+      /ISSN/i, /^Volume/i, /^Issue/i, /^DOI/i, /^\d+$/, /^https?:\/\//i,
+      /License/i, /QualiSearch/i, /Advancing Knowledge/i, /Article Type/i,
+      /open\s*-\s*access/i, /distributed under/i, /terms of the/i,
+      /research adviser/i, /^reviewed by/i, /^to obtain/i,
+      /^submitted (?:to|in)/i, /^in partial fulfillment/i,
+      /^this is an/i, /^copyright/i, /^the author/i,
+      /^this study/i, /^specifically,/i, /^the researcher expresses/i
+    ];
+    const isBadLine = (line) => skipPatterns.some(pattern => pattern.test(line));
+    const looksLikeAuthorLine = (line) => /^[A-Z][A-Za-z'.-]+(?:\s+[A-Z]\.)?\s+[A-Z][A-Za-z'.-]+/.test(line) && line.length < 140;
+    const looksLikeInstitutionLine = (line) => /University|Institute|College|Department|School|Campus|Adviser|Advisor/i.test(line);
+    const isSectionHeading = (line) => /^(Abstract|Keywords?|Introduction|Background|References|Acknowledg|Research Funding|Publication History)\b/i.test(line);
+    const isNonTitleSentence = (line) => /^(This|These|There|It|The researcher|Specifically)\b/i.test(line) || /[.!?]$/.test(line);
+    const titleQuality = (candidate, index) => {
+      if (!candidate || isBadLine(candidate) || isNonTitleSentence(candidate)) return -99;
+      let score = 0;
+      if (index < 40) score += 4;
+      if (candidate.length >= 40 && candidate.length <= 170) score += 5;
+      if (candidate.length > 170) score -= 4;
+      if (/\b(study|assessment|analysis|effect|impact|development|technology|education|learning|outcomes|students|livelihood)\b/i.test(candidate)) score += 2;
+      if (/^(The|This|These|There|It)\b/i.test(candidate)) score -= 6;
+      if (/abstract|keywords|published|copyright|license|doi|email/i.test(candidate)) score -= 8;
+      return score;
+    };
+    const buildTitleCandidate = (startIndex, maxLines = 4) => {
+      const first = lines[startIndex];
+      if (!first || isBadLine(first) || isSectionHeading(first) || looksLikeAuthorLine(first) || looksLikeInstitutionLine(first)) return '';
+      let candidate = first;
+      for (let offset = 1; offset < maxLines && startIndex + offset < lines.length; offset++) {
+        const next = lines[startIndex + offset];
+        if (
+          isBadLine(next) ||
+          isSectionHeading(next) ||
+          looksLikeAuthorLine(next) ||
+          looksLikeInstitutionLine(next) ||
+          next.length < 8 ||
+          next.length > 150
+        ) {
+          break;
+        }
+        candidate += ' ' + next;
+      }
+      return candidate.trim();
+    };
+
+    let title = '';
+    const titleCandidates = [];
+    for (let i = 0; i < Math.min(lines.length, 120); i++) {
+      const line = lines[i];
+      if (isBadLine(line)) continue;
+      if (isSectionHeading(line)) continue;
+      if (looksLikeAuthorLine(line) || looksLikeInstitutionLine(line)) continue;
+      if (line.length >= 25 && line.length <= 220) {
+        const candidate = buildTitleCandidate(i);
+        const score = titleQuality(candidate, i);
+        titleCandidates.push({ value: candidate.trim(), score });
+      }
+    }
+    titleCandidates.sort((a, b) => b.score - a.score);
+    title = titleCandidates[0]?.value || '';
+
+    let authors = '';
+    const authorLabel = fullText.match(/(?:^|\n)Authors?[:\s]+([^\n]{5,160})/im);
+    const corrAuthor = fullText.match(/Corresponding Author[:\s]+([^\n\r]+)/i);
+    if (authorLabel) authors = authorLabel[1].trim();
+    else if (corrAuthor) authors = corrAuthor[1].trim();
+    else {
+      for (let i = 1; i < Math.min(lines.length, 100); i++) {
+        const line = lines[i];
+        if (/^[A-Z][a-z]+ [A-Z]\.? [A-Z][a-z]+/.test(line) && line.length < 120) {
+          authors = line;
+          break;
+        }
+      }
+    }
+
+    if (authors) {
+      const authorIndex = lines.findIndex(line => line.toLowerCase().includes(authors.toLowerCase()));
+      if (authorIndex > 0) {
+        const nearbyCandidates = [];
+        for (let i = Math.max(0, authorIndex - 12); i < authorIndex; i++) {
+          const candidate = buildTitleCandidate(i, 3);
+          nearbyCandidates.push({ value: candidate, score: titleQuality(candidate, i) + 4 });
+        }
+        nearbyCandidates.sort((a, b) => b.score - a.score);
+        if (nearbyCandidates[0]?.value && nearbyCandidates[0].score > titleQuality(title, 999)) {
+          title = nearbyCandidates[0].value;
+        }
+      }
+    }
+
+    let journal = '';
+    const journalPatterns = [
+      /Published in[:\s]+([^\n]+)/i,
+      /(?:^|\n)(QualiSearch\s+Journal[^\n]+)/im,
+      /(?:^|\n)((?:Journal|Quarterly|Review|Bulletin|Annals)\b[^\n]{3,100})/im
+    ];
+    for (const pattern of journalPatterns) {
+      const match = fullText.match(pattern);
+      if (match) {
+        journal = (match[1] || match[0]).trim().substring(0, 120);
+        if (/reviewed by|research adviser|to obtain/i.test(journal)) {
+          journal = '';
+          continue;
+        }
+        break;
+      }
+    }
+
+    const doiMatch = fullText.match(/(?:DOI|doi)[:\s]*(https?:\/\/doi\.org\/[^\s\n]+|10\.\d{4,}\/[^\s\n]+)/i);
+    const doi = doiMatch ? doiMatch[1].trim() : '';
+
+    const keywordsMatch = fullText.match(/[Kk]eywords?[:\s*]+([^\n]{5,400})/);
+    const keywords = keywordsMatch ? keywordsMatch[1].replace(/^[:\-.\s]+/, '').trim().substring(0, 250) : '';
+
+    let abstract = '';
+    const abstractMatch = fullText.match(/\bAbstract\b[\s\n:]+([\s\S]{80,3000}?)(?=\n\s*(?:Keywords?|Introduction|1\.|Background)\b)/i);
+    if (abstractMatch) abstract = abstractMatch[1].replace(/\s+/g, ' ').trim();
+
+    let summary = '';
+    if (abstract) {
+      const sentences = abstract.match(/[^.!?]+[.!?]+/g) || [];
+      summary = sentences.slice(0, 2).join(' ').trim();
+    }
+
+    const detailParts = [];
+    const copyrightMatch = fullText.match(/(?:\(c\)|Copyright|\u00a9)\s*\d{4}[^\n]*/i);
+    if (copyrightMatch) detailParts.push(copyrightMatch[0].trim());
+    const volumeMatch = fullText.match(/Volume[:\s]*(\d+)[,\s]*Issue[:\s]*(\d+)/i);
+    if (volumeMatch) detailParts.push(`Volume ${volumeMatch[1]}, Issue ${volumeMatch[2]}`);
+    const issnMatch = fullText.match(/ISSN[:\s]*([\d\-X]+)/i);
+    if (issnMatch) detailParts.push(`ISSN: ${issnMatch[1]}`);
+
+    const ackMatch = fullText.match(/Acknowledg(?:ment|ement)s?\s*\n([\s\S]{20,800}?)(?=\nEthical|\nAuthor Bio|\nReferences|\nBibliography|$)/i);
+    const funding = ackMatch ? ackMatch[1].replace(/\s+/g, ' ').trim() : '';
+
+    const receivedMatch = fullText.match(/Received[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+    const revisedMatch = fullText.match(/Revised[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+    const acceptedMatch = fullText.match(/Accepted[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+    const publishedMatch = fullText.match(/Published[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+
+    let references = '';
+    const referencesMatch = fullText.match(/\n(?:References|Bibliography|REFERENCES)\s*\n([\s\S]+?)(?:\nAcknowledg|\nEthical|\nAuthor Bio|$)/i);
+    if (referencesMatch) {
+      references = referencesMatch[1]
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 15)
+        .slice(0, 60)
+        .join('\n');
+    }
+
+    return {
+      title,
+      authors,
+      journal,
+      doi,
+      keywords,
+      abstract,
+      summary,
+      details: detailParts.join('\n'),
+      funding,
+      received: landingInputDate(receivedMatch?.[1]),
+      revised: landingInputDate(revisedMatch?.[1]),
+      accepted: landingInputDate(acceptedMatch?.[1]),
+      published: landingInputDate(publishedMatch?.[1]),
+      references
+    };
+  }
+
+  function landingInputDate(value) {
+    if (!value) return '';
+    const months = {
+      january: '01', february: '02', march: '03', april: '04', may: '05', june: '06',
+      july: '07', august: '08', september: '09', october: '10', november: '11', december: '12'
+    };
+    const monthName = value.match(/([A-Za-z]+)\s+(\d{1,2},?\s+)?(\d{4})/);
+    if (monthName) {
+      const month = months[monthName[1].toLowerCase()];
+      const day = monthName[2] ? monthName[2].replace(',', '').trim().padStart(2, '0') : '01';
+      if (month) return `${monthName[3]}-${month}-${day}`;
+    }
+    const slashDate = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (slashDate) {
+      const year = slashDate[3].length === 2 ? `20${slashDate[3]}` : slashDate[3];
+      return `${year}-${slashDate[1].padStart(2, '0')}-${slashDate[2].padStart(2, '0')}`;
+    }
+    return '';
+  }
+
+  function fillLandingArticleFields(data) {
+    setLandingValue('edit-article-title', data.title);
+    setLandingValue('edit-article-authors', data.authors);
+    setLandingValue('edit-article-doi', data.doi);
+    setLandingValue('edit-article-summary', data.summary);
+    setLandingValue('edit-article-keywords', data.keywords);
+    setLandingValue('edit-article-details', data.details);
+    setLandingValue('edit-article-funding', data.funding);
+    setLandingValue('edit-date-received', data.received);
+    setLandingValue('edit-date-revised', data.revised);
+    setLandingValue('edit-date-accepted', data.accepted);
+    setLandingValue('edit-date-published', data.published);
+    setLandingValue('edit-article-references', data.references);
+    setLandingValue('edit-article-abstract', data.abstract);
+  }
+
+  function setLandingValue(id, value) {
+    const field = document.getElementById(id);
+    if (!field || !value) return;
+    field.value = value;
+    field.style.borderColor = 'rgba(76,175,80,0.75)';
+  }
+
   const editArticleForm = document.getElementById('edit-article-form');
   if (editArticleForm) {
     editArticleForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('edit-article-id').value;
       const title = document.getElementById('edit-article-title').value;
-      const journal = document.getElementById('edit-article-journal').value;
       const abstract = document.getElementById('edit-article-abstract').value;
       const authors = document.getElementById('edit-article-authors').value;
       const summary = document.getElementById('edit-article-summary').value;
@@ -892,7 +1411,9 @@
       const acceptedDate = document.getElementById('edit-date-accepted').value;
       const publishedDate = document.getElementById('edit-date-published').value;
       const coverInput = document.getElementById('edit-cover-file');
+      const templateInput = document.getElementById('edit-template-file');
       let coverPath = document.getElementById('edit-cover-current').value;
+      let publishedFilePath = document.getElementById('edit-template-current').value;
 
       const btnSave = document.getElementById('btn-save-edit');
       const origText = btnSave.textContent;
@@ -918,10 +1439,27 @@
         coverPath = uploadData.path;
       }
 
+      if (templateInput.files && templateInput.files.length > 0) {
+        btnSave.textContent = 'Uploading Published File...';
+        const file = templateInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `published-articles/${id}_${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await db.storage
+          .from('manuscripts')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) {
+          alert('Error uploading published article file: ' + uploadError.message);
+          btnSave.textContent = origText;
+          btnSave.disabled = false;
+          return;
+        }
+        publishedFilePath = uploadData.path;
+      }
+
       btnSave.textContent = 'Saving...';
-      const { error } = await db.from('submissions').update({
+      const updatePayload = {
         title: title,
-        journal: journal,
         abstract: abstract,
         landing_authors: authors,
         landing_summary: summary,
@@ -935,13 +1473,22 @@
         manuscript_accepted_date: acceptedDate || null,
         published_date: publishedDate || null,
         cover_image_path: coverPath || null
-      }).eq('id', id);
+      };
+
+      if (publishedFilePath) {
+        updatePayload.published_file_path = publishedFilePath;
+      }
+
+      const { error } = await db.from('submissions').update(updatePayload).eq('id', id);
 
       btnSave.textContent = origText;
       btnSave.disabled = false;
 
       if (error) {
-        alert('Error updating article: ' + error.message + '\n\nIf this mentions missing columns, run the supplied Supabase SQL file first.');
+        const columnHint = String(error.message || '').includes('published_file_path')
+          ? '\n\nSupabase is missing the published_file_path column. Run academic-press/supabase_landing_page_fields.sql in the Supabase SQL editor, then refresh this dashboard.'
+          : '\n\nIf this mentions missing columns, run the supplied Supabase SQL file first.';
+        alert('Error updating article: ' + error.message + columnHint);
       } else {
         document.getElementById('edit-modal-backdrop').style.display = 'none';
         loadAllSubmissions();
@@ -981,10 +1528,21 @@
     <form id="edit-article-form" style="display:flex; flex-direction:column; gap:15px;">
       <input type="hidden" id="edit-article-id" />
       <input type="hidden" id="edit-cover-current" />
+      <input type="hidden" id="edit-template-current" />
       <div class="auth-field">
         <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Cover Image</label>
         <input type="file" id="edit-cover-file" accept="image/*" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.95rem;" />
         <span id="edit-cover-name" style="display:block; margin-top:7px; color:var(--text-muted); font-size:0.82rem;">No cover selected</span>
+      </div>
+      <div class="auth-field">
+        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Published Article File</label>
+        <div class="landing-file-drop" id="landing-file-drop">
+          <strong>Drag and drop the final PDF or DOCX here</strong>
+          <span>or click to browse. The landing page fields will auto-fill.</span>
+        </div>
+        <input type="file" id="edit-template-file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;" />
+        <span id="edit-template-name" style="display:block; margin-top:7px; color:var(--text-muted); font-size:0.82rem;">No published file selected</span>
+        <span id="edit-template-status" class="landing-file-status"></span>
       </div>
       <div class="auth-field">
         <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article Title</label>
@@ -996,7 +1554,7 @@
       </div>
       <div class="auth-field">
         <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Journal</label>
-        <input type="text" id="edit-article-journal" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
+        <input type="text" id="edit-article-journal" required readonly title="Journal is locked after assignment/review." style="width:100%; padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); border-radius:4px; font-family:var(--font-body); font-size:1rem; cursor:not-allowed;" />
       </div>
       <div class="auth-field">
         <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article ID / DOI</label>

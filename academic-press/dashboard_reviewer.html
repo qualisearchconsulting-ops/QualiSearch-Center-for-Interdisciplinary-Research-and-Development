@@ -423,7 +423,6 @@
           const date = new Date(sub.created_at).toLocaleDateString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric'
           });
-          
           const tr = document.createElement('tr');
           
           tr.innerHTML = `
@@ -432,18 +431,6 @@
                 ${sub.title}
                 <span class="meta-text">${sub.journal}</span>
                 <span class="meta-text" style="margin-top:8px;">Status: <strong>${statusLabel}</strong></span>
-                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:10px;">
-                  <span style="font-size: 0.8rem; color: var(--color-text-muted);">Transfer to another journal:</span><br/>
-                  <select class="transfer-journal-select" data-id="${sub.id}" style="background: rgba(0,0,0,0.2); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px;">
-                    <option value="" disabled selected>Select Journal</option>
-                    <option value="QJERP" ${sub.journal === 'QJERP' ? 'disabled' : ''}>Journal of Educational Research (QJERP)</option>
-                    <option value="QJHS" ${sub.journal === 'QJHS' ? 'disabled' : ''}>Journal of Health Sciences (QJHS)</option>
-                    <option value="QJBG" ${sub.journal === 'QJBG' ? 'disabled' : ''}>Journal of Business and Governance (QJBG)</option>
-                    <option value="QJTI" ${sub.journal === 'QJTI' ? 'disabled' : ''}>Journal of Technology and Innovation (QJTI)</option>
-                    <option value="QJPLC" ${sub.journal === 'QJPLC' ? 'disabled' : ''}>Philippine Languages and Culture (QJPLC)</option>
-                  </select>
-                  <button class="btn-action transfer-btn" data-id="${sub.id}" style="padding: 4px 8px; font-size: 0.75rem; margin-left: 5px;">Transfer</button>
-                </div>
               </div>
             </td>
             <td>${date}</td>
@@ -520,11 +507,9 @@
             
             const updatePayload = { 
               reviewer_feedback: feedbackText,
-              status: targetStatus 
+              status: targetStatus,
+              reviewed_file_path: reviewedFilePath || null
             };
-            if (reviewedFilePath) {
-              updatePayload.reviewed_file_path = reviewedFilePath;
-            }
 
             const { error: updateError } = await db
               .from('submissions')
@@ -572,40 +557,6 @@
             a.click();
             URL.revokeObjectURL(url);
             document.body.removeChild(a);
-          });
-        });
-
-        // Add event listeners for transfer
-        document.querySelectorAll('.transfer-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const subId = e.target.getAttribute('data-id');
-            const select = document.querySelector(`.transfer-journal-select[data-id="${subId}"]`);
-            const newJournal = select.value;
-            
-            if (!newJournal) return;
-            
-            e.target.textContent = '...';
-            
-            // update journal and set reviewer_email to null so it gets removed from this reviewer's list
-            const { error: updateError } = await db
-              .from('submissions')
-              .update({ journal: newJournal, reviewer_email: null })
-              .eq('id', subId);
-              
-            if (updateError) {
-              alert('Error transferring manuscript: ' + updateError.message);
-              e.target.textContent = 'Transfer';
-            } else {
-              const toast = document.getElementById('qs-toast');
-              const msg = document.getElementById('qs-toast-msg');
-              if(toast && msg) {
-                msg.textContent = 'Manuscript transferred successfully!';
-                toast.hidden = false;
-                toast.className = 'qs-toast toast-success';
-                setTimeout(() => toast.hidden = true, 3000);
-              }
-              loadAssignedSubmissions(); // reload the list
-            }
           });
         });
 

@@ -291,9 +291,9 @@
         }
         
         async function downloadArticle() {
-          const path = data.file_path;
+          const path = data.published_file_path;
           if (!path) {
-              alert('File not available.');
+              alert('Published article file is not available yet.');
               return;
           }
           
@@ -315,7 +315,7 @@
           const a = document.createElement('a');
           a.href = url;
           const ext = path.split('.').pop() || 'pdf';
-          a.download = data.title + '.' + ext;
+          a.download = `${data.title} - published.${ext}`;
           document.body.appendChild(a);
           a.click();
           URL.revokeObjectURL(url);
