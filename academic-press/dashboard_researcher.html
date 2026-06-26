@@ -590,6 +590,64 @@
             }
           });
         });
+        // PAYMENT PROOF LOGIC
+        document.querySelectorAll('.payment-file-input').forEach(input => {
+          input.addEventListener('change', (e) => {
+            const subId = e.target.id.split('-').pop();
+            const nameSpan = document.getElementById(`payment-file-name-${subId}`);
+            const submitBtn = document.querySelector(`.submit-payment-btn[data-id="${subId}"]`);
+            
+            if (e.target.files.length > 0) {
+              nameSpan.textContent = e.target.files[0].name;
+              submitBtn.style.display = 'inline-block';
+            } else {
+              nameSpan.textContent = '';
+              submitBtn.style.display = 'none';
+            }
+          });
+        });
+
+        document.querySelectorAll('.submit-payment-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const subId = e.target.getAttribute('data-id');
+            const fileInput = document.getElementById(`payment-file-${subId}`);
+            
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            
+            e.target.textContent = 'Uploading...';
+            e.target.disabled = true;
+            
+            const file = fileInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `payment_${subId}_${Date.now()}.${fileExt}`;
+            
+            try {
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('payments')
+                .upload(`${session.user.id}/${fileName}`, file);
+                
+              if (uploadError) throw uploadError;
+              
+              const { error: updateError } = await supabase
+                .from('submissions')
+                .update({ 
+                  payment_proof_path: uploadData.path,
+                  status: 'Ready for Admin'
+                })
+                .eq('id', subId);
+                
+              if (updateError) throw updateError;
+              
+              alert('Payment proof submitted successfully! The admin will verify it soon.');
+              loadSubmissions();
+            } catch (err) {
+              console.error(err);
+              alert('Error uploading payment: ' + err.message);
+              e.target.textContent = 'Submit Payment Proof';
+              e.target.disabled = false;
+            }
+          });
+        });
       }
       
       // Load existing submissions
