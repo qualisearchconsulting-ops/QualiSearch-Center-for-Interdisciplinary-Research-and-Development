@@ -233,6 +233,27 @@
       </div>
 
       <div style="margin: 34px 0 12px;">
+        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">For Re-review</h2>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Manuscript Details</th>
+              <th>Date Assigned</th>
+              <th>Review Feedback</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="reviewer-rereview-body">
+            <tr>
+              <td colspan="4" class="empty-state">Loading revised submissions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin: 34px 0 12px;">
         <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Revision Requested</h2>
       </div>
       <div class="table-wrapper">
@@ -286,10 +307,12 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const db = window.qsSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON);
       const tbody = document.getElementById('reviewer-submissions-body');
+      const rereviewTbody = document.getElementById('reviewer-rereview-body');
       const revisionTbody = document.getElementById('reviewer-revision-body');
       const passedTbody = document.getElementById('reviewer-passed-body');
       if (!db) {
         tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
+        rereviewTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
         revisionTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
         passedTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Supabase is not configured.</td></tr>`;
         return;
@@ -355,6 +378,7 @@
         if (error) {
           console.error('Error fetching submissions:', error);
           tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
+          rereviewTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
           revisionTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
           passedTbody.innerHTML = `<tr><td colspan="4" class="empty-state">Error loading submissions: ${error.message}</td></tr>`;
           return;
@@ -362,25 +386,32 @@
 
         if (!data || data.length === 0) {
           tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No manuscripts waiting for review.</td></tr>`;
+          rereviewTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No revised manuscripts waiting for re-review.</td></tr>`;
           revisionTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No revision requests yet.</td></tr>`;
           passedTbody.innerHTML = `<tr><td colspan="4" class="empty-state">No manuscripts passed to editor yet.</td></tr>`;
           return;
         }
 
-        const activeSubmissions = data.filter(sub => !['Ready for Admin', 'Published', 'Rejected', 'Revisions Required'].includes(sub.status));
+        const isReReview = (sub) => sub.status === 'Revision Submitted' || (sub.status === 'Under Review' && Boolean(sub.reviewed_file_path));
+        const activeSubmissions = data.filter(sub => !['Ready for Admin', 'Published', 'Rejected', 'Revisions Required', 'Revision Submitted'].includes(sub.status) && !isReReview(sub));
+        const rereviewSubmissions = data.filter(isReReview);
         const revisionSubmissions = data.filter(sub => sub.status === 'Revisions Required');
         const passedSubmissions = data.filter(sub => ['Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
 
+        renderActionRows(activeSubmissions, tbody, 'No manuscripts waiting for review.', 'Under Review');
+        renderActionRows(rereviewSubmissions, rereviewTbody, 'No revised manuscripts waiting for re-review.', 'Revision Submitted');
         renderReadOnlyRows(revisionSubmissions, revisionTbody, 'No revision requests yet.');
         renderReadOnlyRows(passedSubmissions, passedTbody, 'No manuscripts passed to editor yet.');
 
-        tbody.innerHTML = '';
-        
-        if (activeSubmissions.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No manuscripts waiting for review.</td></tr>`;
-        }
+        function renderActionRows(rows, targetBody, emptyMessage, statusLabel) {
+          targetBody.innerHTML = '';
+          
+          if (rows.length === 0) {
+            targetBody.innerHTML = `<tr><td colspan="4" class="empty-state">${emptyMessage}</td></tr>`;
+            return;
+          }
 
-        activeSubmissions.forEach(sub => {
+        rows.forEach(sub => {
           const date = new Date(sub.created_at).toLocaleDateString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric'
           });
@@ -392,7 +423,7 @@
               <div class="title-col">
                 ${sub.title}
                 <span class="meta-text">${sub.journal}</span>
-                <span class="meta-text" style="margin-top:8px;">Status: <strong>${sub.status}</strong></span>
+                <span class="meta-text" style="margin-top:8px;">Status: <strong>${statusLabel}</strong></span>
                 <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:10px;">
                   <span style="font-size: 0.8rem; color: var(--color-text-muted);">Transfer to another journal:</span><br/>
                   <select class="transfer-journal-select" data-id="${sub.id}" style="background: rgba(0,0,0,0.2); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px;">
@@ -418,7 +449,7 @@
                 <span id="review-file-name-${sub.id}" style="font-size: 0.75rem; color: var(--color-gold); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sub.reviewed_file_path ? 'Has attached file' : 'No file attached'}</span>
               </div>
               <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn-action btn-submit btn-require-revision" data-id="${sub.id}" style="flex: 1; padding: 6px; font-size: 0.8rem; background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3);">Require Revision</button>
+                <button class="btn-action btn-submit btn-require-revision" data-id="${sub.id}" style="flex: 1; padding: 6px; font-size: 0.8rem; background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3);">${statusLabel === 'Revision Submitted' ? 'Request Revision Again' : 'Require Revision'}</button>
                 <button class="btn-action btn-submit btn-pass-admin" data-id="${sub.id}" style="flex: 1; padding: 6px; font-size: 0.8rem; background: rgba(111, 66, 193, 0.15); color: #d0bfff; border: 1px solid rgba(111, 66, 193, 0.3);">Pass to Admin</button>
               </div>
             </td>
@@ -426,8 +457,9 @@
               <button class="btn-action download-btn" data-path="${sub.file_path}">Download Manuscript</button>
             </td>
           `;
-          tbody.appendChild(tr);
+          targetBody.appendChild(tr);
         });
+        }
 
         // File input listeners
         document.querySelectorAll('.review-file-input').forEach(input => {
@@ -596,6 +628,7 @@
               <td>
                 <strong>${sub.status}</strong>
                 <span class="meta-text">${sub.status === 'Ready for Admin' ? 'Waiting for editor decision.' : sub.status === 'Published' ? 'Article has been published.' : sub.status === 'Rejected' ? 'Editor rejected this manuscript.' : 'Waiting for author revision.'}</span>
+                ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="margin-top:10px; background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Article</a>` : ''}
               </td>
             `;
             targetBody.appendChild(tr);

@@ -11,6 +11,30 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <style>
+    @media (max-width: 900px) {
+      .article-container {
+        grid-template-columns: 1fr !important;
+        width: min(100vw - 24px, 680px) !important;
+      }
+      .article-container article {
+        padding-top: 24px !important;
+      }
+      .article-container article > div,
+      .article-container section {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+      }
+    }
+    #art-details-text {
+      color: #eef2f8 !important;
+    }
+    #art-keywords span {
+      background: #17253d !important;
+      color: #f3d990 !important;
+      border-color: rgba(214,178,94,0.35) !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -63,34 +87,84 @@
     </div>
   </div>
 
-    <div id="article-content" style="display:none; min-height: 60vh; padding-top: 72px; padding-bottom: 70px;">
-    <header class="article-header" style="position:relative; min-height:460px; display:flex; align-items:flex-end; background:var(--navy-darkest); overflow:hidden;">
-      <img id="art-cover" src="qs_library.png" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.72;" />
-      <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,10,20,0.25), rgba(5,10,20,0.94));"></div>
-      <div style="position:relative; width:min(1100px, 90vw); margin:0 auto; padding:110px 0 54px;">
-        <div id="art-journal-pill" style="display:inline-flex; margin-bottom:18px; border:1px solid rgba(214,178,94,0.55); color:var(--gold-pale); padding:7px 12px; border-radius:999px; font:600 0.75rem 'Inter', sans-serif; text-transform:uppercase; letter-spacing:1px;"></div>
-        <h1 class="article-title" id="art-title" style="font-family:'EB Garamond', serif; font-size:clamp(2.2rem, 5vw, 4.7rem); line-height:0.98; color:#fff; margin:0 0 18px; max-width:980px;">Loading...</h1>
-        <p id="art-summary" style="display:none; max-width:780px; margin:0 0 20px; color:rgba(255,255,255,0.86); font:400 1.08rem/1.7 'Inter', sans-serif;"></p>
-        <div class="article-meta" style="display:flex; gap:14px; flex-wrap:wrap; font-family:'Inter', sans-serif; font-size:0.94rem; color:rgba(255,255,255,0.75);">
-          <span id="art-authors-wrap" style="display:none;">By <strong id="art-authors" style="color:var(--gold-pale); font-weight:600;"></strong></span>
-          <span>Published <strong id="art-date" style="color:var(--gold-pale); font-weight:600;"></strong></span>
+  <div id="article-content" style="display:none; min-height: 60vh; padding: 112px 0 70px; background:#070d1a; color:#f4f0e6;">
+    <main class="article-container" style="width:min(1050px, calc(100vw - 40px)); margin:0 auto; display:grid; grid-template-columns:minmax(0, 1fr) 330px; gap:30px; align-items:start;">
+      <article style="background:#101827; border:1px solid rgba(214,178,94,0.28); padding:30px 0 0; box-shadow:0 18px 50px rgba(0,0,0,0.22);">
+        <div style="padding:0 32px 24px;">
+          <div style="font:500 0.9rem 'Inter', sans-serif; color:#d6b25e; margin-bottom:12px;">Original Article</div>
+          <div id="art-journal-pill" style="font:700 0.76rem 'Inter', sans-serif; text-transform:uppercase; letter-spacing:.08em; color:#f3d990; margin-bottom:12px;"></div>
+          <h1 id="art-title" style="font-family:'Inter', sans-serif; font-size:clamp(1.85rem, 3.6vw, 2.65rem); line-height:1.18; color:#ffffff; margin:0 0 16px; font-weight:800;">Loading...</h1>
+          <div id="art-authors-wrap" style="display:none; color:#f3d990; font:500 .96rem/1.5 'Inter', sans-serif; margin-bottom:14px;">
+            <span id="art-authors"></span>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:#b8c1d1; font:400 .93rem/1.5 'Inter', sans-serif; margin-bottom:14px;">
+            <span>First published: <strong id="art-date" style="color:#f3d990;"></strong></span>
+            <span>|</span>
+            <span id="art-doi" style="color:#f3d990; font-weight:600;"></span>
+          </div>
+          <p id="art-summary" style="display:none; color:#d8deea; font:400 .95rem/1.55 'Inter', sans-serif; margin:14px 0 0;"></p>
         </div>
-      </div>
-    </header>
-    <main class="article-container" style="max-width: 980px; margin: 0 auto; padding: 44px 20px;">
-      <div id="art-keywords-wrap" style="display:none; margin-bottom:32px;">
-        <h2 style="font-family:'Cinzel', serif; font-size:0.95rem; color:var(--gold); margin:0 0 12px; text-transform:uppercase; letter-spacing:1px;">Keywords</h2>
-        <div id="art-keywords" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-      </div>
-      <h2 class="article-abstract-title" style="font-family: 'Cinzel', serif; font-size: 1.35rem; color: var(--gold); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Abstract</h2>
-      <div class="article-abstract" id="art-abstract" style="font-family: 'Inter', sans-serif; line-height: 1.85; color: var(--text-primary); font-size: 1.08rem; margin-bottom: 40px; white-space: pre-wrap;"></div>
-      
-      <div class="article-actions" style="text-align: center; margin-top: 40px;">
-        <button id="art-download-btn" class="btn-action" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--gold); color: var(--navy-darkest); padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: 600; font-family: 'Inter', sans-serif; font-size: 1rem; cursor: pointer; border: none;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Full Article PDF
-        </button>
-      </div>
+
+        <div style="border-top:1px solid rgba(214,178,94,0.22); border-bottom:1px solid rgba(214,178,94,0.22); padding:12px 32px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; font:700 .82rem 'Inter', sans-serif; color:#d6b25e; background:#0b1220;">
+          <button id="art-download-btn" type="button" style="border:0; background:transparent; color:#d6b25e; font:700 .82rem 'Inter', sans-serif; cursor:pointer; padding:0;">Read the full text</button>
+          <button id="art-pdf-btn" type="button" style="border:0; background:transparent; color:#d6b25e; font:700 .82rem 'Inter', sans-serif; cursor:pointer; padding:0;">PDF</button>
+          <button id="art-cite-btn" type="button" style="border:0; background:transparent; color:#d6b25e; font:700 .82rem 'Inter', sans-serif; cursor:pointer; padding:0;">Cite</button>
+          <button id="art-share-btn" type="button" style="border:0; background:transparent; color:#d6b25e; font:700 .82rem 'Inter', sans-serif; cursor:pointer; padding:0;">Share</button>
+        </div>
+
+        <section style="padding:26px 32px 32px;">
+          <h2 style="border-left:4px solid #d6b25e; padding-left:18px; margin:0 0 18px; font:700 1.65rem 'Inter', sans-serif; color:#ffffff;">Abstract</h2>
+          <div id="art-abstract" style="border-left:4px solid rgba(214,178,94,0.45); padding-left:18px; font:400 1.03rem/1.68 'Inter', sans-serif; color:#eef2f8; white-space:pre-wrap;"></div>
+        </section>
+
+        <section id="art-references-section" style="margin:0 32px 32px; border:1px solid #164582;">
+          <button type="button" style="width:100%; display:flex; justify-content:space-between; align-items:center; border:0; background:#164582; color:#fff; padding:13px 18px; font:800 .95rem 'Inter', sans-serif; text-transform:uppercase; letter-spacing:.03em;">
+            References <span>^</span>
+          </button>
+          <div style="padding:18px 24px; color:#eef2f8; font:400 .92rem/1.65 'Inter', sans-serif; background:#0b1220;">
+            <div id="art-references">References will be listed here when citation metadata is added for this article.</div>
+          </div>
+        </section>
+      </article>
+
+      <aside style="background:#101827; border:1px solid rgba(214,178,94,0.28); box-shadow:0 18px 50px rgba(0,0,0,0.22);">
+        <div id="art-cover-wrap" style="display:none; padding:20px; background:#0b1220; border-bottom:1px solid rgba(214,178,94,0.22);">
+          <img id="art-cover" src="qs_library.png" alt="" style="width:100%; aspect-ratio:4/3; object-fit:cover; border:1px solid rgba(214,178,94,0.28);" />
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid rgba(214,178,94,0.35); background:#101a2c; text-align:center; font:700 .78rem 'Inter', sans-serif; color:#d6b25e;">
+          <button type="button" class="article-side-tab" data-target="art-references-section" style="padding:15px 8px; border:0; border-right:1px solid rgba(214,178,94,0.25); background:transparent; color:#d6b25e; font:inherit; cursor:pointer;">References</button>
+          <button type="button" class="article-side-tab" data-target="art-related-section" style="padding:15px 8px; border:0; border-right:1px solid rgba(214,178,94,0.25); background:transparent; color:#d6b25e; font:inherit; cursor:pointer;">Related</button>
+          <button type="button" class="article-side-tab active" data-target="art-information-section" style="padding:15px 8px; border:0; background:#17253d; color:#f3d990; font:inherit; cursor:pointer; box-shadow:inset 0 -3px 0 #d6b25e;">Information</button>
+        </div>
+        <section id="art-information-section" style="padding:22px 20px; border-bottom:1px solid rgba(214,178,94,0.22);">
+          <h3 style="font:800 1.05rem 'Inter', sans-serif; color:#f3d990; margin:0 0 15px;">Details</h3>
+          <p id="art-details-text" style="font:400 .86rem/1.55 'Inter', sans-serif; color:#1f2937; margin:0;">© 2026 QualiSearch Academic Press.</p>
+          <p id="art-details-journal" style="font:400 .86rem/1.55 'Inter', sans-serif; color:#b8c1d1; margin:10px 0 0;"></p>
+        </section>
+        <section id="art-funding-wrap" style="display:none; padding:22px 20px; border-bottom:1px solid rgba(214,178,94,0.22);">
+          <h3 style="font:800 1.05rem 'Inter', sans-serif; color:#f3d990; margin:0 0 14px;">Research Funding</h3>
+          <div id="art-funding" style="font:400 .9rem/1.55 'Inter', sans-serif; color:#eef2f8; white-space:pre-wrap;"></div>
+        </section>
+        <section id="art-keywords-wrap" style="display:none; padding:22px 20px; border-bottom:1px solid rgba(214,178,94,0.22);">
+          <h3 style="font:800 1.05rem 'Inter', sans-serif; color:#f3d990; margin:0 0 14px;">Keywords</h3>
+          <div id="art-keywords" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+        </section>
+        <section id="art-related-section" style="padding:22px 20px; border-bottom:1px solid rgba(214,178,94,0.22);">
+          <h3 style="font:800 1.05rem 'Inter', sans-serif; color:#f3d990; margin:0 0 14px;">Related</h3>
+          <p style="font:400 .9rem/1.55 'Inter', sans-serif; color:#b8c1d1; margin:0;">Related articles will appear here when available.</p>
+        </section>
+        <section style="padding:22px 20px;">
+          <h3 style="font:800 1.05rem 'Inter', sans-serif; color:#f3d990; margin:0 0 14px;">Publication History</h3>
+          <dl style="margin:0; color:#eef2f8; font:400 .9rem/1.55 'Inter', sans-serif;">
+            <dt style="font-weight:700;">Version of Record online:</dt>
+            <dd id="art-history-published" style="margin:0 0 10px;"></dd>
+            <dt style="font-weight:700;">Manuscript accepted:</dt>
+            <dd id="art-history-accepted" style="margin:0 0 10px;"></dd>
+            <dt style="font-weight:700;">Manuscript received:</dt>
+            <dd id="art-history-received" style="margin:0;"></dd>
+          </dl>
+        </section>
+      </aside>
     </main>
   </div>
   <div id="article-loading" style="min-height: 60vh; padding-top: 100px; display:flex; align-items:center; justify-content:center; color: var(--gold); font-family: 'Cinzel', serif; font-size: 1.5rem;">
@@ -150,7 +224,38 @@
         document.getElementById('art-title').textContent = data.title;
         document.getElementById('art-journal-pill').textContent = canPreview ? `Preview - ${data.journal || 'QualiSearch Academic Press'}` : (data.journal || 'QualiSearch Academic Press');
         document.getElementById('art-abstract').textContent = data.abstract;
-        document.getElementById('art-date').textContent = new Date(data.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const formatDate = (value) => value ? new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+        const publishedDate = formatDate(data.published_date || data.created_at);
+        document.getElementById('art-date').textContent = publishedDate;
+        document.getElementById('art-doi').textContent = data.landing_doi || `Article ID: ${data.id}`;
+        document.getElementById('art-details-text').textContent = data.landing_details || '© 2026 QualiSearch Academic Press.';
+        document.getElementById('art-details-journal').textContent = data.journal ? `Published in ${data.journal}.` : 'Published by QualiSearch Academic Press.';
+        document.getElementById('art-history-published').textContent = publishedDate;
+        document.getElementById('art-history-accepted').textContent = formatDate(data.manuscript_accepted_date) || publishedDate;
+        document.getElementById('art-history-received').textContent = formatDate(data.manuscript_received_date) || publishedDate;
+
+        const revisedDate = formatDate(data.manuscript_revised_date);
+        if (revisedDate) {
+          const acceptedEl = document.getElementById('art-history-accepted');
+          acceptedEl.textContent = `${acceptedEl.textContent} | Revised: ${revisedDate}`;
+        }
+
+        if (data.landing_funding) {
+          document.getElementById('art-funding').textContent = data.landing_funding;
+          document.getElementById('art-funding-wrap').style.display = 'block';
+        }
+
+        if (data.landing_references) {
+          const refs = data.landing_references.split('\n').map(item => item.trim()).filter(Boolean);
+          const refsEl = document.getElementById('art-references');
+          refsEl.innerHTML = '';
+          refs.forEach(ref => {
+            const p = document.createElement('p');
+            p.textContent = ref;
+            p.style.cssText = 'margin:0 0 14px;';
+            refsEl.appendChild(p);
+          });
+        }
 
         if (data.landing_summary) {
           document.getElementById('art-summary').textContent = data.landing_summary;
@@ -169,7 +274,7 @@
           keywords.forEach(keyword => {
             const tag = document.createElement('span');
             tag.textContent = keyword;
-            tag.style.cssText = "border:1px solid rgba(214,178,94,0.35); color:var(--gold-pale); background:rgba(214,178,94,0.08); padding:7px 11px; border-radius:999px; font:500 0.82rem 'Inter', sans-serif;";
+            tag.style.cssText = "background:#fff; color:#0b3f78; padding:6px 9px; font:500 .82rem 'Inter', sans-serif; border:1px solid #e1e5ec;";
             keywordsEl.appendChild(tag);
           });
           document.getElementById('art-keywords-wrap').style.display = keywords.length ? 'block' : 'none';
@@ -179,10 +284,11 @@
           const { data: coverBlob, error: coverError } = await sbClient.storage.from('manuscripts').download(data.cover_image_path);
           if (!coverError && coverBlob) {
             document.getElementById('art-cover').src = URL.createObjectURL(coverBlob);
+            document.getElementById('art-cover-wrap').style.display = 'block';
           }
         }
         
-        document.getElementById('art-download-btn').addEventListener('click', async () => {
+        async function downloadArticle() {
           const path = data.file_path;
           if (!path) {
               alert('File not available.');
@@ -190,13 +296,13 @@
           }
           
           const btn = document.getElementById('art-download-btn');
-          const originalText = btn.innerHTML;
-          btn.innerHTML = 'Downloading...';
+          const originalText = btn.textContent;
+          btn.textContent = 'Downloading...';
           btn.disabled = true;
 
           const { data: fileData, error: fileError } = await sbClient.storage.from('manuscripts').download(path);
           
-          btn.innerHTML = originalText;
+          btn.textContent = originalText;
           btn.disabled = false;
 
           if (fileError) {
@@ -211,6 +317,42 @@
           a.click();
           URL.revokeObjectURL(url);
           document.body.removeChild(a);
+        }
+
+        document.getElementById('art-download-btn').addEventListener('click', downloadArticle);
+        document.getElementById('art-pdf-btn').addEventListener('click', downloadArticle);
+        document.getElementById('art-cite-btn').addEventListener('click', async () => {
+          const authors = data.landing_authors || 'QualiSearch Academic Press';
+          const citation = `${authors}. (${new Date(data.created_at).getFullYear()}). ${data.title}. ${data.journal || 'QualiSearch Academic Press'}.`;
+          await navigator.clipboard.writeText(citation);
+          alert('Citation copied.');
+        });
+        document.getElementById('art-share-btn').addEventListener('click', async () => {
+          const shareUrl = window.location.href;
+          if (navigator.share) {
+            await navigator.share({ title: data.title, url: shareUrl });
+          } else {
+            await navigator.clipboard.writeText(shareUrl);
+            alert('Article link copied.');
+          }
+        });
+
+        document.querySelectorAll('.article-side-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('.article-side-tab').forEach(item => {
+              item.classList.remove('active');
+              item.style.background = 'transparent';
+              item.style.color = '#d6b25e';
+              item.style.boxShadow = 'none';
+            });
+            tab.classList.add('active');
+            tab.style.background = '#17253d';
+            tab.style.color = '#f3d990';
+            tab.style.boxShadow = 'inset 0 -3px 0 #d6b25e';
+
+            const target = document.getElementById(tab.getAttribute('data-target'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
         });
       } catch (e) {
         console.error('Error loading article:', e);

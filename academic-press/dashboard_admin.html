@@ -637,6 +637,7 @@
                 <option value="Pending" ${sub.status === 'Pending' ? 'selected' : ''}>Pending</option>
                 <option value="Under Review" ${sub.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
                 <option value="Revisions Required" ${sub.status === 'Revisions Required' ? 'selected' : ''}>Revisions Required</option>
+                <option value="Revision Submitted" ${sub.status === 'Revision Submitted' ? 'selected' : ''}>Revision Submitted</option>
                 <option value="Ready for Admin" ${sub.status === 'Ready for Admin' ? 'selected' : ''}>Ready for Admin</option>
                 <option value="Published" ${sub.status === 'Published' ? 'selected' : ''}>Published</option>
                 <option value="Rejected" ${sub.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
@@ -651,10 +652,9 @@
             <td>
               <div style="display:flex; flex-direction:column; gap:8px;">
                 <button class="btn-action download-btn" data-path="${sub.file_path}">Download File</button>
-                <a href="article.html?id=${sub.id}&preview=1" target="_blank" class="btn-action" style="text-decoration:none; text-align:center; display:inline-block;">Preview Landing Page</a>
-                ${['Ready for Admin', 'Published'].includes(sub.status) ? `<button class="btn-action edit-lp-btn" data-id="${sub.id}">Edit Landing Page</button>` : ''}
+                ${sub.status === 'Published' ? `<button class="btn-action edit-lp-btn" data-id="${sub.id}">Edit Landing Page</button>` : ''}
                 ${sub.status === 'Ready for Admin' ? `<button class="btn-action publish-btn" data-id="${sub.id}" style="background:var(--gold); color:var(--navy-darkest);">Publish & Create Page</button>` : ''}
-                ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Landing Page</a>` : ''}
+                ${sub.status === 'Published' ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block;">View Article</a>` : ''}
               </div>
             </td>
           `;
@@ -790,6 +790,14 @@
           document.getElementById('edit-article-authors').value = sub.landing_authors || '';
           document.getElementById('edit-article-summary').value = sub.landing_summary || '';
           document.getElementById('edit-article-keywords').value = sub.landing_keywords || '';
+          document.getElementById('edit-article-doi').value = sub.landing_doi || '';
+          document.getElementById('edit-article-details').value = sub.landing_details || '';
+          document.getElementById('edit-article-funding').value = sub.landing_funding || '';
+          document.getElementById('edit-article-references').value = sub.landing_references || '';
+          document.getElementById('edit-date-received').value = sub.manuscript_received_date || '';
+          document.getElementById('edit-date-revised').value = sub.manuscript_revised_date || '';
+          document.getElementById('edit-date-accepted').value = sub.manuscript_accepted_date || '';
+          document.getElementById('edit-date-published').value = sub.published_date || '';
           document.getElementById('edit-cover-current').value = sub.cover_image_path || '';
           document.getElementById('edit-cover-file').value = '';
           document.getElementById('edit-cover-name').textContent = sub.cover_image_path ? sub.cover_image_path.split('/').pop() : 'No cover selected';
@@ -822,14 +830,6 @@
     });
   }
 
-  const previewEditBtn = document.getElementById('btn-preview-edit');
-  if (previewEditBtn) {
-    previewEditBtn.addEventListener('click', () => {
-      const id = document.getElementById('edit-article-id').value;
-      if (id) window.open(`article.html?id=${id}&preview=1`, '_blank');
-    });
-  }
-
   const editArticleForm = document.getElementById('edit-article-form');
   if (editArticleForm) {
     editArticleForm.addEventListener('submit', async (e) => {
@@ -841,6 +841,14 @@
       const authors = document.getElementById('edit-article-authors').value;
       const summary = document.getElementById('edit-article-summary').value;
       const keywords = document.getElementById('edit-article-keywords').value;
+      const doi = document.getElementById('edit-article-doi').value;
+      const details = document.getElementById('edit-article-details').value;
+      const funding = document.getElementById('edit-article-funding').value;
+      const references = document.getElementById('edit-article-references').value;
+      const receivedDate = document.getElementById('edit-date-received').value;
+      const revisedDate = document.getElementById('edit-date-revised').value;
+      const acceptedDate = document.getElementById('edit-date-accepted').value;
+      const publishedDate = document.getElementById('edit-date-published').value;
       const coverInput = document.getElementById('edit-cover-file');
       let coverPath = document.getElementById('edit-cover-current').value;
 
@@ -875,6 +883,14 @@
         landing_authors: authors,
         landing_summary: summary,
         landing_keywords: keywords,
+        landing_doi: doi,
+        landing_details: details,
+        landing_funding: funding,
+        landing_references: references,
+        manuscript_received_date: receivedDate || null,
+        manuscript_revised_date: revisedDate || null,
+        manuscript_accepted_date: acceptedDate || null,
+        published_date: publishedDate || null,
         cover_image_path: coverPath || null
       }).eq('id', id);
 
@@ -926,6 +942,10 @@
         <input type="text" id="edit-article-journal" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
       </div>
       <div class="auth-field">
+        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article ID / DOI</label>
+        <input type="text" id="edit-article-doi" placeholder="https://doi.org/... or article identifier" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
+      </div>
+      <div class="auth-field">
         <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Landing Summary</label>
         <textarea id="edit-article-summary" rows="3" placeholder="Short intro shown in the article hero..." style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
       </div>
@@ -934,11 +954,31 @@
         <input type="text" id="edit-article-keywords" placeholder="education, assessment, learning outcomes" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
       </div>
       <div class="auth-field">
+        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Details</label>
+        <textarea id="edit-article-details" rows="2" placeholder="Copyright, publisher, issue notes..." style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+      </div>
+      <div class="auth-field">
+        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Research Funding</label>
+        <textarea id="edit-article-funding" rows="2" placeholder="Funding agency, grant number, acknowledgements..." style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+      </div>
+      <div class="auth-field">
+        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Publication History</label>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+          <input type="date" id="edit-date-received" title="Received" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+          <input type="date" id="edit-date-revised" title="Revised" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+          <input type="date" id="edit-date-accepted" title="Accepted" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+          <input type="date" id="edit-date-published" title="Published" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+        </div>
+      </div>
+      <div class="auth-field">
+        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">References</label>
+        <textarea id="edit-article-references" rows="4" placeholder="One reference per line" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+      </div>
+      <div class="auth-field">
         <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Abstract</label>
         <textarea id="edit-article-abstract" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; min-height:150px; resize:vertical;"></textarea>
       </div>
       <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-        <button type="button" id="btn-preview-edit" class="btn-action" style="background:transparent; border:1px solid rgba(255,255,255,0.2);">Preview</button>
         <button type="button" id="btn-cancel-edit" class="btn-action" style="background:transparent; border:1px solid rgba(255,255,255,0.2);">Cancel</button>
         <button type="submit" id="btn-save-edit" class="btn-action" style="background:var(--gold); color:var(--navy-darkest);">Save Changes</button>
       </div>

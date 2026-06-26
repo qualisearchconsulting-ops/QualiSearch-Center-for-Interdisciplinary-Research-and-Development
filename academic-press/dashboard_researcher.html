@@ -265,10 +265,33 @@
         <!-- Left Panel: Submission Form -->
         <div class="dash-panel reveal reveal-delay-1">
           <h2 class="dash-panel-title">Submit Manuscript</h2>
-          <form class="dash-form" id="manuscript-form">
+
+          <!-- Upload First (auto-fill trigger) -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="display:flex; align-items:center; gap:8px;">
+              Upload File (.pdf, .docx)
+              <span id="extract-badge" style="display:none; font-size:11px; padding:2px 8px; border-radius:20px; background: rgba(201,163,72,0.15); color: var(--gold); border: 1px solid var(--gold); font-weight:600;">⚡ Auto-filling...</span>
+              <span id="extract-done" style="display:none; font-size:11px; padding:2px 8px; border-radius:20px; background: rgba(40,140,70,0.15); color:#4caf6e; border: 1px solid #4caf6e; font-weight:600;">✓ Details extracted!</span>
+            </label>
+            <div class="file-drop-area">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+              <span class="file-msg" id="file-msg">Drag & drop your file here or click to browse<br><small style="opacity:0.6;">Fields below will auto-fill from your document</small></span>
+              <input type="file" id="manu-file" accept=".pdf,.doc,.docx" required />
+            </div>
+          </div>
+
+          <form class="dash-form" id="manuscript-form" style="margin-top:16px;">
             <div class="form-group">
               <label for="manu-title">Manuscript Title</label>
               <input type="text" id="manu-title" placeholder="Enter full title of your research" required />
+            </div>
+            <div class="form-group">
+              <label for="manu-authors">Author(s)</label>
+              <input type="text" id="manu-authors" placeholder="e.g. Juan Dela Cruz, Maria Santos" />
+            </div>
+            <div class="form-group">
+              <label for="manu-keywords">Keywords</label>
+              <input type="text" id="manu-keywords" placeholder="e.g. qualitative research, education, pedagogy" />
             </div>
             <div class="form-group">
               <label for="manu-journal">Target Journal</label>
@@ -283,15 +306,12 @@
             </div>
             <div class="form-group">
               <label for="manu-abstract">Abstract</label>
-              <textarea id="manu-abstract" rows="4" placeholder="Brief summary of your manuscript..." required></textarea>
+              <textarea id="manu-abstract" rows="5" placeholder="Brief summary of your manuscript..." required></textarea>
             </div>
             <div class="form-group">
-              <label>Upload File (.pdf, .docx)</label>
-              <div class="file-drop-area">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-                <span class="file-msg" id="file-msg">Drag & drop your file here or click to browse</span>
-                <input type="file" id="manu-file" accept=".pdf,.doc,.docx" required />
-              </div>
+              <label for="manu-references">References / RRL</label>
+              <textarea id="manu-references" rows="6" placeholder="References will be auto-extracted from your file..."></textarea>
+              <small style="color: var(--text-secondary); font-size: 11px;">Auto-extracted from your document. You may edit if needed.</small>
             </div>
             <button type="submit" class="submit-btn" id="btn-submit-manuscript" style="width: 100%; margin-top: 16px;">
               Submit for Review
@@ -403,28 +423,47 @@
         
         data.forEach(sub => {
           const date = new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const normalizedStatus = String(sub.status || '').trim().toLowerCase();
+          const isPublished = normalizedStatus === 'published';
+          const needsRevision = normalizedStatus === 'revisions required';
+          const hasSubmittedRevision = normalizedStatus === 'revision submitted';
+          const canUploadRevision = needsRevision || hasSubmittedRevision;
+          const revisionStorageKey = `qs-revision-submitted-${sub.id}`;
+          if (!hasSubmittedRevision) localStorage.removeItem(revisionStorageKey);
+          const displayStatus = hasSubmittedRevision ? 'Revision Submitted' : sub.status;
           let statusClass = 'status-pending';
           if (sub.status === 'Under Review') statusClass = 'status-review';
-          if (sub.status === 'Accepted' || sub.status === 'Published') statusClass = 'status-published';
+          if (sub.status === 'Accepted' || isPublished) statusClass = 'status-published';
           if (sub.status === 'Revisions Required') statusClass = 'status-revisions';
           if (sub.status === 'Ready for Admin') statusClass = 'status-ready';
           if (sub.status === 'Rejected') statusClass = 'status-rejected';
+          if (hasSubmittedRevision) statusClass = 'status-review';
           
           let reviewDocsHtml = '';
           if (sub.reviewed_file_path) {
+            const revisionControlsHtml = canUploadRevision ? `
+              <input type="file" id="revised-file-${sub.id}" class="revised-file-input" style="display:none;" />
+              <label for="revised-file-${sub.id}" class="btn-action" style="background:var(--color-gold); color:var(--color-bg); cursor:pointer; font-size:0.75rem; padding: 5px 10px;">${hasSubmittedRevision ? 'Resubmit Revision' : 'Upload Revision'}</label>
+              <span id="revised-file-name-${sub.id}" style="font-size: 0.75rem; color: var(--color-gold);"></span>
+              <button class="btn-action submit-revision-btn" data-id="${sub.id}" data-resubmit="${hasSubmittedRevision ? '1' : '0'}" style="display:none; padding: 5px 10px; font-size: 0.75rem;">${hasSubmittedRevision ? 'Resubmit Revision' : 'Submit Revision'}</button>
+            ` : '';
+
             reviewDocsHtml = `
               <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Reviewer Feedback Attached:</p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 5px;">Reviewer Feedback:</p>
+                <div style="white-space:pre-wrap; color:var(--text-primary); line-height:1.6; margin-bottom:10px; font-size:0.9rem;">${sub.reviewer_feedback || 'No feedback message provided.'}</div>
+                ${hasSubmittedRevision ? `<div style="margin-bottom:10px; color:#4ade80; font-size:0.85rem; font-weight:600;">Revision submitted. Awaiting reviewer feedback.</div>` : ''}
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <button class="btn-action download-reviewed-btn" data-path="${sub.reviewed_file_path}" style="background:var(--bg-secondary); color:var(--text-primary); padding: 5px 10px; font-size: 0.75rem;">Download Reviewed File</button>
-                  <input type="file" id="revised-file-${sub.id}" class="revised-file-input" style="display:none;" />
-                  <label for="revised-file-${sub.id}" class="btn-action" style="background:var(--color-gold); color:var(--color-bg); cursor:pointer; font-size:0.75rem; padding: 5px 10px;">Upload Revision</label>
-                  <span id="revised-file-name-${sub.id}" style="font-size: 0.75rem; color: var(--color-gold);"></span>
-                  <button class="btn-action submit-revision-btn" data-id="${sub.id}" style="display:none; padding: 5px 10px; font-size: 0.75rem;">Submit Revision</button>
+                  ${revisionControlsHtml}
                 </div>
               </div>
             `;
           }
+
+          const publishedArticleHtml = isPublished
+            ? `<a href="article.html?id=${sub.id}" target="_blank" class="btn-action" style="background:var(--gold); color:var(--navy-darkest); text-decoration:none; text-align:center; display:inline-block; padding: 6px 12px; font-size: 0.8rem;">View Article</a>`
+            : '';
 
           const el = document.createElement('div');
           el.className = 'submission-item';
@@ -436,7 +475,10 @@
                 <span class="sub-title">${sub.title}</span>
                 <span class="sub-meta">Submitted: ${date} • Journal: ${sub.journal}</span>
               </div>
-              <span class="sub-status ${statusClass}">${sub.status}</span>
+              <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+                <span class="sub-status ${statusClass}">${displayStatus}</span>
+                ${publishedArticleHtml}
+              </div>
             </div>
             ${reviewDocsHtml}
           `;
@@ -493,6 +535,7 @@
             const file = fileInput.files[0];
             const fileExt = file.name.split('.').pop();
             const fileName = `revision_${subId}_${Date.now()}.${fileExt}`;
+            const isResubmit = e.target.getAttribute('data-resubmit') === '1';
             
             e.target.textContent = 'Uploading...';
             
@@ -502,7 +545,7 @@
 
             if (uploadError) {
               alert('Error uploading revision: ' + uploadError.message);
-              e.target.textContent = 'Submit Revision';
+              e.target.textContent = isResubmit ? 'Resubmit Revision' : 'Submit Revision';
               return;
             }
             
@@ -510,16 +553,15 @@
               .from('submissions')
               .update({ 
                 file_path: uploadData.path,
-                status: 'Under Review',
-                reviewer_feedback: 'Revision submitted by author.',
-                reviewed_file_path: null // Clear previous reviewed file so reviewer can upload a new one later
+                status: 'Revision Submitted'
               })
               .eq('id', subId);
               
             if (updateError) {
-              alert('Error updating submission: ' + updateError.message);
-              e.target.textContent = 'Submit Revision';
+              alert('Revision uploaded, but the submission status could not be updated. Please ask the admin to run supabase_researcher_revision_updates.sql in Supabase, then resubmit this revision. Error: ' + updateError.message);
+              e.target.textContent = isResubmit ? 'Resubmit Revision' : 'Submit Revision';
             } else {
+              localStorage.setItem(`qs-revision-submitted-${subId}`, uploadData.path);
               alert('Revision submitted successfully!');
               loadSubmissions();
             }
@@ -530,18 +572,140 @@
       // Load existing submissions
       loadSubmissions();
       
-      // 2. Handle File Input Change
+      // 2. Handle File Input - Auto-Extract Details
       const fileInput = document.getElementById('manu-file');
       const fileMsg = document.getElementById('file-msg');
-      
-      fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-          fileMsg.textContent = e.target.files[0].name;
-          fileMsg.style.color = 'var(--gold)';
-        } else {
-          fileMsg.textContent = 'Drag & drop your file here or click to browse';
-          fileMsg.style.color = 'var(--text-secondary)';
+      const extractBadge = document.getElementById('extract-badge');
+      const extractDone = document.getElementById('extract-done');
+
+      // --- Text Extraction Helpers ---
+      function extractFromText(text) {
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+        let title = '', authors = '', keywords = '', abstract = '', references = '';
+
+        // --- TITLE: usually first long non-generic line ---
+        for (let i = 0; i < Math.min(15, lines.length); i++) {
+          const l = lines[i];
+          if (l.length > 15 && l.length < 300 && !/^(abstract|keywords|introduction|author|doi|issn|volume|issue|page|\d)/i.test(l)) {
+            title = l; break;
+          }
         }
+
+        // --- AUTHORS: line after title or before abstract ---
+        for (let i = 0; i < Math.min(25, lines.length); i++) {
+          if (/^(by |authors?[:—]?)/i.test(lines[i])) {
+            authors = lines[i].replace(/^(by |authors?[:—]?\s*)/i, '').trim();
+            break;
+          }
+          // line with multiple names (comma-separated proper nouns)
+          if (!authors && /,/.test(lines[i]) && /[A-Z][a-z]+/.test(lines[i]) && lines[i].length < 200 && i > 0 && i < 15) {
+            const candidate = lines[i];
+            if (!/\d{4}/.test(candidate) && !/https?/.test(candidate)) authors = candidate;
+          }
+        }
+
+        // --- KEYWORDS ---
+        const kwMatch = text.match(/keywords?[:\s—]+([^\n]{10,300})/i);
+        if (kwMatch) keywords = kwMatch[1].trim();
+
+        // --- ABSTRACT ---
+        const absMatch = text.match(/abstract[:\s—]*\n([\s\S]{80,2000?}?)(?=\n[A-Z][A-Z ]{3,}|\n1\.\s|\nIntroduction|Keywords?|$)/i);
+        if (absMatch) abstract = absMatch[1].replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+        // --- REFERENCES ---
+        const refMatch = text.match(/\n(references?|bibliography|works cited)[:\s]*\n([\s\S]*)/i);
+        if (refMatch) references = refMatch[2].trim().substring(0, 5000);
+
+        return { title, authors, keywords, abstract, references };
+      }
+
+      async function readDocx(file) {
+        // Minimal DOCX XML reader (no external library needed)
+        const buf = await file.arrayBuffer();
+        const zip = await (async () => {
+          // Use browser's DecompressionStream if available, else basic approach
+          try {
+            const { default: JSZip } = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+            return await JSZip.loadAsync(buf);
+          } catch { return null; }
+        })();
+        if (!zip) return '';
+        const xml = await zip.file('word/document.xml').async('text');
+        return xml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      }
+
+      async function readPdf(file) {
+        // Use PDF.js from CDN
+        try {
+          if (!window.pdfjsLib) {
+            await new Promise((res, rej) => {
+              const s = document.createElement('script');
+              s.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+              s.type = 'module';
+              s.onload = res; s.onerror = rej;
+              document.head.appendChild(s);
+            });
+          }
+          // Dynamic import instead
+          const pdfjs = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
+          pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+          const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+          let allText = '';
+          for (let p = 1; p <= Math.min(pdf.numPages, 30); p++) {
+            const page = await pdf.getPage(p);
+            const tc = await page.getTextContent();
+            allText += tc.items.map(i => i.str).join(' ') + '\n';
+          }
+          return allText;
+        } catch(err) {
+          console.warn('PDF.js error:', err);
+          return '';
+        }
+      }
+
+      function fillForm(extracted) {
+        if (extracted.title)      document.getElementById('manu-title').value      = extracted.title;
+        if (extracted.authors)    document.getElementById('manu-authors').value    = extracted.authors;
+        if (extracted.keywords)   document.getElementById('manu-keywords').value   = extracted.keywords;
+        if (extracted.abstract)   document.getElementById('manu-abstract').value   = extracted.abstract;
+        if (extracted.references) document.getElementById('manu-references').value = extracted.references;
+      }
+
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          fileMsg.innerHTML = 'Drag &amp; drop your file here or click to browse<br><small style="opacity:0.6;">Fields below will auto-fill from your document</small>';
+          fileMsg.style.color = 'var(--text-secondary)';
+          return;
+        }
+
+        fileMsg.textContent = file.name;
+        fileMsg.style.color = 'var(--gold)';
+
+        // Show extracting badge
+        extractBadge.style.display = 'inline-block';
+        extractDone.style.display = 'none';
+
+        try {
+          let text = '';
+          const ext = file.name.split('.').pop().toLowerCase();
+          if (ext === 'docx') {
+            text = await readDocx(file);
+          } else if (ext === 'pdf') {
+            text = await readPdf(file);
+          }
+
+          if (text && text.length > 50) {
+            const extracted = extractFromText(text);
+            fillForm(extracted);
+          }
+        } catch(err) {
+          console.warn('Auto-extract error:', err);
+        }
+
+        extractBadge.style.display = 'none';
+        extractDone.style.display = 'inline-block';
+        setTimeout(() => { extractDone.style.display = 'none'; }, 4000);
       });
       
       // 3. Handle Form Submission (Supabase)
@@ -550,9 +714,12 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const title = document.getElementById('manu-title').value;
-        const journal = document.getElementById('manu-journal').value;
-        const abstract = document.getElementById('manu-abstract').value;
+        const title      = document.getElementById('manu-title').value;
+        const authors    = document.getElementById('manu-authors').value;
+        const keywords   = document.getElementById('manu-keywords').value;
+        const journal    = document.getElementById('manu-journal').value;
+        const abstract   = document.getElementById('manu-abstract').value;
+        const references = document.getElementById('manu-references').value;
         const file = fileInput.files[0];
         const btn = document.getElementById('btn-submit-manuscript');
         
@@ -581,12 +748,15 @@
             .from('submissions')
             .insert([
               {
-                user_id: session.user.id,
-                title: title,
-                journal: journal,
-                abstract: abstract,
-                file_path: uploadData.path,
-                status: 'Pending'
+                user_id:    session.user.id,
+                title:      title,
+                authors:    authors || null,
+                keywords:   keywords || null,
+                journal:    journal,
+                abstract:   abstract,
+                references: references || null,
+                file_path:  uploadData.path,
+                status:    'Pending'
               }
             ]);
             
