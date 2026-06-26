@@ -251,8 +251,10 @@
           refsEl.innerHTML = '';
           refs.forEach(ref => {
             const p = document.createElement('p');
-            p.textContent = ref;
             p.style.cssText = 'margin:0 0 14px;';
+            // Convert URLs to clickable links
+            const linked = ref.replace(/(https?:\/\/[^\s,]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--gold); text-decoration:underline; word-break:break-all;">$1</a>');
+            p.innerHTML = linked;
             refsEl.appendChild(p);
           });
         }
