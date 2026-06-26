@@ -37,13 +37,44 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ════════════════════════════════════════
      TOAST NOTIFICATION
   ════════════════════════════════════════ */
-  const toastEl   = document.getElementById('qs-toast');
-  const toastIcon = document.getElementById('qs-toast-icon');
-  const toastMsg  = document.getElementById('qs-toast-msg');
+  let toastEl   = document.getElementById('qs-toast');
+  let toastIcon = document.getElementById('qs-toast-icon');
+  let toastMsg  = document.getElementById('qs-toast-msg');
   let toastTimer  = null;
 
+  function ensureToast() {
+    if (toastEl && toastIcon && toastMsg) return true;
+
+    toastEl = document.createElement('div');
+    toastEl.className = 'qs-toast';
+    toastEl.id = 'qs-toast';
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'polite');
+    toastEl.hidden = true;
+
+    toastIcon = document.createElement('span');
+    toastIcon.className = 'qs-toast-icon';
+    toastIcon.id = 'qs-toast-icon';
+
+    toastMsg = document.createElement('span');
+    toastMsg.className = 'qs-toast-msg';
+    toastMsg.id = 'qs-toast-msg';
+
+    toastEl.appendChild(toastIcon);
+    toastEl.appendChild(toastMsg);
+    document.body.appendChild(toastEl);
+    return true;
+  }
+
+  function getToastType(message) {
+    const text = String(message || '').toLowerCase();
+    if (text.includes('error') || text.includes('failed') || text.includes('could not') || text.includes('please select') || text.includes('please fill')) return 'error';
+    if (text.includes('success') || text.includes('submitted') || text.includes('saved') || text.includes('copied') || text.includes('updated') || text.includes('published')) return 'success';
+    return 'info';
+  }
+
   function showToast(message, type = 'info') {
-    if (!toastEl || !toastIcon || !toastMsg) return;
+    if (!ensureToast()) return;
     const icons = { success: '✓', error: '✕', info: 'ℹ' };
     toastEl.className = `qs-toast toast-${type}`;
     toastIcon.textContent = icons[type] || 'ℹ';
@@ -59,6 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 320);
     }, 4000);
   }
+
+  window.qsShowToast = showToast;
+  window.alert = (message) => showToast(message, getToastType(message));
 
   /* ════════════════════════════════════════
      NAVBAR STATE — Login btn / User avatar

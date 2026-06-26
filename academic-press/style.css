@@ -911,6 +911,7 @@ body {
   font-family: 'Inter', sans-serif;
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
+  appearance: none;
   -webkit-appearance: none;
 }
 
