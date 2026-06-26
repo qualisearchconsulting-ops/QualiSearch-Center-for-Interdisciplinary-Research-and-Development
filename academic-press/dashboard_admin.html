@@ -859,7 +859,7 @@
     previewLandingBtn.addEventListener('click', () => {
       const id = document.getElementById('edit-article-id').value;
       if (id) {
-        window.open(`article.html?id=${encodeURIComponent(id)}`, '_blank');
+        window.open(`article.html?id=${encodeURIComponent(id)}&preview=1`, '_blank');
       }
     });
   }
