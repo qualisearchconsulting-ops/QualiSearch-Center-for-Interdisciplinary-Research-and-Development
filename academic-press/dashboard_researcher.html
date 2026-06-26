@@ -362,6 +362,12 @@
     <span class="qs-toast-msg" id="qs-toast-msg"></span>
   </div>
 
+  <!-- QR Code Modal Overlay -->
+  <div id="qr-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; cursor:pointer;" onclick="this.style.display='none'">
+    <span style="position:absolute; top:20px; right:30px; color:#fff; font-size:30px; font-weight:bold;">&times;</span>
+    <img src="gcashpaymentQR.jpeg" alt="GCash QR Code Enlarged" style="max-width:90%; max-height:90vh; border-radius:10px; cursor:default;" onclick="event.stopPropagation();" />
+  </div>
+
   <script src="script.js"></script>
   
   <!-- Dashboard Specific Script -->
@@ -481,7 +487,7 @@
                 <p style="font-size: 0.85rem; color: #f0a500; font-weight: 600; margin-bottom: 5px;">Payment Required</p>
                 <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Your manuscript has passed peer review! Please scan the GCash QR code below and upload your proof of payment to proceed to publication.</p>
                 <div style="margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; display: inline-block;">
-                  <img src="gcashpaymentQR.jpeg" alt="GCash QR Code" style="max-width: 150px; display: block; cursor: pointer;" onclick="window.open(this.src)" title="Click to enlarge" />
+                  <img src="gcashpaymentQR.jpeg" alt="GCash QR Code" style="max-width: 150px; display: block; cursor: pointer;" onclick="document.getElementById('qr-modal-backdrop').style.display='flex'" title="Click to enlarge" />
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                   <input type="file" id="payment-file-${sub.id}" class="payment-file-input" style="display:none;" accept="image/*,.pdf" />
