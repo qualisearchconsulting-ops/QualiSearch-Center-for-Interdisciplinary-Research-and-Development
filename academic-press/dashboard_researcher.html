@@ -593,10 +593,12 @@
         // PAYMENT PROOF LOGIC
         document.querySelectorAll('.payment-file-input').forEach(input => {
           input.addEventListener('change', (e) => {
-            const subId = e.target.id.split('-').pop();
+            const subId = e.target.id.replace('payment-file-', '');
             const nameSpan = document.getElementById(`payment-file-name-${subId}`);
             const submitBtn = document.querySelector(`.submit-payment-btn[data-id="${subId}"]`);
             
+            if (!nameSpan || !submitBtn) return; // Prevent crash if elements not found
+
             if (e.target.files.length > 0) {
               nameSpan.textContent = e.target.files[0].name;
               submitBtn.style.display = 'inline-block';
