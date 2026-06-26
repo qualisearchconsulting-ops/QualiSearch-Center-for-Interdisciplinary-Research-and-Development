@@ -282,34 +282,7 @@
               <label for="manu-title">Manuscript Title</label>
               <input type="text" id="manu-title" placeholder="Enter full title of your research" required />
             </div>
-            <div class="form-group">
-              <label for="manu-authors">Author(s)</label>
-              <input type="text" id="manu-authors" placeholder="e.g. Juan Dela Cruz, Maria Santos" />
-            </div>
-            <div class="form-group">
-              <label for="manu-keywords">Keywords</label>
-              <input type="text" id="manu-keywords" placeholder="e.g. qualitative research, education, pedagogy" />
-            </div>
-            <div class="form-group">
-              <label for="manu-journal">Target Journal</label>
-              <select id="manu-journal" required>
-                <option value="" disabled selected>Select a journal</option>
-                <option value="QJERP">QualiSearch Journal of Educational Research and Practice (QJERP)</option>
-                <option value="QJHS">QualiSearch Journal of Health Sciences (QJHS)</option>
-                <option value="QJBG">QualiSearch Journal of Business and Governance (QJBG)</option>
-                <option value="QJTI">QualiSearch Journal of Technology and Innovation (QJTI)</option>
-                <option value="QJPLC">QualiSearch Journal of Philippine Languages and Culture (QJPLC)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="manu-abstract">Abstract</label>
-              <textarea id="manu-abstract" rows="5" placeholder="Brief summary of your manuscript..." required></textarea>
-            </div>
-            <div class="form-group">
-              <label for="manu-references">References / RRL</label>
-              <textarea id="manu-references" rows="6" placeholder="References will be auto-extracted from your file..."></textarea>
-              <small style="color: var(--text-secondary); font-size: 11px;">Auto-extracted from your document. You may edit if needed.</small>
-            </div>
+
             <button type="submit" class="submit-btn" id="btn-submit-manuscript" style="width: 100%; margin-top: 16px;">
               Submit for Review
             </button>
@@ -711,11 +684,7 @@
         e.preventDefault();
         
         const title      = document.getElementById('manu-title').value;
-        const authors    = document.getElementById('manu-authors').value;
-        const keywords   = document.getElementById('manu-keywords').value;
-        const journal    = document.getElementById('manu-journal').value;
-        const abstract   = document.getElementById('manu-abstract').value;
-        const references = document.getElementById('manu-references').value;
+
         const file = fileInput.files[0];
         const btn = document.getElementById('btn-submit-manuscript');
         
@@ -746,11 +715,11 @@
               {
                 user_id:    session.user.id,
                 title:      title,
-                authors:    authors || null,
-                keywords:   keywords || null,
-                journal:    journal,
-                abstract:   abstract,
-                references: references || null,
+                authors:    null,
+                keywords:   null,
+                journal:    'To be assigned',
+                abstract:   'To be added',
+                references: null,
                 file_path:  uploadData.path,
                 status:    'Pending'
               }
