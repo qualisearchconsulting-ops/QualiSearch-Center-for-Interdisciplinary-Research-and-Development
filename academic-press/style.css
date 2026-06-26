@@ -1629,6 +1629,63 @@ body {
   color: var(--text-secondary);
 }
 
+/* ── Dashboard Tabs ── */
+.dash-tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0px;
+  overflow-x: auto;
+}
+
+.dash-tab {
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 12px 18px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.dash-tab:hover {
+  color: var(--text-primary);
+}
+
+.dash-tab.active {
+  color: var(--gold-light);
+}
+
+.dash-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.dash-tab.active::after {
+  transform: scaleX(1);
+}
+
+.dash-tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.dash-tab-content.active {
+  display: block;
+}
+
 /* ── Panels ── */
 .auth-panel {
   padding: 28px 28px 24px;

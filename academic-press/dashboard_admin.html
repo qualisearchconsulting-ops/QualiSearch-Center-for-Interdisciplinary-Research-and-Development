@@ -239,142 +239,144 @@
         <p class="admin-subtitle">Manage all manuscript submissions and assign peer reviewers.</p>
       </div>
 
-      <div style="margin-bottom:15px;">
-        <h2
-          style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
-          Journal Launch Controls</h2>
-      </div>
-      <div class="table-wrapper" style="margin-bottom:30px;">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Journal</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="journal-controls-body">
-            <tr>
-              <td colspan="3" class="empty-state">Loading journal controls...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- TABS HEADER -->
+      <div class="dash-tabs" id="admin-tabs">
+        <button class="dash-tab active" data-tab="tab-pending">Pending & In Review</button>
+        <button class="dash-tab" data-tab="tab-ready">Ready for Decision</button>
+        <button class="dash-tab" data-tab="tab-published">Published</button>
+        <button class="dash-tab" data-tab="tab-settings">Journal Settings</button>
       </div>
 
-      <!-- Add Reviewer Section -->
-      <div class="table-wrapper"
-        style="margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
-        <div style="flex:1; min-width: 200px;">
-          <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer
-            Name</label>
-          <input type="text" id="rev-name" class="reviewer-input" style="width:100%; margin:0;"
-            placeholder="e.g. Dr. Jane Doe" />
+      <!-- TAB 1: Pending / In Review -->
+      <div class="dash-tab-content active" id="tab-pending">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px;">
+          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Pending / In Review</h2>
+          <button id="btn-auto-assign" class="btn-action" style="background:var(--color-gold); color:var(--color-bg); font-weight:600; padding:6px 15px;">Auto-Assign All</button>
         </div>
-        <div style="flex:1; min-width: 200px;">
-          <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer
-            Email</label>
-          <input type="email" id="rev-email" class="reviewer-input" style="width:100%; margin:0;"
-            placeholder="jane@example.com" />
-        </div>
-        <div style="flex:1; min-width: 200px;">
-          <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Temp
-            Password</label>
-          <input type="text" id="rev-password" class="reviewer-input" style="width:100%; margin:0;"
-            placeholder="SecretPass123" />
-        </div>
-        <div style="flex:1; min-width: 200px;">
-          <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Handled
-            Journal</label>
-          <select id="rev-journal" class="reviewer-input" style="width:100%; margin:0;">
-            <option value="" disabled selected>Select Journal</option>
-            <option value="QJERP">Journal of Educational Research (QJERP)</option>
-            <option value="QJHS">Journal of Health Sciences (QJHS)</option>
-            <option value="QJBG">Journal of Business and Governance (QJBG)</option>
-            <option value="QJTI">Journal of Technology and Innovation (QJTI)</option>
-            <option value="QJPLC">Philippine Languages and Culture (QJPLC)</option>
-          </select>
-        </div>
-        <div>
-          <button id="btn-add-reviewer" class="btn-action"
-            style="padding: 7px 16px; background: var(--color-gold); color: var(--color-bg); font-weight: 600;">+ Add
-            Reviewer</button>
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Manuscript Details</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+                <th>Reviewer</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-submissions-body">
+              <tr>
+                <td colspan="5" class="empty-state">Loading submissions...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div
-        style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px; margin-top:40px;">
-        <h2
-          style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
-          Pending / In Review</h2>
-        <button id="btn-auto-assign" class="btn-action"
-          style="background:var(--color-gold); color:var(--color-bg); font-weight:600; padding:6px 15px;">Auto-Assign
-          All</button>
-      </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Manuscript Details</th>
-              <th>Date Submitted</th>
-              <th>Status</th>
-              <th>Reviewer</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="admin-submissions-body">
-            <tr>
-              <td colspan="5" class="empty-state">Loading submissions...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- TAB 2: Ready for Decision -->
+      <div class="dash-tab-content" id="tab-ready">
+        <div style="margin-bottom:15px;">
+          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Ready for Editor Decision</h2>
+        </div>
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Manuscript Details</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+                <th>Reviewer</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-ready-body">
+              <tr>
+                <td colspan="5" class="empty-state">Loading manuscripts ready for decision...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div style="margin-bottom:15px; margin-top:40px;">
-        <h2
-          style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
-          Ready for Editor Decision</h2>
-      </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Manuscript Details</th>
-              <th>Date Submitted</th>
-              <th>Status</th>
-              <th>Reviewer</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="admin-ready-body">
-            <tr>
-              <td colspan="5" class="empty-state">Loading manuscripts ready for decision...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- TAB 3: Published Articles -->
+      <div class="dash-tab-content" id="tab-published">
+        <div style="margin-bottom:15px;">
+          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Published Articles</h2>
+        </div>
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Article Details</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+                <th>Reviewer</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-published-body">
+              <tr>
+                <td colspan="5" class="empty-state">Loading published articles...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div style="margin-bottom:15px; margin-top:40px;">
-        <h2
-          style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
-          Published Articles</h2>
+      <!-- TAB 4: Journal Settings & Reviewers -->
+      <div class="dash-tab-content" id="tab-settings">
+        <div style="margin-bottom:15px;">
+          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Journal Launch Controls</h2>
+        </div>
+        <div class="table-wrapper" style="margin-bottom:30px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Journal</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="journal-controls-body">
+              <tr>
+                <td colspan="3" class="empty-state">Loading journal controls...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-bottom:15px;">
+          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Add Reviewer</h2>
+        </div>
+        <div class="table-wrapper" style="margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex:1; min-width: 200px;">
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer Name</label>
+            <input type="text" id="rev-name" class="reviewer-input" style="width:100%; margin:0;" placeholder="e.g. Dr. Jane Doe" />
+          </div>
+          <div style="flex:1; min-width: 200px;">
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer Email</label>
+            <input type="email" id="rev-email" class="reviewer-input" style="width:100%; margin:0;" placeholder="jane@example.com" />
+          </div>
+          <div style="flex:1; min-width: 200px;">
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Temp Password</label>
+            <input type="text" id="rev-password" class="reviewer-input" style="width:100%; margin:0;" placeholder="SecretPass123" />
+          </div>
+          <div style="flex:1; min-width: 200px;">
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Handled Journal</label>
+            <select id="rev-journal" class="reviewer-input" style="width:100%; margin:0;">
+              <option value="" disabled selected>Select Journal</option>
+              <option value="QJERP">Journal of Educational Research (QJERP)</option>
+              <option value="QJHS">Journal of Health Sciences (QJHS)</option>
+              <option value="QJBG">Journal of Business and Governance (QJBG)</option>
+              <option value="QJTI">Journal of Technology and Innovation (QJTI)</option>
+              <option value="QJPLC">Philippine Languages and Culture (QJPLC)</option>
+            </select>
+          </div>
+          <div>
+            <button id="btn-add-reviewer" class="btn-action" style="padding: 7px 16px; background: var(--color-gold); color: var(--color-bg); font-weight: 600;">+ Add Reviewer</button>
+          </div>
+        </div>
       </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Article Details</th>
-              <th>Date Submitted</th>
-              <th>Status</th>
-              <th>Reviewer</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="admin-published-body">
-            <tr>
-              <td colspan="5" class="empty-state">Loading published articles...</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </section>
@@ -932,6 +934,23 @@
       }
     });
   }
+
+    });
+  }
+
+  // Tab Switching Logic
+  const tabs = document.querySelectorAll('.dash-tab');
+  const tabContents = document.querySelectorAll('.dash-tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+      
+      tab.classList.add('active');
+      document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+    });
+  });
 
 }); // End of DOMContentLoaded
 </script>

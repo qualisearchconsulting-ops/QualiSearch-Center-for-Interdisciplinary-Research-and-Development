@@ -318,26 +318,21 @@
 
         <!-- Right Panel: Previous Submissions -->
         <div class="dash-panel reveal reveal-delay-2">
-          <h2 class="dash-panel-title">My Submissions</h2>
-          <div class="submission-list" id="submission-list">
-            
-            <!-- Mock items for display -->
-            <div class="submission-item">
-              <div class="sub-info">
-                <span class="sub-title">Impact of AI on Modern Pedagogy</span>
-                <span class="sub-meta">Submitted: June 20, 2026 • Journal: QJERP</span>
-              </div>
-              <span class="sub-status status-review">Under Review</span>
-            </div>
-            
-            <div class="submission-item">
-              <div class="sub-info">
-                <span class="sub-title">Interdisciplinary Approaches to Sustainability</span>
-                <span class="sub-meta">Submitted: May 12, 2026 • Journal: QJMS</span>
-              </div>
-              <span class="sub-status status-pending" style="background: rgba(42, 110, 58, 0.15); color: #4ade80; border-color: rgba(42, 110, 58, 0.3);">Published</span>
-            </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+            <h2 class="dash-panel-title" style="margin:0;">My Submissions</h2>
+          </div>
 
+          <!-- TABS HEADER -->
+          <div class="dash-tabs" id="researcher-tabs" style="margin-bottom: 20px;">
+            <button class="dash-tab active" data-filter="all">All</button>
+            <button class="dash-tab" data-filter="action">Needs Action</button>
+            <button class="dash-tab" data-filter="review">In Progress</button>
+            <button class="dash-tab" data-filter="completed">Completed</button>
+          </div>
+
+          <div class="submission-list" id="submission-list">
+            <!-- Loading -->
+            <p style="color: var(--text-secondary); text-align: center; padding: 20px;">Loading...</p>
           </div>
         </div>
 
@@ -413,12 +408,32 @@
         
         subList.innerHTML = ''; // Clear loading/mock items
         
-        if (!data || data.length === 0) {
-          subList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No submissions yet.</p>';
+        window.currentFilter = window.currentFilter || 'all';
+
+        let filteredData = data;
+        if (window.currentFilter === 'action') {
+           filteredData = data.filter(s => {
+             const stat = String(s.status).toLowerCase();
+             return stat === 'revisions required' || stat === 'pending payment';
+           });
+        } else if (window.currentFilter === 'review') {
+           filteredData = data.filter(s => {
+             const stat = String(s.status).toLowerCase();
+             return stat === 'pending' || stat === 'under review' || stat === 'revision submitted' || stat === 'ready for admin';
+           });
+        } else if (window.currentFilter === 'completed') {
+           filteredData = data.filter(s => {
+             const stat = String(s.status).toLowerCase();
+             return stat === 'published' || stat === 'rejected' || stat === 'accepted';
+           });
+        }
+
+        if (!filteredData || filteredData.length === 0) {
+          subList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No submissions found for this category.</p>';
           return;
         }
         
-        data.forEach(sub => {
+        filteredData.forEach(sub => {
           const date = new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
           const normalizedStatus = String(sub.status || '').trim().toLowerCase();
           const isPublished = normalizedStatus === 'published';
@@ -654,6 +669,17 @@
       
       // Load existing submissions
       loadSubmissions();
+      
+      // Tab Switching Logic
+      const resTabs = document.querySelectorAll('#researcher-tabs .dash-tab');
+      resTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          resTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          window.currentFilter = tab.getAttribute('data-filter');
+          loadSubmissions();
+        });
+      });
       
       // 2. Handle File Input
       const fileInput = document.getElementById('manu-file');

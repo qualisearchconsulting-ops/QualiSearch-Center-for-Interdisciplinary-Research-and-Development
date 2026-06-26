@@ -211,88 +211,96 @@
         </div>
       </div>
 
-      <div style="margin: 28px 0 12px;">
-        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">For Review</h2>
-      </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Manuscript Details</th>
-              <th>Date Assigned</th>
-              <th>Review Feedback</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="reviewer-submissions-body">
-            <tr>
-              <td colspan="4" class="empty-state">Loading assigned submissions...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- TABS HEADER -->
+      <div class="dash-tabs" id="reviewer-tabs">
+        <button class="dash-tab active" data-tab="tab-review">For Review</button>
+        <button class="dash-tab" data-tab="tab-rereview">For Re-review</button>
+        <button class="dash-tab" data-tab="tab-revision">Revision Requested</button>
+        <button class="dash-tab" data-tab="tab-passed">Passed to Editor</button>
       </div>
 
-      <div style="margin: 34px 0 12px;">
-        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">For Re-review</h2>
-      </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Manuscript Details</th>
-              <th>Date Assigned</th>
-              <th>Review Feedback</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="reviewer-rereview-body">
-            <tr>
-              <td colspan="4" class="empty-state">Loading revised submissions...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div style="margin: 34px 0 12px;">
-        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Revision Requested</h2>
-      </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Manuscript Details</th>
-              <th>Date Assigned</th>
-              <th>Review Feedback</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="reviewer-revision-body">
-            <tr>
-              <td colspan="4" class="empty-state">Loading revision requests...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- TAB 1: For Review -->
+      <div class="dash-tab-content active" id="tab-review">
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Manuscript Details</th>
+                <th>Date Assigned</th>
+                <th>Review Feedback</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reviewer-submissions-body">
+              <tr>
+                <td colspan="4" class="empty-state">Loading assigned submissions...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div style="margin: 34px 0 12px;">
-        <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Passed to Editor</h2>
+      <!-- TAB 2: For Re-review -->
+      <div class="dash-tab-content" id="tab-rereview">
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Manuscript Details</th>
+                <th>Date Assigned</th>
+                <th>Review Feedback</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reviewer-rereview-body">
+              <tr>
+                <td colspan="4" class="empty-state">Loading revised submissions...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Manuscript Details</th>
-              <th>Date Assigned</th>
-              <th>Review Feedback</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="reviewer-passed-body">
-            <tr>
-              <td colspan="4" class="empty-state">Loading passed manuscripts...</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- TAB 3: Revision Requested -->
+      <div class="dash-tab-content" id="tab-revision">
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Manuscript Details</th>
+                <th>Date Assigned</th>
+                <th>Review Feedback</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="reviewer-revision-body">
+              <tr>
+                <td colspan="4" class="empty-state">Loading revision requests...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: Passed to Editor -->
+      <div class="dash-tab-content" id="tab-passed">
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Manuscript Details</th>
+                <th>Date Assigned</th>
+                <th>Review Feedback</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="reviewer-passed-body">
+              <tr>
+                <td colspan="4" class="empty-state">Loading passed manuscripts...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -636,8 +644,25 @@
         }
 
       }
+      
+      // Initial load
+      loadReviewerSubmissions();
+      
+      // Tab Switching Logic
+      const tabs = document.querySelectorAll('.dash-tab');
+      const tabContents = document.querySelectorAll('.dash-tab-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+        });
+      });
+      
     });
   </script>
 </body>
 </html>
-
