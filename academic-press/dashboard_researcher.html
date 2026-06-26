@@ -266,16 +266,12 @@
         <div class="dash-panel reveal reveal-delay-1">
           <h2 class="dash-panel-title">Submit Manuscript</h2>
 
-          <!-- Upload First (auto-fill trigger) -->
+          <!-- Upload File -->
           <div class="form-group" style="margin-bottom: 0;">
-            <label style="display:flex; align-items:center; gap:8px;">
-              Upload File (.pdf, .docx)
-              <span id="extract-badge" style="display:none; font-size:11px; padding:2px 8px; border-radius:20px; background: rgba(201,163,72,0.15); color: var(--gold); border: 1px solid var(--gold); font-weight:600;">⚡ Auto-filling...</span>
-              <span id="extract-done" style="display:none; font-size:11px; padding:2px 8px; border-radius:20px; background: rgba(40,140,70,0.15); color:#4caf6e; border: 1px solid #4caf6e; font-weight:600;">✓ Details extracted!</span>
-            </label>
+            <label>Upload File (.pdf, .docx)</label>
             <div class="file-drop-area">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-              <span class="file-msg" id="file-msg">Drag & drop your file here or click to browse<br><small style="opacity:0.6;">Fields below will auto-fill from your document</small></span>
+              <span class="file-msg" id="file-msg">Drag & drop your file here or click to browse</span>
               <input type="file" id="manu-file" accept=".pdf,.doc,.docx" required />
             </div>
           </div>
@@ -572,140 +568,18 @@
       // Load existing submissions
       loadSubmissions();
       
-      // 2. Handle File Input - Auto-Extract Details
+      // 2. Handle File Input
       const fileInput = document.getElementById('manu-file');
       const fileMsg = document.getElementById('file-msg');
-      const extractBadge = document.getElementById('extract-badge');
-      const extractDone = document.getElementById('extract-done');
 
-      // --- Text Extraction Helpers ---
-      function extractFromText(text) {
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
-        let title = '', authors = '', keywords = '', abstract = '', references = '';
-
-        // --- TITLE: usually first long non-generic line ---
-        for (let i = 0; i < Math.min(15, lines.length); i++) {
-          const l = lines[i];
-          if (l.length > 15 && l.length < 300 && !/^(abstract|keywords|introduction|author|doi|issn|volume|issue|page|\d)/i.test(l)) {
-            title = l; break;
-          }
-        }
-
-        // --- AUTHORS: line after title or before abstract ---
-        for (let i = 0; i < Math.min(25, lines.length); i++) {
-          if (/^(by |authors?[:—]?)/i.test(lines[i])) {
-            authors = lines[i].replace(/^(by |authors?[:—]?\s*)/i, '').trim();
-            break;
-          }
-          // line with multiple names (comma-separated proper nouns)
-          if (!authors && /,/.test(lines[i]) && /[A-Z][a-z]+/.test(lines[i]) && lines[i].length < 200 && i > 0 && i < 15) {
-            const candidate = lines[i];
-            if (!/\d{4}/.test(candidate) && !/https?/.test(candidate)) authors = candidate;
-          }
-        }
-
-        // --- KEYWORDS ---
-        const kwMatch = text.match(/keywords?[:\s—]+([^\n]{10,300})/i);
-        if (kwMatch) keywords = kwMatch[1].trim();
-
-        // --- ABSTRACT ---
-        const absMatch = text.match(/abstract[:\s—]*\n([\s\S]{80,2000?}?)(?=\n[A-Z][A-Z ]{3,}|\n1\.\s|\nIntroduction|Keywords?|$)/i);
-        if (absMatch) abstract = absMatch[1].replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-
-        // --- REFERENCES ---
-        const refMatch = text.match(/\n(references?|bibliography|works cited)[:\s]*\n([\s\S]*)/i);
-        if (refMatch) references = refMatch[2].trim().substring(0, 5000);
-
-        return { title, authors, keywords, abstract, references };
-      }
-
-      async function readDocx(file) {
-        // Minimal DOCX XML reader (no external library needed)
-        const buf = await file.arrayBuffer();
-        const zip = await (async () => {
-          // Use browser's DecompressionStream if available, else basic approach
-          try {
-            const { default: JSZip } = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
-            return await JSZip.loadAsync(buf);
-          } catch { return null; }
-        })();
-        if (!zip) return '';
-        const xml = await zip.file('word/document.xml').async('text');
-        return xml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      }
-
-      async function readPdf(file) {
-        // Use PDF.js from CDN
-        try {
-          if (!window.pdfjsLib) {
-            await new Promise((res, rej) => {
-              const s = document.createElement('script');
-              s.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
-              s.type = 'module';
-              s.onload = res; s.onerror = rej;
-              document.head.appendChild(s);
-            });
-          }
-          // Dynamic import instead
-          const pdfjs = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs');
-          pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
-          const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
-          let allText = '';
-          for (let p = 1; p <= Math.min(pdf.numPages, 30); p++) {
-            const page = await pdf.getPage(p);
-            const tc = await page.getTextContent();
-            allText += tc.items.map(i => i.str).join(' ') + '\n';
-          }
-          return allText;
-        } catch(err) {
-          console.warn('PDF.js error:', err);
-          return '';
-        }
-      }
-
-      function fillForm(extracted) {
-        if (extracted.title)      document.getElementById('manu-title').value      = extracted.title;
-        if (extracted.authors)    document.getElementById('manu-authors').value    = extracted.authors;
-        if (extracted.keywords)   document.getElementById('manu-keywords').value   = extracted.keywords;
-        if (extracted.abstract)   document.getElementById('manu-abstract').value   = extracted.abstract;
-        if (extracted.references) document.getElementById('manu-references').value = extracted.references;
-      }
-
-      fileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-          fileMsg.innerHTML = 'Drag &amp; drop your file here or click to browse<br><small style="opacity:0.6;">Fields below will auto-fill from your document</small>';
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          fileMsg.textContent = e.target.files[0].name;
+          fileMsg.style.color = 'var(--gold)';
+        } else {
+          fileMsg.textContent = 'Drag & drop your file here or click to browse';
           fileMsg.style.color = 'var(--text-secondary)';
-          return;
         }
-
-        fileMsg.textContent = file.name;
-        fileMsg.style.color = 'var(--gold)';
-
-        // Show extracting badge
-        extractBadge.style.display = 'inline-block';
-        extractDone.style.display = 'none';
-
-        try {
-          let text = '';
-          const ext = file.name.split('.').pop().toLowerCase();
-          if (ext === 'docx') {
-            text = await readDocx(file);
-          } else if (ext === 'pdf') {
-            text = await readPdf(file);
-          }
-
-          if (text && text.length > 50) {
-            const extracted = extractFromText(text);
-            fillForm(extracted);
-          }
-        } catch(err) {
-          console.warn('Auto-extract error:', err);
-        }
-
-        extractBadge.style.display = 'none';
-        extractDone.style.display = 'inline-block';
-        setTimeout(() => { extractDone.style.display = 'none'; }, 4000);
       });
       
       // 3. Handle Form Submission (Supabase)
