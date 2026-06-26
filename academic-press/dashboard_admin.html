@@ -854,6 +854,16 @@
     });
   }
 
+  const previewLandingBtn = document.getElementById('btn-preview-landing');
+  if (previewLandingBtn) {
+    previewLandingBtn.addEventListener('click', () => {
+      const id = document.getElementById('edit-article-id').value;
+      if (id) {
+        window.open(`article.html?id=${encodeURIComponent(id)}`, '_blank');
+      }
+    });
+  }
+
   const editCoverFile = document.getElementById('edit-cover-file');
   if (editCoverFile) {
     editCoverFile.addEventListener('change', (e) => {
@@ -1026,6 +1036,7 @@
         <textarea id="edit-article-abstract" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; min-height:150px; resize:vertical;"></textarea>
       </div>
       <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+        <button type="button" id="btn-preview-landing" class="btn-action" style="background:rgba(214,178,94,0.12); color:var(--gold); border:1px solid rgba(214,178,94,0.45); margin-right:auto;">Preview Landing Page</button>
         <button type="button" id="btn-cancel-edit" class="btn-action" style="background:transparent; border:1px solid rgba(255,255,255,0.2);">Cancel</button>
         <button type="submit" id="btn-save-edit" class="btn-action" style="background:var(--gold); color:var(--navy-darkest);">Save Changes</button>
       </div>
