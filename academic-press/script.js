@@ -402,8 +402,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const resetRedirectUrl = new URL(window.location.pathname || 'index.html', window.location.origin).href;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname,
+      redirectTo: resetRedirectUrl,
     });
 
     if (error) {
