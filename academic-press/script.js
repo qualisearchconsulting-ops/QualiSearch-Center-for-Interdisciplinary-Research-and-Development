@@ -541,6 +541,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const privatePages = ['dashboard_admin.html', 'dashboard_researcher.html', 'dashboard_reviewer.html'];
 
   async function handlePageAccess(user) {
+    if (window.location.hash.includes('type=recovery')) return; // Prevent redirect during password recovery
+
     const currentPath = window.location.pathname.split('/').pop();
     
     if (user) {
