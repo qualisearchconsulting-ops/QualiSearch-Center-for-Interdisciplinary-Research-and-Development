@@ -1297,7 +1297,12 @@
                 document.getElementById('edit-article-summary').value = sub.landing_summary || '';
                 document.getElementById('edit-article-keywords').value = sub.landing_keywords || '';
                 document.getElementById('edit-article-doi').value = sub.landing_doi || '';
-                document.getElementById('edit-article-details').value = sub.landing_details || '';
+                const detailsStr = sub.landing_details || '';
+                document.getElementById('edit-article-volume').value = detailsStr.match(/Volume\s+([^,\n]+)/i)?.[1] || '';
+                document.getElementById('edit-article-issue').value = detailsStr.match(/Issue\s+([^\n]+)/i)?.[1] || '';
+                document.getElementById('edit-article-issn').value = detailsStr.match(/ISSN:\s+([^\n]+)/i)?.[1] || '';
+                document.getElementById('edit-article-publisher').value = detailsStr.match(/Publisher:\s+([^\n]+)/i)?.[1] || '';
+                document.getElementById('edit-article-copyright').value = detailsStr.match(/(?:\(c\)|Copyright|\u00a9)\s*\d{4}[^\n]*/i)?.[0] || '';
                 document.getElementById('edit-article-funding').value = sub.landing_funding || '';
                 document.getElementById('edit-article-references').value = sub.landing_references || '';
                 document.getElementById('edit-date-received').value = sub.manuscript_received_date || '';
@@ -1321,9 +1326,7 @@
                   'edit-article-journal',
                   'edit-article-doi',
                   'edit-article-summary',
-                  'edit-article-keywords',
-                  'edit-article-details',
-                  'edit-article-funding',
+                  'edit-article-volume', 'edit-article-issue', 'edit-article-issn', 'edit-article-publisher', 'edit-article-copyright',
                   'edit-date-received',
                   'edit-date-revised',
                   'edit-date-accepted',
@@ -1596,25 +1599,11 @@
           summary = sentences.slice(0, 2).join(' ').trim();
         }
 
-        const detailParts = [];
         const copyrightMatch = fullText.match(/(?:\(c\)|Copyright|\u00a9)\s*\d{4}[^\n]*/i);
-        if (copyrightMatch) detailParts.push(copyrightMatch[0].trim());
-        
         const volumeMatch = fullText.match(/Volume\s*[:.-]?\s*(\d+)/i);
         const issueMatch = fullText.match(/Issue\s*[:.-]?\s*(\d+)/i);
-        if (volumeMatch && issueMatch) {
-          detailParts.push(`Volume ${volumeMatch[1]}, Issue ${issueMatch[1]}`);
-        } else if (volumeMatch) {
-          detailParts.push(`Volume ${volumeMatch[1]}`);
-        } else if (issueMatch) {
-          detailParts.push(`Issue ${issueMatch[1]}`);
-        }
-
         const issnMatch = fullText.match(/ISSN\s*[:.-]?\s*([\d\-X]+)/i);
-        if (issnMatch) detailParts.push(`ISSN: ${issnMatch[1]}`);
-        
         const publisherMatch = fullText.match(/Publisher\s*[:.-]?\s*([^|\n\r]{4,40})/i);
-        if (publisherMatch) detailParts.push(`Publisher: ${publisherMatch[1].trim()}`);
 
         const ackMatch = fullText.match(/Acknowledg(?:ment|ement)s?\s*\n([\s\S]{20,800}?)(?=\nEthical|\nAuthor Bio|\nReferences|\nBibliography|$)/i);
         const funding = ackMatch ? ackMatch[1].replace(/\s+/g, ' ').trim() : '';
@@ -1638,7 +1627,13 @@
           keywords,
           abstract,
           summary,
-          details: detailParts.join('\n'),
+          detailsObj: {
+            volume: volumeMatch ? volumeMatch[1] : '',
+            issue: issueMatch ? issueMatch[1] : '',
+            issn: issnMatch ? issnMatch[1] : '',
+            publisher: publisherMatch ? publisherMatch[1].trim() : '',
+            copyright: copyrightMatch ? copyrightMatch[0].trim() : ''
+          },
           funding,
           received: landingInputDate(receivedMatch?.[1]),
           revised: landingInputDate(revisedMatch?.[1]),
@@ -1705,7 +1700,13 @@
         setLandingValue('edit-article-doi', data.doi);
         setLandingValue('edit-article-summary', data.summary);
         setLandingValue('edit-article-keywords', data.keywords);
-        setLandingValue('edit-article-details', data.details);
+        if (data.detailsObj) {
+          setLandingValue('edit-article-volume', data.detailsObj.volume);
+          setLandingValue('edit-article-issue', data.detailsObj.issue);
+          setLandingValue('edit-article-issn', data.detailsObj.issn);
+          setLandingValue('edit-article-publisher', data.detailsObj.publisher);
+          setLandingValue('edit-article-copyright', data.detailsObj.copyright);
+        }
         setLandingValue('edit-article-funding', data.funding);
         setLandingValue('edit-date-received', data.received);
         setLandingValue('edit-date-revised', data.revised);
@@ -1733,7 +1734,20 @@
           const summary = document.getElementById('edit-article-summary').value;
           const keywords = document.getElementById('edit-article-keywords').value;
           const doi = document.getElementById('edit-article-doi').value;
-          const details = document.getElementById('edit-article-details').value;
+          const vol = document.getElementById('edit-article-volume').value.trim();
+          const issue = document.getElementById('edit-article-issue').value.trim();
+          const issn = document.getElementById('edit-article-issn').value.trim();
+          const pub = document.getElementById('edit-article-publisher').value.trim();
+          const cop = document.getElementById('edit-article-copyright').value.trim();
+          
+          const detailParts = [];
+          if (cop) detailParts.push(cop);
+          if (vol && issue) detailParts.push(`Volume ${vol}, Issue ${issue}`);
+          else if (vol) detailParts.push(`Volume ${vol}`);
+          else if (issue) detailParts.push(`Issue ${issue}`);
+          if (issn) detailParts.push(`ISSN: ${issn}`);
+          if (pub) detailParts.push(`Publisher: ${pub}`);
+          const savedDetails = detailParts.join('\n');
           const funding = document.getElementById('edit-article-funding').value;
           const references = document.getElementById('edit-article-references').value;
           const receivedDate = document.getElementById('edit-date-received').value;
@@ -1879,7 +1893,7 @@
           document.getElementById('edit-article-journal').value = 'QJERP';
           document.getElementById('edit-article-abstract').value = '';
           
-          ['edit-article-authors','edit-article-summary','edit-article-keywords','edit-article-doi','edit-article-details','edit-article-funding','edit-article-references','edit-date-received','edit-date-revised','edit-date-accepted','edit-date-published'].forEach(id => {
+          ['edit-article-authors','edit-article-summary','edit-article-keywords','edit-article-doi','edit-article-volume','edit-article-issue','edit-article-issn','edit-article-publisher','edit-article-copyright','edit-article-funding','edit-article-references','edit-date-received','edit-date-revised','edit-date-accepted','edit-date-published'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
           });
@@ -1984,8 +1998,15 @@
         <div class="auth-field">
           <label
             style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Details</label>
-          <textarea id="edit-article-details" rows="2" placeholder="Copyright, publisher, issue notes..."
-            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <input type="text" id="edit-article-volume" placeholder="Volume (e.g. 2)" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;"/>
+            <input type="text" id="edit-article-issue" placeholder="Issue (e.g. 5)" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;"/>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <input type="text" id="edit-article-issn" placeholder="ISSN" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;"/>
+            <input type="text" id="edit-article-publisher" placeholder="Publisher" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;"/>
+          </div>
+          <input type="text" id="edit-article-copyright" placeholder="Copyright (e.g. © 2026 The Author(s))" style="width:100%; padding:10px; margin-top:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;"/>
         </div>
         <div class="auth-field">
           <label
