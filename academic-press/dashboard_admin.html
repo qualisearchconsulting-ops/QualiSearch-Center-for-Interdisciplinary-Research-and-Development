@@ -580,12 +580,50 @@
           alert('Error adding reviewer: ' + error.message);
           e.target.textContent = '+ Add Reviewer';
         } else {
+          
+          // --- SEND EMAIL TO REVIEWER ---
+          const loginUrl = `${window.location.origin}${window.location.pathname.replace('dashboard_admin.html', '')}index.html`;
+          
+          const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+              <h2 style="color: #152242;">Welcome to QualiSearch Academic Press!</h2>
+              <p>Hello <strong>${name}</strong>,</p>
+              <p>You have been assigned as a <strong>Peer Reviewer</strong> for the journal: <strong>${journal}</strong>.</p>
+              <p>Here are your account credentials:</p>
+              <div style="background: #f4f4f4; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #b8953a;">
+                <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+                <p style="margin: 5px 0;"><strong>Temporary Password:</strong> ${password}</p>
+              </div>
+              <p>You can log in to your reviewer dashboard using the link below:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${loginUrl}" style="background-color: #b8953a; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Sign In to Dashboard</a>
+              </div>
+              <p><strong>Security Notice:</strong> We highly recommend that you change your password immediately after logging in. You can easily do this by clicking the <em>Forgot Password</em> link on the login page to set a new, secure password.</p>
+              <p>Thank you for contributing to QualiSearch Academic Press!</p>
+            </div>
+          `;
+
+          try {
+            await fetch(EMAIL_BACKEND_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                to: [email],
+                subject: 'You have been added as a Reviewer - QualiSearch Academic Press',
+                html: emailHtml
+              })
+            });
+          } catch (err) {
+            console.error('Failed to send reviewer email:', err);
+          }
+          // --------------------------------
+
           document.getElementById('rev-name').value = '';
           document.getElementById('rev-email').value = '';
           document.getElementById('rev-password').value = '';
           document.getElementById('rev-journal').value = '';
-          e.target.textContent = 'Added!';
-          setTimeout(() => e.target.textContent = '+ Add Reviewer', 2000);
+          e.target.textContent = 'Added & Emailed!';
+          setTimeout(() => e.target.textContent = '+ Add Reviewer', 2500);
           loadAllSubmissions(); // reload to fetch new reviewers
         }
       });
