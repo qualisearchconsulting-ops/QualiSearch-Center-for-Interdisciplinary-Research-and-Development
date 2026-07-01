@@ -11,25 +11,9 @@ app.use(cors());
 // Increase JSON payload limit to handle base64 images
 app.use(express.json({ limit: '10mb' }));
 
-// Create the email transporter using Brevo SMTP
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.BREVO_SMTP_LOGIN, // e.g., b08455001@smtp-brevo.com
-    pass: process.env.BREVO_SMTP_KEY    // The SMTP key you just generated
-  }
-});
+// Nodemailer is removed because Render blocks SMTP port 587
+// We will use Brevo REST API (HTTPS on port 443) instead
 
-// Verify connection on startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Error connecting to Brevo SMTP:', error);
-  } else {
-    console.log('Server is ready to send emails via Brevo SMTP');
-  }
-});
 
 // Send Email Endpoint
 app.post('/send-email', async (req, res) => {
@@ -40,25 +24,43 @@ app.post('/send-email', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Process attachments from base64 (if any)
+    // Format attachments for Brevo REST API
     const formattedAttachments = attachments ? attachments.map(att => ({
-      filename: att.filename,
-      content: att.content,
-      encoding: 'base64'
+      name: att.filename,
+      content: att.content // Base64 string without the data URI prefix
     })) : [];
 
-    const mailOptions = {
-      from: `"QualiSearch Academic Press" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_LOGIN}>`,
-      to: to.join(', '), // Nodemailer expects a comma-separated string for multiple recipients
+    const payload = {
+      sender: {
+        name: "QualiSearch Academic Press",
+        email: process.env.BREVO_SENDER_EMAIL
+      },
+      to: to.map(email => ({ email })),
       subject: subject,
-      html: html,
-      attachments: formattedAttachments
+      htmlContent: html,
+      attachment: formattedAttachments.length > 0 ? formattedAttachments : undefined
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY, // Note: This needs an API key, not an SMTP key
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
 
-    res.status(200).json({ message: 'Email sent successfully', id: info.messageId });
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Brevo API Error:', errorData);
+      return res.status(500).json({ error: errorData.message || 'Failed to send email via Brevo' });
+    }
+
+    const data = await response.json();
+    console.log('Email sent:', data.messageId);
+
+    res.status(200).json({ message: 'Email sent successfully', id: data.messageId });
   } catch (error) {
     console.error('Error sending email:', error);
     res.status(500).json({ error: error.message || 'Failed to send email' });

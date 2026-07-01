@@ -1133,15 +1133,16 @@
                       }
 
                       // Log to database (optional, won't break if table doesn't exist)
-                      await db.from('publication_emails').insert({
+                      const { error: dbError } = await db.from('publication_emails').insert({
                         submission_id: subId,
                         recipient_email: payload.recipientEmail,
                         recipient_name: payload.recipientName,
                         recipient_role: payload.recipientRole,
-                        resend_id: backendData.id || 'gmail-backend',
+                        resend_id: backendData.id || 'brevo-backend',
                         status: backendRes.ok ? 'sent' : 'failed',
                         error_message: backendRes.ok ? null : (backendData.error || 'Unknown error')
-                      }).catch(() => { }); // Don't break if logging fails
+                      });
+                      if (dbError) console.error('Error logging to database:', dbError);
 
                     } catch (emailErr) {
                       console.error('Email send error:', emailErr);
