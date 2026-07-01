@@ -1747,7 +1747,9 @@
           else if (issue) detailParts.push(`Issue ${issue}`);
           if (issn) detailParts.push(`ISSN: ${issn}`);
           if (pub) detailParts.push(`Publisher: ${pub}`);
-          const savedDetails = detailParts.join('\n');
+          let savedDetails = detailParts.join('\n');
+          if (!savedDetails) savedDetails = '(c) 2026 QualiSearch Academic Press.';
+          
           const funding = document.getElementById('edit-article-funding').value;
           const references = document.getElementById('edit-article-references').value;
           const receivedDate = document.getElementById('edit-date-received').value;
@@ -1761,7 +1763,6 @@
 
           const btnSave = document.getElementById('btn-save-edit');
           const origText = btnSave.textContent;
-          const savedDetails = details.trim() || '(c) 2026 QualiSearch Academic Press.';
           btnSave.textContent = 'Saving...';
           btnSave.disabled = true;
 
