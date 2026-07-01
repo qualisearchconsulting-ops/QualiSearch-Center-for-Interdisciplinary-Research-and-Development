@@ -566,6 +566,12 @@
           alert('Please fill in all fields to add a reviewer.');
           return;
         }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          alert('Please enter a valid email address format.');
+          return;
+        }
 
         e.target.textContent = 'Adding...';
 
@@ -603,8 +609,9 @@
             </div>
           `;
 
+          let emailSuccess = true;
           try {
-            await fetch(EMAIL_BACKEND_URL, {
+            const response = await fetch(EMAIL_BACKEND_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -613,8 +620,14 @@
                 html: emailHtml
               })
             });
+            if (!response.ok) {
+              const errData = await response.json();
+              throw new Error(errData.error || 'Failed to send email via Brevo');
+            }
           } catch (err) {
             console.error('Failed to send reviewer email:', err);
+            alert('Reviewer added to database, but failed to send email: ' + err.message);
+            emailSuccess = false;
           }
           // --------------------------------
 
@@ -622,7 +635,13 @@
           document.getElementById('rev-email').value = '';
           document.getElementById('rev-password').value = '';
           document.getElementById('rev-journal').value = '';
-          e.target.textContent = 'Added & Emailed!';
+          
+          if (emailSuccess) {
+            e.target.textContent = 'Added & Emailed!';
+          } else {
+            e.target.textContent = 'Added (Email Failed)';
+          }
+          
           setTimeout(() => e.target.textContent = '+ Add Reviewer', 2500);
           loadAllSubmissions(); // reload to fetch new reviewers
         }
