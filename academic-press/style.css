@@ -1679,6 +1679,23 @@ select option {
   transform: scaleX(1);
 }
 
+.nav-badge {
+  background: #e74c3c;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+  transition: all 0.2s ease;
+}
+
 .dash-tab-content {
   display: none;
   animation: fadeIn 0.3s ease;

@@ -213,8 +213,8 @@
 
       <!-- TABS HEADER -->
       <div class="dash-tabs" id="reviewer-tabs">
-        <button class="dash-tab active" data-tab="tab-review">For Review</button>
-        <button class="dash-tab" data-tab="tab-rereview">For Re-review</button>
+        <button class="dash-tab active" data-tab="tab-review">For Review<span id="badge-reviewer-review" class="nav-badge" style="display:none;"></span></button>
+        <button class="dash-tab" data-tab="tab-rereview">For Re-review<span id="badge-reviewer-rereview" class="nav-badge" style="display:none;"></span></button>
         <button class="dash-tab" data-tab="tab-revision">Revision Requested</button>
         <button class="dash-tab" data-tab="tab-passed">Passed to Editor</button>
       </div>
@@ -405,6 +405,27 @@
         const rereviewSubmissions = data.filter(isReReview);
         const revisionSubmissions = data.filter(sub => sub.status === 'Revisions Required');
         const passedSubmissions = data.filter(sub => ['Pending Payment', 'Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
+
+        // Update notification badges
+        const badgeReview = document.getElementById('badge-reviewer-review');
+        if (badgeReview) {
+          if (activeSubmissions.length > 0) {
+            badgeReview.textContent = activeSubmissions.length;
+            badgeReview.style.display = 'inline-flex';
+          } else {
+            badgeReview.style.display = 'none';
+          }
+        }
+
+        const badgeRereview = document.getElementById('badge-reviewer-rereview');
+        if (badgeRereview) {
+          if (rereviewSubmissions.length > 0) {
+            badgeRereview.textContent = rereviewSubmissions.length;
+            badgeRereview.style.display = 'inline-flex';
+          } else {
+            badgeRereview.style.display = 'none';
+          }
+        }
 
         renderActionRows(activeSubmissions, tbody, 'No manuscripts waiting for review.', 'Under Review');
         renderActionRows(rereviewSubmissions, rereviewTbody, 'No revised manuscripts waiting for re-review.', 'Revision Submitted');

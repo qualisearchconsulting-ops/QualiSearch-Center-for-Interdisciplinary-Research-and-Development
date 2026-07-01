@@ -292,8 +292,8 @@
 
       <!-- TABS HEADER -->
       <div class="dash-tabs" id="admin-tabs">
-        <button class="dash-tab active" data-tab="tab-pending">Pending & In Review</button>
-        <button class="dash-tab" data-tab="tab-ready">Ready for Decision</button>
+        <button class="dash-tab active" data-tab="tab-pending">Pending & In Review<span id="badge-admin-pending" class="nav-badge" style="display:none;"></span></button>
+        <button class="dash-tab" data-tab="tab-ready">Ready for Decision<span id="badge-admin-ready" class="nav-badge" style="display:none;"></span></button>
         <button class="dash-tab" data-tab="tab-published">Published</button>
         <button class="dash-tab" data-tab="tab-settings">Journal Settings</button>
       </div>
@@ -792,6 +792,29 @@
           const pendingSubmissions = filteredByJournal.filter(sub => !['Ready for Admin', 'Published'].includes(sub.status));
           const readySubmissions = filteredByJournal.filter(sub => sub.status === 'Ready for Admin');
           const publishedSubmissions = filteredByJournal.filter(sub => sub.status === 'Published');
+
+          // Update notification badges
+          const badgePending = document.getElementById('badge-admin-pending');
+          if (badgePending) {
+            const countPendingAction = pendingSubmissions.filter(s => ['Pending', 'Revision Submitted'].includes(s.status)).length;
+            if (countPendingAction > 0) {
+              badgePending.textContent = countPendingAction;
+              badgePending.style.display = 'inline-flex';
+            } else {
+              badgePending.style.display = 'none';
+            }
+          }
+
+          const badgeReady = document.getElementById('badge-admin-ready');
+          if (badgeReady) {
+            if (readySubmissions.length > 0) {
+              badgeReady.textContent = readySubmissions.length;
+              badgeReady.style.display = 'inline-flex';
+            } else {
+              badgeReady.style.display = 'none';
+            }
+          }
+
           renderSubmissionRows(pendingSubmissions, tbody, 'No manuscripts pending review.');
           renderSubmissionRows(readySubmissions, readyTbody, 'No manuscripts ready for editor decision.');
           renderSubmissionRows(publishedSubmissions, publishedTbody, 'No published articles yet.');

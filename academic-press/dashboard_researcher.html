@@ -298,7 +298,7 @@
           <!-- TABS HEADER -->
           <div class="dash-tabs" id="researcher-tabs" style="margin-bottom: 20px;">
             <button class="dash-tab active" data-filter="all">All</button>
-            <button class="dash-tab" data-filter="action">Needs Action</button>
+            <button class="dash-tab" data-filter="action">Needs Action<span id="badge-researcher-action" class="nav-badge" style="display:none;"></span></button>
             <button class="dash-tab" data-filter="review">In Progress</button>
             <button class="dash-tab" data-filter="completed">Completed</button>
           </div>
@@ -388,6 +388,20 @@
         subList.innerHTML = ''; // Clear loading/mock items
         
         window.currentFilter = window.currentFilter || 'all';
+
+        const badgeAction = document.getElementById('badge-researcher-action');
+        if (badgeAction) {
+          const countAction = data.filter(s => {
+            const stat = String(s.status).toLowerCase();
+            return stat === 'revisions required' || stat === 'pending payment';
+          }).length;
+          if (countAction > 0) {
+            badgeAction.textContent = countAction;
+            badgeAction.style.display = 'inline-flex';
+          } else {
+            badgeAction.style.display = 'none';
+          }
+        }
 
         let filteredData = data;
         if (window.currentFilter === 'action') {
