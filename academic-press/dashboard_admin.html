@@ -1599,10 +1599,12 @@
         const detailParts = [];
         const copyrightMatch = fullText.match(/(?:\(c\)|Copyright|\u00a9)\s*\d{4}[^\n]*/i);
         if (copyrightMatch) detailParts.push(copyrightMatch[0].trim());
-        const volumeMatch = fullText.match(/Volume[:\s]*(\d+)[,\s]*Issue[:\s]*(\d+)/i);
+        const volumeMatch = fullText.match(/Volume[:\s]*(\d+)[\s,|]*Issue[:\s]*(\d+)/i);
         if (volumeMatch) detailParts.push(`Volume ${volumeMatch[1]}, Issue ${volumeMatch[2]}`);
         const issnMatch = fullText.match(/ISSN[:\s]*([\d\-X]+)/i);
         if (issnMatch) detailParts.push(`ISSN: ${issnMatch[1]}`);
+        const publisherMatch = fullText.match(/Publisher[:\s]+([^|\n\r]+)/i);
+        if (publisherMatch) detailParts.push(`Publisher: ${publisherMatch[1].trim()}`);
 
         const ackMatch = fullText.match(/Acknowledg(?:ment|ement)s?\s*\n([\s\S]{20,800}?)(?=\nEthical|\nAuthor Bio|\nReferences|\nBibliography|$)/i);
         const funding = ackMatch ? ackMatch[1].replace(/\s+/g, ' ').trim() : '';
@@ -1610,7 +1612,7 @@
         const receivedMatch = fullText.match(/Received[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
         const revisedMatch = fullText.match(/Revised[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
         const acceptedMatch = fullText.match(/Accepted[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-        const publishedMatch = fullText.match(/Published[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        const publishedMatch = fullText.match(/(?:Published|Publication Date)[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
 
         let references = '';
         const referencesMatch = fullText.match(/\n(?:References|Bibliography|REFERENCES)\s*\n([\s\S]+?)(?:\nAcknowledg|\nEthical|\nAuthor Bio|$)/i);
