@@ -580,24 +580,49 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="background:#0e1629; padding:40px; border-radius:12px; border:1px solid rgba(214,178,94,0.3); width:90%; max-width:400px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
               <h2 style="color:#d6b25e; font-family:'EB Garamond', serif; font-size:28px; margin-bottom:15px; font-weight:700;">Reset Password</h2>
               <p style="color:#a0abc0; margin-bottom:25px; font-size:14px; font-family:'Inter', sans-serif;">Please enter your new password below.</p>
-              <input type="password" id="new-recovery-password" placeholder="New Password (min 8 chars)" style="width:100%; padding:14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; margin-bottom:15px; font-size:15px; font-family:'Inter', sans-serif;" />
-              <input type="password" id="confirm-recovery-password" placeholder="Confirm Password" style="width:100%; padding:14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; margin-bottom:20px; font-size:15px; font-family:'Inter', sans-serif;" />
-              <button id="btn-save-recovery-password" style="width:100%; padding:14px; background:#d6b25e; color:#0e1629; font-weight:bold; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-family:'Inter', sans-serif;">Save New Password</button>
+              
+              <div id="recovery-error-msg" style="color:#fc8181; background:rgba(252,129,129,0.1); border:1px solid rgba(252,129,129,0.3); padding:10px; border-radius:6px; margin-bottom:15px; font-size:13px; font-family:'Inter', sans-serif; display:none;"></div>
+
+              <div style="position:relative; margin-bottom:15px;">
+                <input type="password" id="new-recovery-password" placeholder="New Password (min 8 chars)" style="width:100%; padding:14px 45px 14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; font-size:15px; font-family:'Inter', sans-serif; box-sizing:border-box;" />
+                <button type="button" class="auth-eye-btn" id="new-recovery-eye" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0abc0; cursor:pointer; padding:0; display:flex; align-items:center;">
+                  <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+
+              <div style="position:relative; margin-bottom:20px;">
+                <input type="password" id="confirm-recovery-password" placeholder="Confirm Password" style="width:100%; padding:14px 45px 14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; font-size:15px; font-family:'Inter', sans-serif; box-sizing:border-box;" />
+                <button type="button" class="auth-eye-btn" id="confirm-recovery-eye" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0abc0; cursor:pointer; padding:0; display:flex; align-items:center;">
+                  <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+
+              <button id="btn-save-recovery-password" style="width:100%; padding:14px; background:#d6b25e; color:#0e1629; font-weight:bold; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-family:'Inter', sans-serif; transition:0.3s;">Save New Password</button>
             </div>
           </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        setupEyeToggle('new-recovery-eye', 'new-recovery-password');
+        setupEyeToggle('confirm-recovery-eye', 'confirm-recovery-password');
+        
+        const errorMsg = document.getElementById('recovery-error-msg');
         
         document.getElementById('btn-save-recovery-password').addEventListener('click', async () => {
+           errorMsg.style.display = 'none';
            const newPw = document.getElementById('new-recovery-password').value;
            const confirmPw = document.getElementById('confirm-recovery-password').value;
            
            if (newPw.length < 8) {
-              showToast('Password must be at least 8 characters.', 'error');
+              errorMsg.innerText = 'Password must be at least 8 characters.';
+              errorMsg.style.display = 'block';
               return;
            }
            if (newPw !== confirmPw) {
-              showToast('Passwords do not match.', 'error');
+              errorMsg.innerText = 'Passwords do not match.';
+              errorMsg.style.display = 'block';
               return;
            }
            
@@ -606,7 +631,8 @@ document.addEventListener('DOMContentLoaded', () => {
            const { error } = await supabase.auth.updateUser({ password: newPw });
            
            if (error) {
-              showToast('Error updating password: ' + error.message, 'error');
+              errorMsg.innerText = 'Error: ' + error.message;
+              errorMsg.style.display = 'block';
               btn.innerText = 'Save New Password';
            } else {
               document.getElementById('pw-recovery-backdrop').remove();
