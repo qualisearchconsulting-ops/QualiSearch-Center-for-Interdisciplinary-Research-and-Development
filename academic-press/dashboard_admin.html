@@ -1648,10 +1648,10 @@
             copyright: copyrightMatch ? copyrightMatch[0].trim() : ''
           },
           funding,
-          received: landingInputDate(receivedMatch?.[1]),
-          revised: landingInputDate(revisedMatch?.[1]),
-          accepted: landingInputDate(acceptedMatch?.[1]),
-          published: landingInputDate(publishedMatch?.[1]),
+          received: receivedMatch?.[1] || '',
+          revised: revisedMatch?.[1] || '',
+          accepted: acceptedMatch?.[1] || '',
+          published: publishedMatch?.[1] || '',
           references
         };
       }
@@ -1687,25 +1687,7 @@
         return entries;
       }
 
-      function landingInputDate(value) {
-        if (!value) return '';
-        const months = {
-          january: '01', february: '02', march: '03', april: '04', may: '05', june: '06',
-          july: '07', august: '08', september: '09', october: '10', november: '11', december: '12'
-        };
-        const monthName = value.match(/([A-Za-z]+)\s+(\d{1,2},?\s+)?(\d{4})/);
-        if (monthName) {
-          const month = months[monthName[1].toLowerCase()];
-          const day = monthName[2] ? monthName[2].replace(',', '').trim().padStart(2, '0') : '01';
-          if (month) return `${monthName[3]}-${month}-${day}`;
-        }
-        const slashDate = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-        if (slashDate) {
-          const year = slashDate[3].length === 2 ? `20${slashDate[3]}` : slashDate[3];
-          return `${year}-${slashDate[1].padStart(2, '0')}-${slashDate[2].padStart(2, '0')}`;
-        }
-        return '';
-      }
+
 
       function fillLandingArticleFields(data) {
         setLandingValue('edit-article-title', data.title);
@@ -2034,13 +2016,13 @@
             style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Publication
             History</label>
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
-            <input type="date" id="edit-date-received" title="Received"
+            <input type="text" id="edit-date-received" placeholder="Received Date"
               style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
-            <input type="date" id="edit-date-revised" title="Revised"
+            <input type="text" id="edit-date-revised" placeholder="Revised Date"
               style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
-            <input type="date" id="edit-date-accepted" title="Accepted"
+            <input type="text" id="edit-date-accepted" placeholder="Accepted Date"
               style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
-            <input type="date" id="edit-date-published" title="Published"
+            <input type="text" id="edit-date-published" placeholder="Published Date"
               style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
           </div>
         </div>
