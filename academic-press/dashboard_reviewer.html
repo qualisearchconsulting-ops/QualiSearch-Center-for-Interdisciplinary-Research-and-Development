@@ -201,7 +201,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
         <div style="display:flex; align-items:center; gap:10px;">
           <span style="color:var(--text-secondary); font-size:0.9rem;">My Assigned Journal:</span>
-          <select id="my-journal-select" style="background: rgba(0,0,0,0.2); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 10px; border-radius: 4px; font-size: 0.9rem;">
+          <select id="my-journal-select" disabled style="background: rgba(0,0,0,0.2); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 10px; border-radius: 4px; font-size: 0.9rem; opacity: 0.8; cursor: not-allowed; appearance: none; -webkit-appearance: none;">
             <option value="QJERP">Journal of Educational Research (QJERP)</option>
             <option value="QJHS">Journal of Health Sciences (QJHS)</option>
             <option value="QJBG">Journal of Business and Governance (QJBG)</option>
@@ -359,23 +359,7 @@
           document.getElementById('my-journal-select').value = revData.journal;
         }
 
-        // Add listener to change journal
-        document.getElementById('my-journal-select').onchange = async (e) => {
-          const newJournal = e.target.value;
-          const { error } = await db.from('reviewers').update({ journal: newJournal }).eq('email', currentUserEmail);
-          if (error) {
-            alert('Error changing journal: ' + error.message);
-          } else {
-            const toast = document.getElementById('qs-toast');
-            const msg = document.getElementById('qs-toast-msg');
-            if(toast && msg) {
-              msg.textContent = 'Successfully transferred to ' + newJournal + '!';
-              toast.hidden = false;
-              toast.className = 'qs-toast toast-success';
-              setTimeout(() => toast.hidden = true, 3000);
-            }
-          }
-        };
+        // Journal assignment is locked by admin. Peer reviewers cannot change their assigned journal.
 
         const { data, error } = await db
           .from('submissions')
