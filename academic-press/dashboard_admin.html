@@ -1747,7 +1747,8 @@
               abstract: abstract,
               journal: journal,
               status: 'Published',
-              user_id: session.user.id
+              user_id: session.user.id,
+              file_path: 'direct-publish-bypass'
             }).select();
 
             if (newSubError) {
