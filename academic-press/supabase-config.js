@@ -16,4 +16,4 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
    For production, change to your Render URL.
 ══════════════════════════════════════════ */
 
-const EMAIL_BACKEND_URL = 'http://localhost:3000/send-email';
+const EMAIL_BACKEND_URL = 'https://qualisearch-backend.onrender.com/send-email';
