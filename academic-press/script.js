@@ -565,12 +565,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (supabase) {
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
+        // Prevent multiple modals if the event fires twice
+        if (document.getElementById('pw-recovery-backdrop')) return;
+        
         const modalHtml = `
           <div id="pw-recovery-backdrop" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
             <div style="background:#0e1629; padding:40px; border-radius:12px; border:1px solid rgba(214,178,94,0.3); width:90%; max-width:400px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
               <h2 style="color:#d6b25e; font-family:'EB Garamond', serif; font-size:28px; margin-bottom:15px; font-weight:700;">Reset Password</h2>
               <p style="color:#a0abc0; margin-bottom:25px; font-size:14px; font-family:'Inter', sans-serif;">Please enter your new password below.</p>
-              <input type="password" id="new-recovery-password" placeholder="New Password (min 8 chars)" style="width:100%; padding:14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; margin-bottom:20px; font-size:15px; font-family:'Inter', sans-serif;" />
+              <input type="password" id="new-recovery-password" placeholder="New Password (min 8 chars)" style="width:100%; padding:14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; margin-bottom:15px; font-size:15px; font-family:'Inter', sans-serif;" />
+              <input type="password" id="confirm-recovery-password" placeholder="Confirm Password" style="width:100%; padding:14px 15px; border-radius:6px; border:1px solid #2d3748; background:#1a202c; color:white; margin-bottom:20px; font-size:15px; font-family:'Inter', sans-serif;" />
               <button id="btn-save-recovery-password" style="width:100%; padding:14px; background:#d6b25e; color:#0e1629; font-weight:bold; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-family:'Inter', sans-serif;">Save New Password</button>
             </div>
           </div>
@@ -579,8 +583,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.getElementById('btn-save-recovery-password').addEventListener('click', async () => {
            const newPw = document.getElementById('new-recovery-password').value;
+           const confirmPw = document.getElementById('confirm-recovery-password').value;
+           
            if (newPw.length < 8) {
               showToast('Password must be at least 8 characters.', 'error');
+              return;
+           }
+           if (newPw !== confirmPw) {
+              showToast('Passwords do not match.', 'error');
               return;
            }
            
@@ -594,6 +604,8 @@ document.addEventListener('DOMContentLoaded', () => {
            } else {
               document.getElementById('pw-recovery-backdrop').remove();
               showToast('Password successfully updated!', 'success');
+              // Clear hash to prevent it from re-triggering
+              window.location.hash = '';
               if (session?.user) {
                  setNavLoggedIn(session.user);
                  handlePageAccess(session.user);
@@ -614,9 +626,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check existing session on page load
     supabase.auth.getSession().then(({ data: { session } }) => {
+      // Do not redirect if we are in the middle of a password recovery flow
+      const isRecovery = window.location.hash.includes('type=recovery');
+      
       if (session?.user) {
         setNavLoggedIn(session.user);
-        handlePageAccess(session.user);
+        if (!isRecovery) {
+          handlePageAccess(session.user);
+        }
       } else {
         setNavLoggedOut();
         handlePageAccess(null);
