@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const { GoogleGenerativeAI, SchemaType } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,25 +81,25 @@ app.post('/api/extract-pdf', async (req, res) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     const schema = {
-      type: SchemaType.OBJECT,
+      type: "object",
       properties: {
-        title: { type: SchemaType.STRING },
-        authors: { type: SchemaType.STRING },
-        doi: { type: SchemaType.STRING },
-        summary: { type: SchemaType.STRING },
-        keywords: { type: SchemaType.STRING },
-        funding: { type: SchemaType.STRING },
-        received: { type: SchemaType.STRING },
-        accepted: { type: SchemaType.STRING },
-        published: { type: SchemaType.STRING },
+        title: { type: "string" },
+        authors: { type: "string" },
+        doi: { type: "string" },
+        summary: { type: "string" },
+        keywords: { type: "string" },
+        funding: { type: "string" },
+        received: { type: "string" },
+        accepted: { type: "string" },
+        published: { type: "string" },
         detailsObj: {
-          type: SchemaType.OBJECT,
+          type: "object",
           properties: {
-            volume: { type: SchemaType.STRING },
-            issue: { type: SchemaType.STRING },
-            issn: { type: SchemaType.STRING },
-            publisher: { type: SchemaType.STRING },
-            copyright: { type: SchemaType.STRING }
+            volume: { type: "string" },
+            issue: { type: "string" },
+            issn: { type: "string" },
+            publisher: { type: "string" },
+            copyright: { type: "string" }
           }
         }
       }
