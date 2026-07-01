@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,6 +65,66 @@ app.post('/send-email', async (req, res) => {
   } catch (error) {
     console.error('Error sending email:', error);
     res.status(500).json({ error: error.message || 'Failed to send email' });
+  }
+});
+
+// PDF Extraction Endpoint using Gemini 1.5 Flash
+app.post('/api/extract-pdf', async (req, res) => {
+  try {
+    const { pdfBase64, mimeType } = req.body;
+    
+    if (!pdfBase64 || !process.env.GEMINI_API_KEY) {
+      return res.status(400).json({ error: 'Missing PDF payload or GEMINI_API_KEY' });
+    }
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    
+    const schema = {
+      type: "OBJECT",
+      properties: {
+        title: { type: "STRING" },
+        authors: { type: "STRING" },
+        journal: { type: "STRING" },
+        doi: { type: "STRING" },
+        keywords: { type: "STRING" },
+        abstract: { type: "STRING" },
+        summary: { type: "STRING" },
+        volume: { type: "STRING" },
+        issue: { type: "STRING" },
+        issn: { type: "STRING" },
+        publisher: { type: "STRING" },
+        copyright: { type: "STRING" },
+        funding: { type: "STRING" },
+        received: { type: "STRING" },
+        revised: { type: "STRING" },
+        accepted: { type: "STRING" },
+        published: { type: "STRING" },
+        references: { type: "STRING", description: "One reference per line" }
+      }
+    };
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-1.5-flash',
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { inlineData: { data: pdfBase64, mimeType: mimeType || 'application/pdf' } },
+            { text: "You are an expert academic data extractor. Read this PDF article and extract the required fields exactly as they appear. Return only a valid JSON object matching the provided schema. Do not include markdown formatting or backticks around the JSON." }
+          ]
+        }
+      ],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: schema
+      }
+    });
+
+    const text = response.text;
+    res.status(200).json(JSON.parse(text));
+  } catch (error) {
+    console.error('Error extracting PDF:', error);
+    res.status(500).json({ error: error.message || 'Failed to extract PDF data' });
   }
 });
 
