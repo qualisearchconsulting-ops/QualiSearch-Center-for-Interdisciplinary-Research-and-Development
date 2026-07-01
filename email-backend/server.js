@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const { GoogleGenAI } = require('@google/genai');
+const { GoogleGenerativeAI, SchemaType } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -77,50 +77,61 @@ app.post('/api/extract-pdf', async (req, res) => {
       return res.status(400).json({ error: 'Missing PDF payload or GEMINI_API_KEY' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
     const schema = {
-      type: "OBJECT",
+      type: SchemaType.OBJECT,
       properties: {
-        title: { type: "STRING" },
-        authors: { type: "STRING" },
-        journal: { type: "STRING" },
-        doi: { type: "STRING" },
-        keywords: { type: "STRING" },
-        abstract: { type: "STRING" },
-        summary: { type: "STRING" },
-        volume: { type: "STRING" },
-        issue: { type: "STRING" },
-        issn: { type: "STRING" },
-        publisher: { type: "STRING" },
-        copyright: { type: "STRING" },
-        funding: { type: "STRING" },
-        received: { type: "STRING" },
-        revised: { type: "STRING" },
-        accepted: { type: "STRING" },
-        published: { type: "STRING" },
-        references: { type: "STRING", description: "One reference per line" }
+        title: { type: SchemaType.STRING },
+        authors: { type: SchemaType.STRING },
+        doi: { type: SchemaType.STRING },
+        summary: { type: SchemaType.STRING },
+        keywords: { type: SchemaType.STRING },
+        funding: { type: SchemaType.STRING },
+        received: { type: SchemaType.STRING },
+        accepted: { type: SchemaType.STRING },
+        published: { type: SchemaType.STRING },
+        detailsObj: {
+          type: SchemaType.OBJECT,
+          properties: {
+            volume: { type: SchemaType.STRING },
+            issue: { type: SchemaType.STRING },
+            issn: { type: SchemaType.STRING },
+            publisher: { type: SchemaType.STRING },
+            copyright: { type: SchemaType.STRING }
+          }
+        }
       }
     };
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-pro',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { inlineData: { data: pdfBase64, mimeType: mimeType || 'application/pdf' } },
-            { text: "You are an expert academic data extractor. Read this PDF article and extract the required fields exactly as they appear. Return only a valid JSON object matching the provided schema. Do not include markdown formatting or backticks around the JSON." }
-          ]
-        }
-      ],
-      config: {
+    const prompt = `
+    Extract the following information from the provided academic journal article PDF.
+    For 'authors', create a comma-separated list of all authors.
+    For 'keywords', create a comma-separated list of keywords.
+    For 'summary', write a brief 2-3 sentence abstract/summary.
+    If a field is not found, leave it as an empty string.
+    Return the output exactly matching the JSON schema provided.`;
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {
         responseMimeType: "application/json",
-        responseSchema: schema
+        responseSchema: schema,
       }
     });
 
-    const text = response.text;
+    const response = await model.generateContent([
+      {
+        inlineData: {
+          data: pdfBase64,
+          mimeType: mimeType || "application/pdf"
+        }
+      },
+      prompt
+    ]);
+
+    const text = response.response.text();
     res.status(200).json(JSON.parse(text));
   } catch (error) {
     console.error('Error extracting PDF:', error);
