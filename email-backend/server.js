@@ -97,45 +97,35 @@ app.post('/api/extract-pdf', async (req, res) => {
       displayName: "Article PDF",
     });
 
-    const schema = {
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        authors: { type: "string" },
-        doi: { type: "string" },
-        summary: { type: "string" },
-        keywords: { type: "string" },
-        funding: { type: "string" },
-        received: { type: "string" },
-        accepted: { type: "string" },
-        published: { type: "string" },
-        detailsObj: {
-          type: "object",
-          properties: {
-            volume: { type: "string" },
-            issue: { type: "string" },
-            issn: { type: "string" },
-            publisher: { type: "string" },
-            copyright: { type: "string" }
-          }
-        }
-      }
-    };
-
     const prompt = `
-    Extract the following information from the provided academic journal article PDF.
+    You are a data extractor. Extract the following information from the provided academic journal article PDF.
     For 'authors', create a comma-separated list of all authors.
     For 'keywords', create a comma-separated list of keywords.
     For 'summary', write a brief 2-3 sentence abstract/summary.
     If a field is not found, leave it as an empty string.
-    Return the output exactly matching the JSON schema provided.`;
+
+    You MUST return ONLY a valid raw JSON object exactly matching this structure, and nothing else (no backticks, no markdown):
+    {
+      "title": "string",
+      "authors": "string",
+      "doi": "string",
+      "summary": "string",
+      "keywords": "string",
+      "funding": "string",
+      "received": "string",
+      "accepted": "string",
+      "published": "string",
+      "detailsObj": {
+        "volume": "string",
+        "issue": "string",
+        "issn": "string",
+        "publisher": "string",
+        "copyright": "string"
+      }
+    }`;
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: schema,
-      }
+      model: "gemini-1.5-flash"
     });
 
     // Generate content using the uploaded file URI
@@ -149,7 +139,8 @@ app.post('/api/extract-pdf', async (req, res) => {
       prompt
     ]);
 
-    const text = response.response.text();
+    let text = response.response.text();
+    text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
     res.status(200).json(JSON.parse(text));
   } catch (error) {
     console.error('Error extracting PDF:', error);
