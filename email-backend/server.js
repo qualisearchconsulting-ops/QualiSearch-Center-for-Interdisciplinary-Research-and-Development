@@ -11,21 +11,23 @@ app.use(cors());
 // Increase JSON payload limit to handle base64 images
 app.use(express.json({ limit: '10mb' }));
 
-// Create the email transporter using Gmail
+// Create the email transporter using Brevo SMTP
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.GMAIL_USER, // e.g., qualisearch@gmail.com
-    pass: process.env.GMAIL_APP_PASSWORD // The 16-letter app password
+    user: process.env.BREVO_SMTP_LOGIN, // e.g., b08455001@smtp-brevo.com
+    pass: process.env.BREVO_SMTP_KEY    // The SMTP key you just generated
   }
 });
 
 // Verify connection on startup
 transporter.verify((error, success) => {
   if (error) {
-    console.error('Error connecting to Gmail:', error);
+    console.error('Error connecting to Brevo SMTP:', error);
   } else {
-    console.log('Server is ready to send emails via Gmail');
+    console.log('Server is ready to send emails via Brevo SMTP');
   }
 });
 
@@ -46,7 +48,7 @@ app.post('/send-email', async (req, res) => {
     })) : [];
 
     const mailOptions = {
-      from: `"QualiSearch Academic Press" <${process.env.GMAIL_USER}>`,
+      from: `"QualiSearch Academic Press" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_LOGIN}>`,
       to: to.join(', '), // Nodemailer expects a comma-separated string for multiple recipients
       subject: subject,
       html: html,
