@@ -371,10 +371,14 @@
 
       <!-- TAB 3: Published Articles -->
       <div class="dash-tab-content" id="tab-published">
-        <div style="margin-bottom:15px;">
+        <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
           <h2
             style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
             Published Articles</h2>
+          <button id="btn-direct-publish" class="btn-action" style="background:var(--gold); color:var(--bg-primary); font-weight:bold;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Direct Publish Article
+          </button>
         </div>
         <div class="table-wrapper">
           <table class="admin-table">
@@ -1832,8 +1836,98 @@
         });
       });
 
+      // Direct Publish Logic
+      const btnDirectPublish = document.getElementById('btn-direct-publish');
+      const directPublishBackdrop = document.getElementById('direct-publish-backdrop');
+      if (btnDirectPublish && directPublishBackdrop) {
+        btnDirectPublish.addEventListener('click', () => {
+          directPublishBackdrop.style.display = 'flex';
+        });
+      }
+
+      const directPublishForm = document.getElementById('direct-publish-form');
+      if (directPublishForm) {
+        directPublishForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const title = document.getElementById('dp-title').value;
+          const journal = document.getElementById('dp-journal').value;
+          const btn = document.getElementById('btn-dp-submit');
+          const origText = btn.textContent;
+          btn.textContent = 'Creating...';
+          btn.disabled = true;
+
+          const { data: newSubData, error } = await db.from('submissions').insert({
+            title: title,
+            abstract: '',
+            journal: journal,
+            status: 'Published',
+            user_id: session.user.id
+          }).select();
+
+          btn.textContent = origText;
+          btn.disabled = false;
+
+          if (error) {
+            alert('Error creating record: ' + error.message);
+          } else if (newSubData && newSubData.length > 0) {
+            directPublishBackdrop.style.display = 'none';
+            document.getElementById('dp-title').value = '';
+            
+            // Re-fetch submissions to update the table in the background
+            loadAllSubmissions();
+            
+            // Open the landing page editor for the new record immediately
+            const sub = newSubData[0];
+            document.getElementById('edit-article-id').value = sub.id;
+            document.getElementById('edit-article-title').value = sub.title || '';
+            document.getElementById('edit-article-journal').value = sub.journal || '';
+            document.getElementById('edit-article-abstract').value = sub.abstract || '';
+            
+            ['edit-article-authors','edit-article-summary','edit-article-keywords','edit-article-doi','edit-article-details','edit-article-funding','edit-article-references','edit-date-received','edit-date-revised','edit-date-accepted','edit-date-published'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = '';
+            });
+            document.getElementById('edit-cover-file').value = '';
+            document.getElementById('edit-template-file').value = '';
+            document.getElementById('edit-cover-current').value = '';
+            document.getElementById('edit-template-current').value = '';
+            document.getElementById('edit-cover-name').textContent = 'No cover selected';
+            document.getElementById('edit-template-name').textContent = 'No published file selected';
+            document.getElementById('edit-modal-backdrop').style.display = 'flex';
+          }
+        });
+      }
+
     }); // End of DOMContentLoaded
   </script>
+
+  <!-- Direct Publish Modal -->
+  <div class="auth-backdrop" id="direct-publish-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+    <div class="auth-modal" style="width:100%; max-width:500px; padding:30px; border:1px solid rgba(255,255,255,0.1);">
+      <h2 style="color:var(--gold); margin-bottom:15px; font-family:'Cinzel', serif;">Direct Publish</h2>
+      <p style="color:var(--text-secondary); margin-bottom: 25px; font-size: 0.9rem; line-height: 1.5;">Instantly create a published record. You will be able to upload the PDF and fill out the landing page details on the next screen.</p>
+      <form id="direct-publish-form" style="display:flex; flex-direction:column; gap:15px;">
+        <div class="auth-field">
+          <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Manuscript Title</label>
+          <input type="text" id="dp-title" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px;" />
+        </div>
+        <div class="auth-field">
+          <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Journal Assignment</label>
+          <select id="dp-journal" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; appearance: none; -webkit-appearance: none;">
+            <option value="QJERP">Journal of Educational Research (QJERP)</option>
+            <option value="QJHS">Journal of Health Sciences (QJHS)</option>
+            <option value="QJBG">Journal of Business and Governance (QJBG)</option>
+            <option value="QJTI">Journal of Technology and Innovation (QJTI)</option>
+            <option value="QJPLC">Philippine Languages and Culture (QJPLC)</option>
+          </select>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+          <button type="button" class="btn-action" onclick="document.getElementById('direct-publish-backdrop').style.display='none'" style="background:transparent; color:var(--text-secondary); border:none; padding:10px 15px;">Cancel</button>
+          <button type="submit" id="btn-dp-submit" class="btn-action" style="background:var(--gold); color:var(--bg-primary); padding:10px 15px; font-weight:600;">Create Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Edit Article Modal -->
   <div class="auth-backdrop" id="edit-modal-backdrop"
