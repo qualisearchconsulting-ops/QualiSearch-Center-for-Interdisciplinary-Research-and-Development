@@ -34,6 +34,23 @@
       color: #f3d990 !important;
       border-color: rgba(214,178,94,0.35) !important;
     }
+    .reference-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .reference-item {
+      margin: 0;
+      padding-left: 28px;
+      text-indent: -28px;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+    .reference-item a {
+      color: var(--gold);
+      text-decoration: underline;
+      overflow-wrap: anywhere;
+    }
   </style>
 </head>
 <body>
@@ -246,15 +263,14 @@
         }
 
         if (data.landing_references) {
-          const refs = data.landing_references.split('\n').map(item => item.trim()).filter(Boolean);
+          const refs = normalizeReferences(data.landing_references);
           const refsEl = document.getElementById('art-references');
+          refsEl.className = 'reference-list';
           refsEl.innerHTML = '';
           refs.forEach(ref => {
             const p = document.createElement('p');
-            p.style.cssText = 'margin:0 0 14px;';
-            // Convert URLs to clickable links
-            const linked = ref.replace(/(https?:\/\/[^\s,]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--gold); text-decoration:underline; word-break:break-all;">$1</a>');
-            p.innerHTML = linked;
+            p.className = 'reference-item';
+            appendLinkedText(p, ref);
             refsEl.appendChild(p);
           });
         }
@@ -357,6 +373,53 @@
             if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           });
         });
+
+        function normalizeReferences(raw) {
+          const boilerplate = /(published by|open\s*-\s*access|open access|creative commons|cc by|copyright|the author\(s\)|distributed under the terms)/i;
+          const lines = String(raw || '')
+            .split(/\r?\n+/)
+            .map(line => line.replace(/\s+/g, ' ').trim())
+            .filter(line => line.length > 2 && !boilerplate.test(line));
+
+          const entries = [];
+          let current = '';
+          const startsReference = (line) =>
+            /^\d+[\).\s]/.test(line) ||
+            /^[A-Z][A-Za-zÀ-ÿ'’.-]+,\s+(?:[A-Z]\.|[A-Z][A-Za-zÀ-ÿ'’.-]+)(?:.*\(\d{4}\)|.*\d{4})/.test(line);
+
+          lines.forEach(line => {
+            if (/^https?:\/\//i.test(line)) {
+              current = current ? `${current} ${line}` : line;
+              return;
+            }
+
+            if (startsReference(line) && current) {
+              entries.push(current.trim());
+              current = line;
+            } else {
+              current = current ? `${current} ${line}` : line;
+            }
+          });
+
+          if (current) entries.push(current.trim());
+          return entries;
+        }
+
+        function appendLinkedText(parent, text) {
+          const parts = String(text).split(/(https?:\/\/[^\s,]+)/g);
+          parts.forEach(part => {
+            if (/^https?:\/\//i.test(part)) {
+              const link = document.createElement('a');
+              link.href = part;
+              link.target = '_blank';
+              link.rel = 'noopener noreferrer';
+              link.textContent = part;
+              parent.appendChild(link);
+            } else {
+              parent.appendChild(document.createTextNode(part));
+            }
+          });
+        }
       } catch (e) {
         console.error('Error loading article:', e);
         document.getElementById('article-loading').style.display = 'none';

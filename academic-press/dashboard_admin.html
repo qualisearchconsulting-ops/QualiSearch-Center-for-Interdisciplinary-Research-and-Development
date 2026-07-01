@@ -15,21 +15,30 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="supabase-config.js"></script>
+  <script src="certificate-generator.js"></script>
   <style>
     /* Force Hamburger Menu on Desktop to declutter screen */
-    .hamburger { display: flex !important; }
-    .main-nav { display: none !important; }
+    .hamburger {
+      display: flex !important;
+    }
+
+    .main-nav {
+      display: none !important;
+    }
+
     .main-nav.open {
       display: flex !important;
       flex-direction: column;
       position: absolute;
-      top: 60px; right: 20px;
-      background: rgba(8,13,26,0.98);
+      top: 60px;
+      right: 20px;
+      background: rgba(8, 13, 26, 0.98);
       border: 1px solid var(--border-light);
       padding: 15px 20px;
       z-index: 999;
       border-radius: 8px;
     }
+
     .main-nav.open ul {
       flex-direction: column;
       gap: 10px;
@@ -183,8 +192,8 @@
     .landing-file-drop {
       width: 100%;
       padding: 18px 14px;
-      background: rgba(255,255,255,0.05);
-      border: 1.5px dashed rgba(255,255,255,0.24);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px dashed rgba(255, 255, 255, 0.24);
       border-radius: 4px;
       color: var(--text-muted);
       text-align: center;
@@ -196,7 +205,7 @@
     .landing-file-drop:hover,
     .landing-file-drop.drag-over {
       border-color: var(--gold);
-      background: rgba(214,178,94,0.08);
+      background: rgba(214, 178, 94, 0.08);
     }
 
     .landing-file-drop strong {
@@ -234,7 +243,8 @@
       </div>
       <nav class="main-nav" id="main-nav">
         <ul>
-          <li><a href="../index.html" class="nav-link" style="color: var(--gold-light); font-weight: 600;">&larr; QCIRD Home</a></li>
+          <li><a href="../index.html" class="nav-link" style="color: var(--gold-light); font-weight: 600;">&larr; QCIRD
+              Home</a></li>
           <li><a href="index.html" class="nav-link">Home</a></li>
           <li><a href="dashboard_admin.html" class="nav-link active">Editor Dashboard</a></li>
         </ul>
@@ -288,7 +298,9 @@
         <button class="dash-tab" data-tab="tab-settings">Journal Settings</button>
       </div>
       <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin:-10px 0 24px;">
-        <label for="admin-journal-filter" style="color:var(--text-muted); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.08em;">Sort / Filter Journal</label>
+        <label for="admin-journal-filter"
+          style="color:var(--text-muted); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.08em;">Sort /
+          Filter Journal</label>
         <select id="admin-journal-filter" class="reviewer-input" style="width:auto; min-width:230px; margin:0;">
           <option value="all">All Journals</option>
           <option value="QJERP">QJERP</option>
@@ -303,8 +315,12 @@
       <!-- TAB 1: Pending / In Review -->
       <div class="dash-tab-content active" id="tab-pending">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px;">
-          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Pending / In Review</h2>
-          <button id="btn-auto-assign" class="btn-action" style="background:var(--color-gold); color:var(--color-bg); font-weight:600; padding:6px 15px;">Auto-Assign All</button>
+          <h2
+            style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
+            Pending / In Review</h2>
+          <button id="btn-auto-assign" class="btn-action"
+            style="background:var(--color-gold); color:var(--color-bg); font-weight:600; padding:6px 15px;">Auto-Assign
+            All</button>
         </div>
         <div class="table-wrapper">
           <table class="admin-table">
@@ -329,7 +345,9 @@
       <!-- TAB 2: Ready for Decision -->
       <div class="dash-tab-content" id="tab-ready">
         <div style="margin-bottom:15px;">
-          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Ready for Editor Decision</h2>
+          <h2
+            style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
+            Ready for Editor Decision</h2>
         </div>
         <div class="table-wrapper">
           <table class="admin-table">
@@ -354,7 +372,9 @@
       <!-- TAB 3: Published Articles -->
       <div class="dash-tab-content" id="tab-published">
         <div style="margin-bottom:15px;">
-          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Published Articles</h2>
+          <h2
+            style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
+            Published Articles</h2>
         </div>
         <div class="table-wrapper">
           <table class="admin-table">
@@ -379,7 +399,9 @@
       <!-- TAB 4: Journal Settings & Reviewers -->
       <div class="dash-tab-content" id="tab-settings">
         <div style="margin-bottom:15px;">
-          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Journal Launch Controls</h2>
+          <h2
+            style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
+            Journal Launch Controls</h2>
         </div>
         <div class="table-wrapper" style="margin-bottom:30px;">
           <table class="admin-table">
@@ -399,23 +421,33 @@
         </div>
 
         <div style="margin-bottom:15px;">
-          <h2 style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">Add Reviewer</h2>
+          <h2
+            style="color:var(--text-primary); font-size:1.1rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0;">
+            Add Reviewer</h2>
         </div>
-        <div class="table-wrapper" style="margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+        <div class="table-wrapper"
+          style="margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
           <div style="flex:1; min-width: 200px;">
-            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer Name</label>
-            <input type="text" id="rev-name" class="reviewer-input" style="width:100%; margin:0;" placeholder="e.g. Dr. Jane Doe" />
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer
+              Name</label>
+            <input type="text" id="rev-name" class="reviewer-input" style="width:100%; margin:0;"
+              placeholder="e.g. Dr. Jane Doe" />
           </div>
           <div style="flex:1; min-width: 200px;">
-            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer Email</label>
-            <input type="email" id="rev-email" class="reviewer-input" style="width:100%; margin:0;" placeholder="jane@example.com" />
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Reviewer
+              Email</label>
+            <input type="email" id="rev-email" class="reviewer-input" style="width:100%; margin:0;"
+              placeholder="jane@example.com" />
           </div>
           <div style="flex:1; min-width: 200px;">
-            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Temp Password</label>
-            <input type="text" id="rev-password" class="reviewer-input" style="width:100%; margin:0;" placeholder="SecretPass123" />
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Temp
+              Password</label>
+            <input type="text" id="rev-password" class="reviewer-input" style="width:100%; margin:0;"
+              placeholder="SecretPass123" />
           </div>
           <div style="flex:1; min-width: 200px;">
-            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Handled Journal</label>
+            <label style="display:block; color:var(--text-secondary); font-size:0.85rem; margin-bottom:5px;">Handled
+              Journal</label>
             <select id="rev-journal" class="reviewer-input" style="width:100%; margin:0;">
               <option value="" disabled selected>Select Journal</option>
               <option value="QJERP">Journal of Educational Research (QJERP)</option>
@@ -426,11 +458,13 @@
             </select>
           </div>
           <div>
-            <button id="btn-add-reviewer" class="btn-action" style="padding: 7px 16px; background: var(--color-gold); color: var(--color-bg); font-weight: 600;">+ Add Reviewer</button>
+            <button id="btn-add-reviewer" class="btn-action"
+              style="padding: 7px 16px; background: var(--color-gold); color: var(--color-bg); font-weight: 600;">+ Add
+              Reviewer</button>
           </div>
         </div>
       </div>
-      </div>
+    </div>
     </div>
   </section>
 
@@ -474,7 +508,7 @@
       let role = 'researcher';
       const { data: roleData } = await db.from('user_roles').select('role').eq('user_id', session.user.id).maybeSingle();
       if (roleData) role = roleData.role;
-      
+
       if (!['admin', 'editor'].includes(role)) {
         window.location.href = 'index.html';
         return;
@@ -705,54 +739,54 @@
           renderSubmissionRows(readySubmissions, readyTbody, 'No manuscripts ready for editor decision.');
           renderSubmissionRows(publishedSubmissions, publishedTbody, 'No published articles yet.');
 
-        function filterAndSortByJournal(submissions) {
-          const filtered = submissions.filter((sub) => {
-            const code = sub.journal || '';
-            if (adminJournalFilter === 'all') return true;
-            if (adminJournalFilter === 'other') return !journalOrder.includes(code);
-            return code === adminJournalFilter;
-          });
+          function filterAndSortByJournal(submissions) {
+            const filtered = submissions.filter((sub) => {
+              const code = sub.journal || '';
+              if (adminJournalFilter === 'all') return true;
+              if (adminJournalFilter === 'other') return !journalOrder.includes(code);
+              return code === adminJournalFilter;
+            });
 
-          return filtered.sort((a, b) => {
-            const journalA = journalOrder.includes(a.journal) ? journalOrder.indexOf(a.journal) : journalOrder.length;
-            const journalB = journalOrder.includes(b.journal) ? journalOrder.indexOf(b.journal) : journalOrder.length;
-            if (journalA !== journalB) return journalA - journalB;
-            return new Date(b.created_at) - new Date(a.created_at);
-          });
-        }
-
-        function renderSubmissionRows(submissions, targetBody, emptyMessage) {
-          if (!submissions.length) {
-            targetBody.innerHTML = `<tr><td colspan="5" class="empty-state">${emptyMessage}</td></tr>`;
-            return;
+            return filtered.sort((a, b) => {
+              const journalA = journalOrder.includes(a.journal) ? journalOrder.indexOf(a.journal) : journalOrder.length;
+              const journalB = journalOrder.includes(b.journal) ? journalOrder.indexOf(b.journal) : journalOrder.length;
+              if (journalA !== journalB) return journalA - journalB;
+              return new Date(b.created_at) - new Date(a.created_at);
+            });
           }
 
-          targetBody.innerHTML = '';
-          submissions.forEach(sub => {
-          const date = new Date(sub.created_at).toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric'
-          });
+          function renderSubmissionRows(submissions, targetBody, emptyMessage) {
+            if (!submissions.length) {
+              targetBody.innerHTML = `<tr><td colspan="5" class="empty-state">${emptyMessage}</td></tr>`;
+              return;
+            }
 
-          const journalIsLocked = Boolean(sub.reviewed_file_path || sub.reviewer_feedback || ['Revisions Required', 'Revision Submitted', 'Pending Payment', 'Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
-          const hasLandingPage = Boolean(
-            sub.landing_authors ||
-            sub.landing_summary ||
-            sub.landing_keywords ||
-            sub.landing_doi ||
-            sub.landing_details ||
-            sub.landing_funding ||
-            sub.landing_references ||
-            sub.cover_image_path
-          );
-          const hasPublishedFile = Boolean(sub.published_file_path);
-          const reviewerOptions = buildReviewerOptions(sub.journal, sub.reviewer_email || '');
-          const journalOptions = journals.map((journal) => {
-            const selected = sub.journal === journal.code ? 'selected' : '';
-            return `<option value="${journal.code}" ${selected}>${journal.code}</option>`;
-          }).join('');
-          const journalControlHtml = journalIsLocked
-            ? `<span class="meta-text">${sub.journal || 'To be assigned'} <span style="color:var(--text-muted);">locked</span></span>`
-            : `
+            targetBody.innerHTML = '';
+            submissions.forEach(sub => {
+              const date = new Date(sub.created_at).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+              });
+
+              const journalIsLocked = Boolean(sub.reviewed_file_path || sub.reviewer_feedback || ['Revisions Required', 'Revision Submitted', 'Pending Payment', 'Ready for Admin', 'Published', 'Rejected'].includes(sub.status));
+              const hasLandingPage = Boolean(
+                sub.landing_authors ||
+                sub.landing_summary ||
+                sub.landing_keywords ||
+                sub.landing_doi ||
+                sub.landing_details ||
+                sub.landing_funding ||
+                sub.landing_references ||
+                sub.cover_image_path
+              );
+              const hasPublishedFile = Boolean(sub.published_file_path);
+              const reviewerOptions = buildReviewerOptions(sub.journal, sub.reviewer_email || '');
+              const journalOptions = journals.map((journal) => {
+                const selected = sub.journal === journal.code ? 'selected' : '';
+                return `<option value="${journal.code}" ${selected}>${journal.code}</option>`;
+              }).join('');
+              const journalControlHtml = journalIsLocked
+                ? `<span class="meta-text">${sub.journal || 'To be assigned'} <span style="color:var(--text-muted);">locked</span></span>`
+                : `
               <div style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                 <select class="reviewer-input admin-journal-select" data-id="${sub.id}" style="width:145px; margin:0;">
                   <option value="To be assigned" ${!sub.journal || sub.journal === 'To be assigned' ? 'selected' : ''}>To be assigned</option>
@@ -762,9 +796,9 @@
               </div>
             `;
 
-          const tr = document.createElement('tr');
+              const tr = document.createElement('tr');
 
-          tr.innerHTML = `
+              tr.innerHTML = `
             <td>
               <div class="title-col">
                 ${sub.title}
@@ -802,250 +836,423 @@
               </div>
             </td>
           `;
-          targetBody.appendChild(tr);
-          });
-        }
+              targetBody.appendChild(tr);
+            });
+          }
 
-        // Add event listeners for status change
-        document.querySelectorAll('.status-select').forEach(select => {
-          select.addEventListener('change', async (e) => {
-            const subId = e.target.getAttribute('data-id');
-            const newStatus = e.target.value;
+          // Add event listeners for status change
+          document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', async (e) => {
+              const subId = e.target.getAttribute('data-id');
+              const newStatus = e.target.value;
 
-            const { error: updateError } = await db
-              .from('submissions')
-              .update({ status: newStatus })
-              .eq('id', subId);
+              const { error: updateError } = await db
+                .from('submissions')
+                .update({ status: newStatus })
+                .eq('id', subId);
 
-            if (updateError) {
-              alert('Error updating status: ' + updateError.message);
-              loadAllSubmissions();
-            } else {
-              const toast = document.getElementById('qs-toast');
-              const msg = document.getElementById('qs-toast-msg');
-              if (toast && msg) {
-                msg.textContent = 'Status updated successfully!';
-                toast.hidden = false;
-                toast.className = 'qs-toast toast-success';
-                setTimeout(() => toast.hidden = true, 3000);
+              if (updateError) {
+                alert('Error updating status: ' + updateError.message);
+                loadAllSubmissions();
+              } else {
+                const toast = document.getElementById('qs-toast');
+                const msg = document.getElementById('qs-toast-msg');
+                if (toast && msg) {
+                  msg.textContent = 'Status updated successfully!';
+                  toast.hidden = false;
+                  toast.className = 'qs-toast toast-success';
+                  setTimeout(() => toast.hidden = true, 3000);
+                }
               }
-            }
+            });
           });
-        });
 
-        document.querySelectorAll('.journal-save-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const subId = e.target.getAttribute('data-id');
-            const select = document.querySelector(`.admin-journal-select[data-id="${subId}"]`);
-            const newJournal = select?.value || 'To be assigned';
-            const originalText = e.target.textContent;
+          document.querySelectorAll('.journal-save-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const subId = e.target.getAttribute('data-id');
+              const select = document.querySelector(`.admin-journal-select[data-id="${subId}"]`);
+              const newJournal = select?.value || 'To be assigned';
+              const originalText = e.target.textContent;
 
-            e.target.textContent = 'Saving...';
-            e.target.disabled = true;
+              e.target.textContent = 'Saving...';
+              e.target.disabled = true;
 
-            const { error: updateError } = await db
-              .from('submissions')
-              .update({ journal: newJournal, reviewer_email: null })
-              .eq('id', subId);
+              const { error: updateError } = await db
+                .from('submissions')
+                .update({ journal: newJournal, reviewer_email: null })
+                .eq('id', subId);
 
-            e.target.textContent = originalText;
-            e.target.disabled = false;
-
-            if (updateError) {
-              alert('Error updating journal: ' + updateError.message);
-            } else {
-              const toast = document.getElementById('qs-toast');
-              const msg = document.getElementById('qs-toast-msg');
-              if (toast && msg) {
-                msg.textContent = 'Journal assigned. Please assign a reviewer for that journal.';
-                toast.hidden = false;
-                toast.className = 'qs-toast toast-success';
-                setTimeout(() => toast.hidden = true, 3000);
-              }
-              loadAllSubmissions();
-            }
-          });
-        });
-
-        document.querySelectorAll('.admin-journal-select').forEach(select => {
-          select.addEventListener('change', (e) => {
-            const subId = e.target.getAttribute('data-id');
-            const reviewerSelect = document.querySelector(`.reviewer-select[data-id="${subId}"]`);
-            if (reviewerSelect) {
-              reviewerSelect.innerHTML = buildReviewerOptions(e.target.value);
-            }
-          });
-        });
-
-        // Add event listeners for assign reviewer
-        document.querySelectorAll('.assign-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const subId = e.target.getAttribute('data-id');
-            const select = document.querySelector(`.reviewer-select[data-id="${subId}"]`);
-            const journalSelect = document.querySelector(`.admin-journal-select[data-id="${subId}"]`);
-            const email = select.value;
-            const journal = journalSelect?.value;
-
-            e.target.textContent = 'Saving...';
-            e.target.disabled = true;
-
-            const updatePayload = { reviewer_email: email || null };
-            if (journal) updatePayload.journal = journal;
-
-            const { error: updateError } = await db
-              .from('submissions')
-              .update(updatePayload)
-              .eq('id', subId);
-
-            if (updateError) {
-              alert('Error assigning reviewer: ' + updateError.message);
-              e.target.textContent = 'Save';
+              e.target.textContent = originalText;
               e.target.disabled = false;
-            } else {
-              e.target.textContent = 'Saved!';
-              setTimeout(() => {
+
+              if (updateError) {
+                alert('Error updating journal: ' + updateError.message);
+              } else {
+                const toast = document.getElementById('qs-toast');
+                const msg = document.getElementById('qs-toast-msg');
+                if (toast && msg) {
+                  msg.textContent = 'Journal assigned. Please assign a reviewer for that journal.';
+                  toast.hidden = false;
+                  toast.className = 'qs-toast toast-success';
+                  setTimeout(() => toast.hidden = true, 3000);
+                }
+                loadAllSubmissions();
+              }
+            });
+          });
+
+          document.querySelectorAll('.admin-journal-select').forEach(select => {
+            select.addEventListener('change', (e) => {
+              const subId = e.target.getAttribute('data-id');
+              const reviewerSelect = document.querySelector(`.reviewer-select[data-id="${subId}"]`);
+              if (reviewerSelect) {
+                reviewerSelect.innerHTML = buildReviewerOptions(e.target.value);
+              }
+            });
+          });
+
+          // Add event listeners for assign reviewer
+          document.querySelectorAll('.assign-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const subId = e.target.getAttribute('data-id');
+              const select = document.querySelector(`.reviewer-select[data-id="${subId}"]`);
+              const journalSelect = document.querySelector(`.admin-journal-select[data-id="${subId}"]`);
+              const email = select.value;
+              const journal = journalSelect?.value;
+
+              e.target.textContent = 'Saving...';
+              e.target.disabled = true;
+
+              const updatePayload = { reviewer_email: email || null };
+              if (journal) updatePayload.journal = journal;
+
+              const { error: updateError } = await db
+                .from('submissions')
+                .update(updatePayload)
+                .eq('id', subId);
+
+              if (updateError) {
+                alert('Error assigning reviewer: ' + updateError.message);
                 e.target.textContent = 'Save';
                 e.target.disabled = false;
-              }, 2000);
+              } else {
+                e.target.textContent = 'Saved!';
+                setTimeout(() => {
+                  e.target.textContent = 'Save';
+                  e.target.disabled = false;
+                }, 2000);
 
-              const toast = document.getElementById('qs-toast');
-              const msg = document.getElementById('qs-toast-msg');
-              if (toast && msg) {
-                msg.textContent = 'Reviewer updated successfully!';
-                toast.hidden = false;
-                toast.className = 'qs-toast toast-success';
-                setTimeout(() => toast.hidden = true, 3000);
+                const toast = document.getElementById('qs-toast');
+                const msg = document.getElementById('qs-toast-msg');
+                if (toast && msg) {
+                  msg.textContent = 'Reviewer updated successfully!';
+                  toast.hidden = false;
+                  toast.className = 'qs-toast toast-success';
+                  setTimeout(() => toast.hidden = true, 3000);
+                }
               }
-            }
+            });
           });
-        });
 
-    // Add event listeners for publish button
-    document.querySelectorAll('.publish-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const subId = e.target.getAttribute('data-id');
-        const originalText = e.target.textContent;
-        e.target.textContent = 'Publishing...';
-        e.target.disabled = true;
+          // Add event listeners for publish button
+          document.querySelectorAll('.publish-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const subId = e.target.getAttribute('data-id');
+              const originalText = e.target.textContent;
+              e.target.textContent = 'Publishing...';
+              e.target.disabled = true;
 
-        const { error: updateError } = await db
-          .from('submissions')
-          .update({ status: 'Published' })
-          .eq('id', subId);
+              // 1. Fetch full submission data for certificate generation
+              const { data: subData, error: fetchErr } = await db
+                .from('submissions')
+                .select('*')
+                .eq('id', subId)
+                .maybeSingle();
 
-        if (updateError) {
-          alert('Error publishing: ' + updateError.message);
-          e.target.textContent = originalText;
-          e.target.disabled = false;
-        } else {
-          loadAllSubmissions();
-          window.open(`article.html?id=${subId}`, '_blank');
-          const toast = document.getElementById('qs-toast');
-          const msg = document.getElementById('qs-toast-msg');
-          if (toast && msg) {
-            msg.textContent = 'Article published successfully!';
-            toast.hidden = false;
-            toast.className = 'qs-toast toast-success';
-            setTimeout(() => toast.hidden = true, 3000);
-          }
-        }
-      });
-    });
+              if (fetchErr || !subData) {
+                alert('Error fetching submission: ' + (fetchErr?.message || 'Not found'));
+                e.target.textContent = originalText;
+                e.target.disabled = false;
+                return;
+              }
 
-        document.querySelectorAll('.download-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const path = e.target.getAttribute('data-path');
-            e.target.textContent = 'Downloading...';
-            const { data, error } = await db.storage.from('manuscripts').download(path);
-            if (error) {
-              alert('Error downloading file: ' + error.message);
-            } else {
-              const url = URL.createObjectURL(data);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = path.split('/').pop();
-              a.click();
-              URL.revokeObjectURL(url);
-            }
-            e.target.textContent = 'Download File';
+              // 2. Update status to Published
+              const { error: updateError } = await db
+                .from('submissions')
+                .update({ status: 'Published' })
+                .eq('id', subId);
+
+              if (updateError) {
+                alert('Error publishing: ' + updateError.message);
+                e.target.textContent = originalText;
+                e.target.disabled = false;
+                return;
+              }
+
+              // 3. Show publish progress modal
+              showPublishProgressModal();
+              updatePublishProgress('status', '📄 Article published successfully!');
+
+              // 4. Build recipient list
+              const recipients = [];
+              const pubDate = subData.published_date
+                ? new Date(subData.published_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+              const journalFullNames = {
+                QJERP: 'QualiSearch Journal of Educational Research and Practice',
+                QJHS: 'QualiSearch Journal of Health Sciences',
+                QJBG: 'QualiSearch Journal of Business and Governance',
+                QJTI: 'QualiSearch Journal of Technology and Innovation',
+                QJPLC: 'QualiSearch Journal of Philippine Languages and Culture'
+              };
+              const journalName = journalFullNames[subData.journal] || subData.journal || 'QualiSearch Journal';
+              const articleUrl = `${window.location.origin}${window.location.pathname.replace('dashboard_admin.html', '')}article.html?id=${subId}`;
+
+              // Author(s) — the submitting researcher
+              // Get submitter's email via secure RPC function (looks up auth.users by user_id)
+              let submitterEmail = null;
+              try {
+                const { data: emailData, error: emailErr } = await db.rpc(
+                  'get_submission_author_email',
+                  { submission_id: subId }
+                );
+                if (!emailErr && emailData) submitterEmail = emailData;
+              } catch (e) {
+                console.warn('Could not look up author email:', e);
+              }
+
+              // Use the landing_authors for the certificate name(s)
+              const authorNames = subData.landing_authors
+                ? subData.landing_authors.split(/[,;&]+/).map(n => n.trim()).filter(Boolean)
+                : ['Author'];
+
+              // Get the submitter's email (researcher who submitted the article)
+              if (submitterEmail) {
+                authorNames.forEach(name => {
+                  recipients.push({
+                    email: submitterEmail,
+                    name: name,
+                    role: 'author'
+                  });
+                });
+              }
+
+              // Peer Reviewer
+              if (subData.reviewer_email) {
+                const reviewer = allReviewers.find(r => r.email === subData.reviewer_email);
+                recipients.push({
+                  email: subData.reviewer_email,
+                  name: reviewer?.full_name || 'Peer Reviewer',
+                  role: 'reviewer'
+                });
+              }
+
+              if (recipients.length === 0) {
+                updatePublishProgress('warning', '⚠️ No recipient emails found. Certificates not sent.');
+                updatePublishProgress('done', true);
+                loadAllSubmissions();
+                window.open(`article.html?id=${subId}`, '_blank');
+                return;
+              }
+
+              // 5. Generate certificates for each recipient
+              updatePublishProgress('status', `🎨 Generating ${recipients.length} certificate(s)...`);
+              const emailPayloads = [];
+
+              for (let i = 0; i < recipients.length; i++) {
+                const r = recipients[i];
+                updatePublishProgress('detail', `Generating certificate for ${r.name} (${r.role})...`);
+
+                try {
+                  const certBase64 = await window.generateCertificate({
+                    recipientName: r.name,
+                    publicationDate: pubDate,
+                    journalCode: subData.journal || 'QJERP',
+                    articleTitle: subData.title || ''
+                  });
+
+                  emailPayloads.push({
+                    recipientEmail: r.email,
+                    recipientName: r.name,
+                    recipientRole: r.role,
+                    articleTitle: subData.title || '',
+                    articleDoi: subData.landing_doi || '',
+                    articleUrl: articleUrl,
+                    journalName: journalName,
+                    publicationDate: pubDate,
+                    certificateBase64: certBase64
+                  });
+
+                  updatePublishProgress('detail', `✅ Certificate ready for ${r.name}`);
+                } catch (certErr) {
+                  console.error('Certificate generation error:', certErr);
+                  updatePublishProgress('detail', `❌ Failed to generate certificate for ${r.name}: ${certErr.message}`);
+                }
+              }
+
+              // 6. Send emails directly via New Email Backend
+              if (emailPayloads.length > 0) {
+                updatePublishProgress('status', `📧 Sending ${emailPayloads.length} email(s)...`);
+
+                if (!EMAIL_BACKEND_URL) {
+                  updatePublishProgress('warning', '⚠️ EMAIL_BACKEND_URL not configured. Open supabase-config.js and set the URL.');
+                  updatePublishProgress('detail', 'Certificates were generated but emails were not sent.');
+                } else {
+                  for (const payload of emailPayloads) {
+                    try {
+                      const subject = payload.recipientRole === 'reviewer'
+                        ? `Certificate of Peer Review — ${payload.journalName}`
+                        : `Certificate of International Publication — ${payload.journalName}`;
+
+                      const emailHtml = buildPublicationEmailHtml(payload);
+                      const base64Data = payload.certificateBase64.replace(/^data:image\/png;base64,/, '');
+
+                      const backendRes = await fetch(EMAIL_BACKEND_URL, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          to: [payload.recipientEmail],
+                          subject: subject,
+                          html: emailHtml,
+                          attachments: [{
+                            filename: `Certificate_${payload.recipientName.replace(/\s+/g, '_')}.png`,
+                            content: base64Data
+                          }],
+                        }),
+                      });
+
+                      const backendData = await backendRes.json();
+
+                      if (backendRes.ok) {
+                        updatePublishProgress('detail', `✅ Email sent to ${payload.recipientName} (${payload.recipientEmail})`);
+                      } else {
+                        updatePublishProgress('detail', `❌ Failed to email ${payload.recipientName}: ${backendData.error || 'Unknown error'}`);
+                      }
+
+                      // Log to database (optional, won't break if table doesn't exist)
+                      await db.from('publication_emails').insert({
+                        submission_id: subId,
+                        recipient_email: payload.recipientEmail,
+                        recipient_name: payload.recipientName,
+                        recipient_role: payload.recipientRole,
+                        resend_id: backendData.id || 'gmail-backend',
+                        status: backendRes.ok ? 'sent' : 'failed',
+                        error_message: backendRes.ok ? null : (backendData.error || 'Unknown error')
+                      }).catch(() => { }); // Don't break if logging fails
+
+                    } catch (emailErr) {
+                      console.error('Email send error:', emailErr);
+                      updatePublishProgress('detail', `❌ Error sending to ${payload.recipientName}: ${emailErr.message}`);
+                    }
+                  }
+                  updatePublishProgress('status', '📧 Email sending complete.');
+                }
+              }
+
+              // 7. Done
+              updatePublishProgress('done', true);
+              loadAllSubmissions();
+              window.open(`article.html?id=${subId}`, '_blank');
+            });
           });
-        });
 
-        // Add event listeners for viewing payment proof
-        document.querySelectorAll('.view-payment-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const path = e.target.getAttribute('data-path');
-            const originalText = e.target.textContent;
-            e.target.textContent = 'Opening...';
-            
-            const { data, error } = await db.storage.from('payments').download(path);
-            if (error) {
-              alert('Error viewing payment proof: ' + error.message);
-            } else {
-              const url = URL.createObjectURL(data);
-              window.open(url, '_blank');
-              // Optionally revoke after a delay if needed, but new window needs it active for a moment
-              setTimeout(() => URL.revokeObjectURL(url), 10000); 
-            }
-            e.target.textContent = originalText;
+          document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const path = e.target.getAttribute('data-path');
+              e.target.textContent = 'Downloading...';
+              const { data, error } = await db.storage.from('manuscripts').download(path);
+              if (error) {
+                alert('Error downloading file: ' + error.message);
+              } else {
+                const url = URL.createObjectURL(data);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = path.split('/').pop();
+                a.click();
+                URL.revokeObjectURL(url);
+              }
+              e.target.textContent = 'Download File';
+            });
           });
-        });
 
-    // Add event listeners for create/edit landing page
-    document.querySelectorAll('.edit-lp-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const subId = e.target.getAttribute('data-id');
-        const sub = data.find(s => s.id == subId);
-        if(sub) {
-          document.getElementById('edit-article-id').value = sub.id;
-          document.getElementById('edit-article-title').value = sub.title || '';
-          document.getElementById('edit-article-journal').value = sub.journal || '';
-          document.getElementById('edit-article-abstract').value = sub.abstract || '';
-          document.getElementById('edit-article-authors').value = sub.landing_authors || '';
-          document.getElementById('edit-article-summary').value = sub.landing_summary || '';
-          document.getElementById('edit-article-keywords').value = sub.landing_keywords || '';
-          document.getElementById('edit-article-doi').value = sub.landing_doi || '';
-          document.getElementById('edit-article-details').value = sub.landing_details || '';
-          document.getElementById('edit-article-funding').value = sub.landing_funding || '';
-          document.getElementById('edit-article-references').value = sub.landing_references || '';
-          document.getElementById('edit-date-received').value = sub.manuscript_received_date || '';
-          document.getElementById('edit-date-revised').value = sub.manuscript_revised_date || '';
-          document.getElementById('edit-date-accepted').value = sub.manuscript_accepted_date || '';
-          document.getElementById('edit-date-published').value = sub.published_date || '';
-          document.getElementById('edit-cover-current').value = sub.cover_image_path || '';
-          document.getElementById('edit-template-current').value = sub.published_file_path || '';
-          document.getElementById('edit-cover-file').value = '';
-          document.getElementById('edit-template-file').value = '';
-          document.getElementById('edit-cover-name').textContent = sub.cover_image_path ? sub.cover_image_path.split('/').pop() : 'No cover selected';
-          document.getElementById('edit-template-name').textContent = sub.published_file_path ? sub.published_file_path.split('/').pop() : 'No published file selected';
-          const templateStatus = document.getElementById('edit-template-status');
-          if (templateStatus) {
-            templateStatus.textContent = '';
-            templateStatus.style.display = 'none';
-          }
-          [
-            'edit-article-title',
-            'edit-article-authors',
-            'edit-article-journal',
-            'edit-article-doi',
-            'edit-article-summary',
-            'edit-article-keywords',
-            'edit-article-details',
-            'edit-article-funding',
-            'edit-date-received',
-            'edit-date-revised',
-            'edit-date-accepted',
-            'edit-date-published',
-            'edit-article-references',
-            'edit-article-abstract'
-          ].forEach((fieldId) => {
-            const field = document.getElementById(fieldId);
-            if (field) field.style.borderColor = 'rgba(255,255,255,0.2)';
+          // Add event listeners for viewing payment proof
+          document.querySelectorAll('.view-payment-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const path = e.target.getAttribute('data-path');
+              const originalText = e.target.textContent;
+              e.target.textContent = 'Opening...';
+
+              const { data, error } = await db.storage.from('payments').download(path);
+              if (error) {
+                alert('Error viewing payment proof: ' + error.message);
+              } else {
+                const url = URL.createObjectURL(data);
+                window.open(url, '_blank');
+                // Optionally revoke after a delay if needed, but new window needs it active for a moment
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+              }
+              e.target.textContent = originalText;
+            });
           });
-          document.getElementById('edit-modal-backdrop').style.display = 'flex';
-        }
-      });
-    });
+
+          // Add event listeners for create/edit landing page
+          document.querySelectorAll('.edit-lp-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const subId = e.target.getAttribute('data-id');
+              const sub = data.find(s => s.id == subId);
+              if (sub) {
+                document.getElementById('edit-article-id').value = sub.id;
+                document.getElementById('edit-article-title').value = sub.title || '';
+                document.getElementById('edit-article-journal').value = sub.journal || '';
+                document.getElementById('edit-article-abstract').value = sub.abstract || '';
+                document.getElementById('edit-article-authors').value = sub.landing_authors || '';
+                document.getElementById('edit-article-summary').value = sub.landing_summary || '';
+                document.getElementById('edit-article-keywords').value = sub.landing_keywords || '';
+                document.getElementById('edit-article-doi').value = sub.landing_doi || '';
+                document.getElementById('edit-article-details').value = sub.landing_details || '';
+                document.getElementById('edit-article-funding').value = sub.landing_funding || '';
+                document.getElementById('edit-article-references').value = sub.landing_references || '';
+                document.getElementById('edit-date-received').value = sub.manuscript_received_date || '';
+                document.getElementById('edit-date-revised').value = sub.manuscript_revised_date || '';
+                document.getElementById('edit-date-accepted').value = sub.manuscript_accepted_date || '';
+                document.getElementById('edit-date-published').value = sub.published_date || '';
+                document.getElementById('edit-cover-current').value = sub.cover_image_path || '';
+                document.getElementById('edit-template-current').value = sub.published_file_path || '';
+                document.getElementById('edit-cover-file').value = '';
+                document.getElementById('edit-template-file').value = '';
+                document.getElementById('edit-cover-name').textContent = sub.cover_image_path ? sub.cover_image_path.split('/').pop() : 'No cover selected';
+                document.getElementById('edit-template-name').textContent = sub.published_file_path ? sub.published_file_path.split('/').pop() : 'No published file selected';
+                const templateStatus = document.getElementById('edit-template-status');
+                if (templateStatus) {
+                  templateStatus.textContent = '';
+                  templateStatus.style.display = 'none';
+                }
+                [
+                  'edit-article-title',
+                  'edit-article-authors',
+                  'edit-article-journal',
+                  'edit-article-doi',
+                  'edit-article-summary',
+                  'edit-article-keywords',
+                  'edit-article-details',
+                  'edit-article-funding',
+                  'edit-date-received',
+                  'edit-date-revised',
+                  'edit-date-accepted',
+                  'edit-date-published',
+                  'edit-article-references',
+                  'edit-article-abstract'
+                ].forEach((fieldId) => {
+                  const field = document.getElementById(fieldId);
+                  if (field) field.style.borderColor = 'rgba(255,255,255,0.2)';
+                });
+                document.getElementById('edit-modal-backdrop').style.display = 'flex';
+              }
+            });
+          });
 
         } catch (err) {
           console.error('Unexpected error loading submissions:', err);
@@ -1055,553 +1262,790 @@
         }
       } // End of loadAllSubmissions
 
-  // Setup edit modal handlers
-  const cancelEditBtn = document.getElementById('btn-cancel-edit');
-  if (cancelEditBtn) {
-    cancelEditBtn.addEventListener('click', () => {
-      document.getElementById('edit-modal-backdrop').style.display = 'none';
-    });
-  }
-
-  const previewLandingBtn = document.getElementById('btn-preview-landing');
-  if (previewLandingBtn) {
-    previewLandingBtn.addEventListener('click', () => {
-      const id = document.getElementById('edit-article-id').value;
-      if (id) {
-        window.open(`article.html?id=${encodeURIComponent(id)}&preview=1`, '_blank');
-      }
-    });
-  }
-
-  const editCoverFile = document.getElementById('edit-cover-file');
-  if (editCoverFile) {
-    editCoverFile.addEventListener('change', (e) => {
-      const coverName = document.getElementById('edit-cover-name');
-      coverName.textContent = e.target.files.length ? e.target.files[0].name : 'No cover selected';
-    });
-  }
-
-  const editTemplateFile = document.getElementById('edit-template-file');
-  if (editTemplateFile) {
-    editTemplateFile.addEventListener('change', (e) => {
-      const templateName = document.getElementById('edit-template-name');
-      const file = e.target.files[0];
-      templateName.textContent = file ? file.name : 'No published file selected';
-      if (file) processLandingArticleFile(file);
-    });
-  }
-
-  const landingFileDrop = document.getElementById('landing-file-drop');
-  if (landingFileDrop && editTemplateFile) {
-    landingFileDrop.addEventListener('click', () => editTemplateFile.click());
-    landingFileDrop.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      landingFileDrop.classList.add('drag-over');
-    });
-    landingFileDrop.addEventListener('dragleave', () => landingFileDrop.classList.remove('drag-over'));
-    landingFileDrop.addEventListener('drop', (e) => {
-      e.preventDefault();
-      landingFileDrop.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (!file) return;
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      editTemplateFile.files = transfer.files;
-      document.getElementById('edit-template-name').textContent = file.name;
-      processLandingArticleFile(file);
-    });
-  }
-
-  async function processLandingArticleFile(file) {
-    const status = document.getElementById('edit-template-status');
-    if (!status) return;
-    status.style.display = 'block';
-    status.style.color = 'var(--gold)';
-    status.textContent = 'Extracting article details...';
-
-    try {
-      const lowerName = file.name.toLowerCase();
-      let pages = [];
-
-      if (lowerName.endsWith('.docx')) {
-        if (typeof mammoth === 'undefined') throw new Error('DOCX parser is still loading. Please try again.');
-        const buffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-        pages = [result.value || ''];
-      } else if (lowerName.endsWith('.pdf')) {
-        if (typeof pdfjsLib === 'undefined') throw new Error('PDF parser is still loading. Please try again.');
-        pages = await extractLandingPdfPages(file);
-      } else {
-        throw new Error('Use a PDF or DOCX file for auto-fill.');
+      // Setup edit modal handlers
+      const cancelEditBtn = document.getElementById('btn-cancel-edit');
+      if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', () => {
+          document.getElementById('edit-modal-backdrop').style.display = 'none';
+        });
       }
 
-      const parsed = parseLandingArticle(pages);
-      fillLandingArticleFields(parsed);
-      status.style.color = '#4caf50';
-      status.textContent = `${file.name} uploaded and fields auto-filled. Review before saving.`;
-    } catch (err) {
-      status.style.color = '#e57373';
-      status.textContent = err.message || 'Could not extract fields from this file.';
-    }
-  }
+      const previewLandingBtn = document.getElementById('btn-preview-landing');
+      if (previewLandingBtn) {
+        previewLandingBtn.addEventListener('click', () => {
+          const id = document.getElementById('edit-article-id').value;
+          if (id) {
+            window.open(`article.html?id=${encodeURIComponent(id)}&preview=1`, '_blank');
+          }
+        });
+      }
 
-  async function extractLandingPdfPages(file) {
-    const buffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-    const pages = [];
+      const editCoverFile = document.getElementById('edit-cover-file');
+      if (editCoverFile) {
+        editCoverFile.addEventListener('change', (e) => {
+          const coverName = document.getElementById('edit-cover-name');
+          coverName.textContent = e.target.files.length ? e.target.files[0].name : 'No cover selected';
+        });
+      }
 
-    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-      const page = await pdf.getPage(pageNumber);
-      const content = await page.getTextContent();
-      let lastY = null;
-      let lineText = '';
-      let pageText = '';
+      const editTemplateFile = document.getElementById('edit-template-file');
+      if (editTemplateFile) {
+        editTemplateFile.addEventListener('change', (e) => {
+          const templateName = document.getElementById('edit-template-name');
+          const file = e.target.files[0];
+          templateName.textContent = file ? file.name : 'No published file selected';
+          if (file) processLandingArticleFile(file);
+        });
+      }
 
-      content.items.forEach((item) => {
-        const y = item.transform[5];
-        if (lastY !== null && Math.abs(y - lastY) > 3) {
-          pageText += lineText.trim() + '\n';
-          lineText = '';
+      const landingFileDrop = document.getElementById('landing-file-drop');
+      if (landingFileDrop && editTemplateFile) {
+        landingFileDrop.addEventListener('click', () => editTemplateFile.click());
+        landingFileDrop.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          landingFileDrop.classList.add('drag-over');
+        });
+        landingFileDrop.addEventListener('dragleave', () => landingFileDrop.classList.remove('drag-over'));
+        landingFileDrop.addEventListener('drop', (e) => {
+          e.preventDefault();
+          landingFileDrop.classList.remove('drag-over');
+          const file = e.dataTransfer.files[0];
+          if (!file) return;
+          const transfer = new DataTransfer();
+          transfer.items.add(file);
+          editTemplateFile.files = transfer.files;
+          document.getElementById('edit-template-name').textContent = file.name;
+          processLandingArticleFile(file);
+        });
+      }
+
+      async function processLandingArticleFile(file) {
+        const status = document.getElementById('edit-template-status');
+        if (!status) return;
+        status.style.display = 'block';
+        status.style.color = 'var(--gold)';
+        status.textContent = 'Extracting article details...';
+
+        try {
+          const lowerName = file.name.toLowerCase();
+          let pages = [];
+
+          if (lowerName.endsWith('.docx')) {
+            if (typeof mammoth === 'undefined') throw new Error('DOCX parser is still loading. Please try again.');
+            const buffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+            pages = [result.value || ''];
+          } else if (lowerName.endsWith('.pdf')) {
+            if (typeof pdfjsLib === 'undefined') throw new Error('PDF parser is still loading. Please try again.');
+            pages = await extractLandingPdfPages(file);
+          } else {
+            throw new Error('Use a PDF or DOCX file for auto-fill.');
+          }
+
+          const parsed = parseLandingArticle(pages);
+          fillLandingArticleFields(parsed);
+          status.style.color = '#4caf50';
+          status.textContent = `${file.name} uploaded and fields auto-filled. Review before saving.`;
+        } catch (err) {
+          status.style.color = '#e57373';
+          status.textContent = err.message || 'Could not extract fields from this file.';
         }
-        lineText += item.str + ' ';
-        lastY = y;
+      }
+
+      async function extractLandingPdfPages(file) {
+        const buffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const pages = [];
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+          const page = await pdf.getPage(pageNumber);
+          const content = await page.getTextContent();
+          let lastY = null;
+          let lineText = '';
+          let pageText = '';
+
+          content.items.forEach((item) => {
+            const y = item.transform[5];
+            if (lastY !== null && Math.abs(y - lastY) > 3) {
+              pageText += lineText.trim() + '\n';
+              lineText = '';
+            }
+            lineText += item.str + ' ';
+            lastY = y;
+          });
+
+          pageText += lineText.trim();
+          pages.push(pageText);
+        }
+
+        return pages;
+      }
+
+      function parseLandingArticle(pages) {
+        const fullText = pages.join('\n');
+        const lines = fullText.split('\n').map(line => line.trim()).filter(Boolean);
+        const skipPatterns = [
+          /Creative Commons/i, /open.access/i, /Published by/i, /Page \d/i,
+          /ISSN/i, /^Volume/i, /^Issue/i, /^DOI/i, /^\d+$/, /^https?:\/\//i,
+          /License/i, /QualiSearch/i, /Advancing Knowledge/i, /Article Type/i,
+          /open\s*-\s*access/i, /distributed under/i, /terms of the/i,
+          /research adviser/i, /^reviewed by/i, /^to obtain/i,
+          /^submitted (?:to|in)/i, /^in partial fulfillment/i,
+          /^this is an/i, /^copyright/i, /^the author/i,
+          /^this study/i, /^specifically,/i, /^the researcher expresses/i
+        ];
+        const isBadLine = (line) => skipPatterns.some(pattern => pattern.test(line));
+        const looksLikeAuthorLine = (line) => /^[A-Z][A-Za-z'.-]+(?:\s+[A-Z]\.)?\s+[A-Z][A-Za-z'.-]+/.test(line) && line.length < 140;
+        const looksLikeInstitutionLine = (line) => /University|Institute|College|Department|School|Campus|Adviser|Advisor/i.test(line);
+        const isSectionHeading = (line) => /^(Abstract|Keywords?|Introduction|Background|References|Acknowledg|Research Funding|Publication History)\b/i.test(line);
+        const isNonTitleSentence = (line) => /^(This|These|There|It|The researcher|Specifically)\b/i.test(line) || /[.!?]$/.test(line);
+        const titleQuality = (candidate, index) => {
+          if (!candidate || isBadLine(candidate) || isNonTitleSentence(candidate)) return -99;
+          let score = 0;
+          if (index < 40) score += 4;
+          if (candidate.length >= 40 && candidate.length <= 170) score += 5;
+          if (candidate.length > 170) score -= 4;
+          if (/\b(study|assessment|analysis|effect|impact|development|technology|education|learning|outcomes|students|livelihood)\b/i.test(candidate)) score += 2;
+          if (/^(The|This|These|There|It)\b/i.test(candidate)) score -= 6;
+          if (/abstract|keywords|published|copyright|license|doi|email/i.test(candidate)) score -= 8;
+          return score;
+        };
+        const buildTitleCandidate = (startIndex, maxLines = 4) => {
+          const first = lines[startIndex];
+          if (!first || isBadLine(first) || isSectionHeading(first) || looksLikeAuthorLine(first) || looksLikeInstitutionLine(first)) return '';
+          let candidate = first;
+          for (let offset = 1; offset < maxLines && startIndex + offset < lines.length; offset++) {
+            const next = lines[startIndex + offset];
+            if (
+              isBadLine(next) ||
+              isSectionHeading(next) ||
+              looksLikeAuthorLine(next) ||
+              looksLikeInstitutionLine(next) ||
+              next.length < 8 ||
+              next.length > 150
+            ) {
+              break;
+            }
+            candidate += ' ' + next;
+          }
+          return candidate.trim();
+        };
+
+        let title = '';
+        const titleCandidates = [];
+        for (let i = 0; i < Math.min(lines.length, 120); i++) {
+          const line = lines[i];
+          if (isBadLine(line)) continue;
+          if (isSectionHeading(line)) continue;
+          if (looksLikeAuthorLine(line) || looksLikeInstitutionLine(line)) continue;
+          if (line.length >= 25 && line.length <= 220) {
+            const candidate = buildTitleCandidate(i);
+            const score = titleQuality(candidate, i);
+            titleCandidates.push({ value: candidate.trim(), score });
+          }
+        }
+        titleCandidates.sort((a, b) => b.score - a.score);
+        title = titleCandidates[0]?.value || '';
+
+        let authors = '';
+        const authorLabel = fullText.match(/(?:^|\n)Authors?[:\s]+([^\n]{5,160})/im);
+        const corrAuthor = fullText.match(/Corresponding Author[:\s]+([^\n\r]+)/i);
+        if (authorLabel) authors = authorLabel[1].trim();
+        else if (corrAuthor) authors = corrAuthor[1].trim();
+        else {
+          for (let i = 1; i < Math.min(lines.length, 100); i++) {
+            const line = lines[i];
+            if (/^[A-Z][a-z]+ [A-Z]\.? [A-Z][a-z]+/.test(line) && line.length < 120) {
+              authors = line;
+              break;
+            }
+          }
+        }
+
+        if (authors) {
+          const authorIndex = lines.findIndex(line => line.toLowerCase().includes(authors.toLowerCase()));
+          if (authorIndex > 0) {
+            const nearbyCandidates = [];
+            for (let i = Math.max(0, authorIndex - 12); i < authorIndex; i++) {
+              const candidate = buildTitleCandidate(i, 3);
+              nearbyCandidates.push({ value: candidate, score: titleQuality(candidate, i) + 4 });
+            }
+            nearbyCandidates.sort((a, b) => b.score - a.score);
+            if (nearbyCandidates[0]?.value && nearbyCandidates[0].score > titleQuality(title, 999)) {
+              title = nearbyCandidates[0].value;
+            }
+          }
+        }
+
+        let journal = '';
+        const journalPatterns = [
+          /Published in[:\s]+([^\n]+)/i,
+          /(?:^|\n)(QualiSearch\s+Journal[^\n]+)/im,
+          /(?:^|\n)((?:Journal|Quarterly|Review|Bulletin|Annals)\b[^\n]{3,100})/im
+        ];
+        for (const pattern of journalPatterns) {
+          const match = fullText.match(pattern);
+          if (match) {
+            journal = (match[1] || match[0]).trim().substring(0, 120);
+            if (/reviewed by|research adviser|to obtain/i.test(journal)) {
+              journal = '';
+              continue;
+            }
+            break;
+          }
+        }
+
+        const doiMatch = fullText.match(/(?:DOI|doi)[:\s]*(https?:\/\/doi\.org\/[^\s\n]+|10\.\d{4,}\/[^\s\n]+)/i);
+        const doi = doiMatch ? doiMatch[1].trim() : '';
+
+        const keywordsMatch = fullText.match(/[Kk]eywords?[:\s*]+([^\n]{5,400})/);
+        const keywords = keywordsMatch ? keywordsMatch[1].replace(/^[:\-.\s]+/, '').trim().substring(0, 250) : '';
+
+        let abstract = '';
+        const abstractMatch = fullText.match(/\bAbstract\b[\s\n:]+([\s\S]{80,3000}?)(?=\n\s*(?:Keywords?|Introduction|1\.|Background)\b)/i);
+        if (abstractMatch) abstract = abstractMatch[1].replace(/\s+/g, ' ').trim();
+
+        let summary = '';
+        if (abstract) {
+          const sentences = abstract.match(/[^.!?]+[.!?]+/g) || [];
+          summary = sentences.slice(0, 2).join(' ').trim();
+        }
+
+        const detailParts = [];
+        const copyrightMatch = fullText.match(/(?:\(c\)|Copyright|\u00a9)\s*\d{4}[^\n]*/i);
+        if (copyrightMatch) detailParts.push(copyrightMatch[0].trim());
+        const volumeMatch = fullText.match(/Volume[:\s]*(\d+)[,\s]*Issue[:\s]*(\d+)/i);
+        if (volumeMatch) detailParts.push(`Volume ${volumeMatch[1]}, Issue ${volumeMatch[2]}`);
+        const issnMatch = fullText.match(/ISSN[:\s]*([\d\-X]+)/i);
+        if (issnMatch) detailParts.push(`ISSN: ${issnMatch[1]}`);
+
+        const ackMatch = fullText.match(/Acknowledg(?:ment|ement)s?\s*\n([\s\S]{20,800}?)(?=\nEthical|\nAuthor Bio|\nReferences|\nBibliography|$)/i);
+        const funding = ackMatch ? ackMatch[1].replace(/\s+/g, ' ').trim() : '';
+
+        const receivedMatch = fullText.match(/Received[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        const revisedMatch = fullText.match(/Revised[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        const acceptedMatch = fullText.match(/Accepted[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        const publishedMatch = fullText.match(/Published[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+
+        let references = '';
+        const referencesMatch = fullText.match(/\n(?:References|Bibliography|REFERENCES)\s*\n([\s\S]+?)(?:\nAcknowledg|\nEthical|\nAuthor Bio|$)/i);
+        if (referencesMatch) {
+          references = normalizeExtractedReferences(referencesMatch[1]).slice(0, 60).join('\n');
+        }
+
+        return {
+          title,
+          authors,
+          journal,
+          doi,
+          keywords,
+          abstract,
+          summary,
+          details: detailParts.join('\n'),
+          funding,
+          received: landingInputDate(receivedMatch?.[1]),
+          revised: landingInputDate(revisedMatch?.[1]),
+          accepted: landingInputDate(acceptedMatch?.[1]),
+          published: landingInputDate(publishedMatch?.[1]),
+          references
+        };
+      }
+
+      function normalizeExtractedReferences(raw) {
+        const boilerplate = /(published by|open\s*-\s*access|open access|creative commons|cc by|copyright|the author\(s\)|distributed under the terms)/i;
+        const lines = String(raw || '')
+          .split(/\r?\n+/)
+          .map(line => line.replace(/\s+/g, ' ').trim())
+          .filter(line => line.length > 2 && !boilerplate.test(line));
+
+        const entries = [];
+        let current = '';
+        const startsReference = (line) =>
+          /^\d+[\).\s]/.test(line) ||
+          /^[A-Z][A-Za-zÀ-ÿ'’.-]+,\s+(?:[A-Z]\.|[A-Z][A-Za-zÀ-ÿ'’.-]+)(?:.*\(\d{4}\)|.*\d{4})/.test(line);
+
+        lines.forEach(line => {
+          if (/^https?:\/\//i.test(line)) {
+            current = current ? `${current} ${line}` : line;
+            return;
+          }
+
+          if (startsReference(line) && current) {
+            entries.push(current.trim());
+            current = line;
+          } else {
+            current = current ? `${current} ${line}` : line;
+          }
+        });
+
+        if (current) entries.push(current.trim());
+        return entries;
+      }
+
+      function landingInputDate(value) {
+        if (!value) return '';
+        const months = {
+          january: '01', february: '02', march: '03', april: '04', may: '05', june: '06',
+          july: '07', august: '08', september: '09', october: '10', november: '11', december: '12'
+        };
+        const monthName = value.match(/([A-Za-z]+)\s+(\d{1,2},?\s+)?(\d{4})/);
+        if (monthName) {
+          const month = months[monthName[1].toLowerCase()];
+          const day = monthName[2] ? monthName[2].replace(',', '').trim().padStart(2, '0') : '01';
+          if (month) return `${monthName[3]}-${month}-${day}`;
+        }
+        const slashDate = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+        if (slashDate) {
+          const year = slashDate[3].length === 2 ? `20${slashDate[3]}` : slashDate[3];
+          return `${year}-${slashDate[1].padStart(2, '0')}-${slashDate[2].padStart(2, '0')}`;
+        }
+        return '';
+      }
+
+      function fillLandingArticleFields(data) {
+        setLandingValue('edit-article-title', data.title);
+        setLandingValue('edit-article-authors', data.authors);
+        setLandingValue('edit-article-doi', data.doi);
+        setLandingValue('edit-article-summary', data.summary);
+        setLandingValue('edit-article-keywords', data.keywords);
+        setLandingValue('edit-article-details', data.details);
+        setLandingValue('edit-article-funding', data.funding);
+        setLandingValue('edit-date-received', data.received);
+        setLandingValue('edit-date-revised', data.revised);
+        setLandingValue('edit-date-accepted', data.accepted);
+        setLandingValue('edit-date-published', data.published);
+        setLandingValue('edit-article-references', data.references);
+        setLandingValue('edit-article-abstract', data.abstract);
+      }
+
+      function setLandingValue(id, value) {
+        const field = document.getElementById(id);
+        if (!field || !value) return;
+        field.value = value;
+        field.style.borderColor = 'rgba(76,175,80,0.75)';
+      }
+
+      const editArticleForm = document.getElementById('edit-article-form');
+      if (editArticleForm) {
+        editArticleForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const id = document.getElementById('edit-article-id').value;
+          const title = document.getElementById('edit-article-title').value;
+          const abstract = document.getElementById('edit-article-abstract').value;
+          const authors = document.getElementById('edit-article-authors').value;
+          const summary = document.getElementById('edit-article-summary').value;
+          const keywords = document.getElementById('edit-article-keywords').value;
+          const doi = document.getElementById('edit-article-doi').value;
+          const details = document.getElementById('edit-article-details').value;
+          const funding = document.getElementById('edit-article-funding').value;
+          const references = document.getElementById('edit-article-references').value;
+          const receivedDate = document.getElementById('edit-date-received').value;
+          const revisedDate = document.getElementById('edit-date-revised').value;
+          const acceptedDate = document.getElementById('edit-date-accepted').value;
+          const publishedDate = document.getElementById('edit-date-published').value;
+          const coverInput = document.getElementById('edit-cover-file');
+          const templateInput = document.getElementById('edit-template-file');
+          let coverPath = document.getElementById('edit-cover-current').value;
+          let publishedFilePath = document.getElementById('edit-template-current').value;
+
+          const btnSave = document.getElementById('btn-save-edit');
+          const origText = btnSave.textContent;
+          const savedDetails = details.trim() || '(c) 2026 QualiSearch Academic Press.';
+          btnSave.textContent = 'Saving...';
+          btnSave.disabled = true;
+
+          if (coverInput.files && coverInput.files.length > 0) {
+            btnSave.textContent = 'Uploading Cover...';
+            const file = coverInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `landing-covers/${id}_${Date.now()}.${fileExt}`;
+            const { data: uploadData, error: uploadError } = await db.storage
+              .from('manuscripts')
+              .upload(fileName, file, { upsert: true });
+
+            if (uploadError) {
+              alert('Error uploading cover image: ' + uploadError.message);
+              btnSave.textContent = origText;
+              btnSave.disabled = false;
+              return;
+            }
+            coverPath = uploadData.path;
+          }
+
+          if (templateInput.files && templateInput.files.length > 0) {
+            btnSave.textContent = 'Uploading Published File...';
+            const file = templateInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `published-articles/${id}_${Date.now()}.${fileExt}`;
+            const { data: uploadData, error: uploadError } = await db.storage
+              .from('manuscripts')
+              .upload(fileName, file, { upsert: true });
+
+            if (uploadError) {
+              alert('Error uploading published article file: ' + uploadError.message);
+              btnSave.textContent = origText;
+              btnSave.disabled = false;
+              return;
+            }
+            publishedFilePath = uploadData.path;
+          }
+
+          btnSave.textContent = 'Saving...';
+          const updatePayload = {
+            title: title,
+            abstract: abstract,
+            landing_authors: authors,
+            landing_summary: summary,
+            landing_keywords: keywords,
+            landing_doi: doi,
+            landing_details: savedDetails,
+            landing_funding: funding,
+            landing_references: references,
+            manuscript_received_date: receivedDate || null,
+            manuscript_revised_date: revisedDate || null,
+            manuscript_accepted_date: acceptedDate || null,
+            published_date: publishedDate || null,
+            cover_image_path: coverPath || null
+          };
+
+          if (publishedFilePath) {
+            updatePayload.published_file_path = publishedFilePath;
+          }
+
+          const { error } = await db.from('submissions').update(updatePayload).eq('id', id);
+
+          btnSave.textContent = origText;
+          btnSave.disabled = false;
+
+          if (error) {
+            const columnHint = String(error.message || '').includes('published_file_path')
+              ? '\n\nSupabase is missing the published_file_path column. Run academic-press/supabase_landing_page_fields.sql in the Supabase SQL editor, then refresh this dashboard.'
+              : '\n\nIf this mentions missing columns, run the supplied Supabase SQL file first.';
+            alert('Error updating article: ' + error.message + columnHint);
+          } else {
+            document.getElementById('edit-modal-backdrop').style.display = 'none';
+            loadAllSubmissions();
+            const toast = document.getElementById('qs-toast');
+            const msg = document.getElementById('qs-toast-msg');
+            if (toast && msg) {
+              msg.textContent = 'Landing page saved. You can now publish the article.';
+              toast.hidden = false;
+              toast.className = 'qs-toast toast-success';
+              setTimeout(() => toast.hidden = true, 3000);
+            }
+          }
+        });
+      }
+
+      // Tab Switching Logic
+      const tabs = document.querySelectorAll('.dash-tab');
+      const tabContents = document.querySelectorAll('.dash-tab-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+
+          tab.classList.add('active');
+          document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+        });
       });
 
-      pageText += lineText.trim();
-      pages.push(pageText);
-    }
+    }); // End of DOMContentLoaded
+  </script>
 
-    return pages;
-  }
-
-  function parseLandingArticle(pages) {
-    const fullText = pages.join('\n');
-    const lines = fullText.split('\n').map(line => line.trim()).filter(Boolean);
-    const skipPatterns = [
-      /Creative Commons/i, /open.access/i, /Published by/i, /Page \d/i,
-      /ISSN/i, /^Volume/i, /^Issue/i, /^DOI/i, /^\d+$/, /^https?:\/\//i,
-      /License/i, /QualiSearch/i, /Advancing Knowledge/i, /Article Type/i,
-      /open\s*-\s*access/i, /distributed under/i, /terms of the/i,
-      /research adviser/i, /^reviewed by/i, /^to obtain/i,
-      /^submitted (?:to|in)/i, /^in partial fulfillment/i,
-      /^this is an/i, /^copyright/i, /^the author/i,
-      /^this study/i, /^specifically,/i, /^the researcher expresses/i
-    ];
-    const isBadLine = (line) => skipPatterns.some(pattern => pattern.test(line));
-    const looksLikeAuthorLine = (line) => /^[A-Z][A-Za-z'.-]+(?:\s+[A-Z]\.)?\s+[A-Z][A-Za-z'.-]+/.test(line) && line.length < 140;
-    const looksLikeInstitutionLine = (line) => /University|Institute|College|Department|School|Campus|Adviser|Advisor/i.test(line);
-    const isSectionHeading = (line) => /^(Abstract|Keywords?|Introduction|Background|References|Acknowledg|Research Funding|Publication History)\b/i.test(line);
-    const isNonTitleSentence = (line) => /^(This|These|There|It|The researcher|Specifically)\b/i.test(line) || /[.!?]$/.test(line);
-    const titleQuality = (candidate, index) => {
-      if (!candidate || isBadLine(candidate) || isNonTitleSentence(candidate)) return -99;
-      let score = 0;
-      if (index < 40) score += 4;
-      if (candidate.length >= 40 && candidate.length <= 170) score += 5;
-      if (candidate.length > 170) score -= 4;
-      if (/\b(study|assessment|analysis|effect|impact|development|technology|education|learning|outcomes|students|livelihood)\b/i.test(candidate)) score += 2;
-      if (/^(The|This|These|There|It)\b/i.test(candidate)) score -= 6;
-      if (/abstract|keywords|published|copyright|license|doi|email/i.test(candidate)) score -= 8;
-      return score;
-    };
-    const buildTitleCandidate = (startIndex, maxLines = 4) => {
-      const first = lines[startIndex];
-      if (!first || isBadLine(first) || isSectionHeading(first) || looksLikeAuthorLine(first) || looksLikeInstitutionLine(first)) return '';
-      let candidate = first;
-      for (let offset = 1; offset < maxLines && startIndex + offset < lines.length; offset++) {
-        const next = lines[startIndex + offset];
-        if (
-          isBadLine(next) ||
-          isSectionHeading(next) ||
-          looksLikeAuthorLine(next) ||
-          looksLikeInstitutionLine(next) ||
-          next.length < 8 ||
-          next.length > 150
-        ) {
-          break;
-        }
-        candidate += ' ' + next;
-      }
-      return candidate.trim();
-    };
-
-    let title = '';
-    const titleCandidates = [];
-    for (let i = 0; i < Math.min(lines.length, 120); i++) {
-      const line = lines[i];
-      if (isBadLine(line)) continue;
-      if (isSectionHeading(line)) continue;
-      if (looksLikeAuthorLine(line) || looksLikeInstitutionLine(line)) continue;
-      if (line.length >= 25 && line.length <= 220) {
-        const candidate = buildTitleCandidate(i);
-        const score = titleQuality(candidate, i);
-        titleCandidates.push({ value: candidate.trim(), score });
-      }
-    }
-    titleCandidates.sort((a, b) => b.score - a.score);
-    title = titleCandidates[0]?.value || '';
-
-    let authors = '';
-    const authorLabel = fullText.match(/(?:^|\n)Authors?[:\s]+([^\n]{5,160})/im);
-    const corrAuthor = fullText.match(/Corresponding Author[:\s]+([^\n\r]+)/i);
-    if (authorLabel) authors = authorLabel[1].trim();
-    else if (corrAuthor) authors = corrAuthor[1].trim();
-    else {
-      for (let i = 1; i < Math.min(lines.length, 100); i++) {
-        const line = lines[i];
-        if (/^[A-Z][a-z]+ [A-Z]\.? [A-Z][a-z]+/.test(line) && line.length < 120) {
-          authors = line;
-          break;
-        }
-      }
-    }
-
-    if (authors) {
-      const authorIndex = lines.findIndex(line => line.toLowerCase().includes(authors.toLowerCase()));
-      if (authorIndex > 0) {
-        const nearbyCandidates = [];
-        for (let i = Math.max(0, authorIndex - 12); i < authorIndex; i++) {
-          const candidate = buildTitleCandidate(i, 3);
-          nearbyCandidates.push({ value: candidate, score: titleQuality(candidate, i) + 4 });
-        }
-        nearbyCandidates.sort((a, b) => b.score - a.score);
-        if (nearbyCandidates[0]?.value && nearbyCandidates[0].score > titleQuality(title, 999)) {
-          title = nearbyCandidates[0].value;
-        }
-      }
-    }
-
-    let journal = '';
-    const journalPatterns = [
-      /Published in[:\s]+([^\n]+)/i,
-      /(?:^|\n)(QualiSearch\s+Journal[^\n]+)/im,
-      /(?:^|\n)((?:Journal|Quarterly|Review|Bulletin|Annals)\b[^\n]{3,100})/im
-    ];
-    for (const pattern of journalPatterns) {
-      const match = fullText.match(pattern);
-      if (match) {
-        journal = (match[1] || match[0]).trim().substring(0, 120);
-        if (/reviewed by|research adviser|to obtain/i.test(journal)) {
-          journal = '';
-          continue;
-        }
-        break;
-      }
-    }
-
-    const doiMatch = fullText.match(/(?:DOI|doi)[:\s]*(https?:\/\/doi\.org\/[^\s\n]+|10\.\d{4,}\/[^\s\n]+)/i);
-    const doi = doiMatch ? doiMatch[1].trim() : '';
-
-    const keywordsMatch = fullText.match(/[Kk]eywords?[:\s*]+([^\n]{5,400})/);
-    const keywords = keywordsMatch ? keywordsMatch[1].replace(/^[:\-.\s]+/, '').trim().substring(0, 250) : '';
-
-    let abstract = '';
-    const abstractMatch = fullText.match(/\bAbstract\b[\s\n:]+([\s\S]{80,3000}?)(?=\n\s*(?:Keywords?|Introduction|1\.|Background)\b)/i);
-    if (abstractMatch) abstract = abstractMatch[1].replace(/\s+/g, ' ').trim();
-
-    let summary = '';
-    if (abstract) {
-      const sentences = abstract.match(/[^.!?]+[.!?]+/g) || [];
-      summary = sentences.slice(0, 2).join(' ').trim();
-    }
-
-    const detailParts = [];
-    const copyrightMatch = fullText.match(/(?:\(c\)|Copyright|\u00a9)\s*\d{4}[^\n]*/i);
-    if (copyrightMatch) detailParts.push(copyrightMatch[0].trim());
-    const volumeMatch = fullText.match(/Volume[:\s]*(\d+)[,\s]*Issue[:\s]*(\d+)/i);
-    if (volumeMatch) detailParts.push(`Volume ${volumeMatch[1]}, Issue ${volumeMatch[2]}`);
-    const issnMatch = fullText.match(/ISSN[:\s]*([\d\-X]+)/i);
-    if (issnMatch) detailParts.push(`ISSN: ${issnMatch[1]}`);
-
-    const ackMatch = fullText.match(/Acknowledg(?:ment|ement)s?\s*\n([\s\S]{20,800}?)(?=\nEthical|\nAuthor Bio|\nReferences|\nBibliography|$)/i);
-    const funding = ackMatch ? ackMatch[1].replace(/\s+/g, ' ').trim() : '';
-
-    const receivedMatch = fullText.match(/Received[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-    const revisedMatch = fullText.match(/Revised[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-    const acceptedMatch = fullText.match(/Accepted[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-    const publishedMatch = fullText.match(/Published[:\s]+([A-Za-z]+ \d{1,2},? \d{4}|[A-Za-z]+ \d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-
-    let references = '';
-    const referencesMatch = fullText.match(/\n(?:References|Bibliography|REFERENCES)\s*\n([\s\S]+?)(?:\nAcknowledg|\nEthical|\nAuthor Bio|$)/i);
-    if (referencesMatch) {
-      references = referencesMatch[1]
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 15)
-        .slice(0, 60)
-        .join('\n');
-    }
-
-    return {
-      title,
-      authors,
-      journal,
-      doi,
-      keywords,
-      abstract,
-      summary,
-      details: detailParts.join('\n'),
-      funding,
-      received: landingInputDate(receivedMatch?.[1]),
-      revised: landingInputDate(revisedMatch?.[1]),
-      accepted: landingInputDate(acceptedMatch?.[1]),
-      published: landingInputDate(publishedMatch?.[1]),
-      references
-    };
-  }
-
-  function landingInputDate(value) {
-    if (!value) return '';
-    const months = {
-      january: '01', february: '02', march: '03', april: '04', may: '05', june: '06',
-      july: '07', august: '08', september: '09', october: '10', november: '11', december: '12'
-    };
-    const monthName = value.match(/([A-Za-z]+)\s+(\d{1,2},?\s+)?(\d{4})/);
-    if (monthName) {
-      const month = months[monthName[1].toLowerCase()];
-      const day = monthName[2] ? monthName[2].replace(',', '').trim().padStart(2, '0') : '01';
-      if (month) return `${monthName[3]}-${month}-${day}`;
-    }
-    const slashDate = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-    if (slashDate) {
-      const year = slashDate[3].length === 2 ? `20${slashDate[3]}` : slashDate[3];
-      return `${year}-${slashDate[1].padStart(2, '0')}-${slashDate[2].padStart(2, '0')}`;
-    }
-    return '';
-  }
-
-  function fillLandingArticleFields(data) {
-    setLandingValue('edit-article-title', data.title);
-    setLandingValue('edit-article-authors', data.authors);
-    setLandingValue('edit-article-doi', data.doi);
-    setLandingValue('edit-article-summary', data.summary);
-    setLandingValue('edit-article-keywords', data.keywords);
-    setLandingValue('edit-article-details', data.details);
-    setLandingValue('edit-article-funding', data.funding);
-    setLandingValue('edit-date-received', data.received);
-    setLandingValue('edit-date-revised', data.revised);
-    setLandingValue('edit-date-accepted', data.accepted);
-    setLandingValue('edit-date-published', data.published);
-    setLandingValue('edit-article-references', data.references);
-    setLandingValue('edit-article-abstract', data.abstract);
-  }
-
-  function setLandingValue(id, value) {
-    const field = document.getElementById(id);
-    if (!field || !value) return;
-    field.value = value;
-    field.style.borderColor = 'rgba(76,175,80,0.75)';
-  }
-
-  const editArticleForm = document.getElementById('edit-article-form');
-  if (editArticleForm) {
-    editArticleForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('edit-article-id').value;
-      const title = document.getElementById('edit-article-title').value;
-      const abstract = document.getElementById('edit-article-abstract').value;
-      const authors = document.getElementById('edit-article-authors').value;
-      const summary = document.getElementById('edit-article-summary').value;
-      const keywords = document.getElementById('edit-article-keywords').value;
-      const doi = document.getElementById('edit-article-doi').value;
-      const details = document.getElementById('edit-article-details').value;
-      const funding = document.getElementById('edit-article-funding').value;
-      const references = document.getElementById('edit-article-references').value;
-      const receivedDate = document.getElementById('edit-date-received').value;
-      const revisedDate = document.getElementById('edit-date-revised').value;
-      const acceptedDate = document.getElementById('edit-date-accepted').value;
-      const publishedDate = document.getElementById('edit-date-published').value;
-      const coverInput = document.getElementById('edit-cover-file');
-      const templateInput = document.getElementById('edit-template-file');
-      let coverPath = document.getElementById('edit-cover-current').value;
-      let publishedFilePath = document.getElementById('edit-template-current').value;
-
-      const btnSave = document.getElementById('btn-save-edit');
-      const origText = btnSave.textContent;
-      const savedDetails = details.trim() || '(c) 2026 QualiSearch Academic Press.';
-      btnSave.textContent = 'Saving...';
-      btnSave.disabled = true;
-
-      if (coverInput.files && coverInput.files.length > 0) {
-        btnSave.textContent = 'Uploading Cover...';
-        const file = coverInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `landing-covers/${id}_${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await db.storage
-          .from('manuscripts')
-          .upload(fileName, file, { upsert: true });
-
-        if (uploadError) {
-          alert('Error uploading cover image: ' + uploadError.message);
-          btnSave.textContent = origText;
-          btnSave.disabled = false;
-          return;
-        }
-        coverPath = uploadData.path;
-      }
-
-      if (templateInput.files && templateInput.files.length > 0) {
-        btnSave.textContent = 'Uploading Published File...';
-        const file = templateInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `published-articles/${id}_${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await db.storage
-          .from('manuscripts')
-          .upload(fileName, file, { upsert: true });
-
-        if (uploadError) {
-          alert('Error uploading published article file: ' + uploadError.message);
-          btnSave.textContent = origText;
-          btnSave.disabled = false;
-          return;
-        }
-        publishedFilePath = uploadData.path;
-      }
-
-      btnSave.textContent = 'Saving...';
-      const updatePayload = {
-        title: title,
-        abstract: abstract,
-        landing_authors: authors,
-        landing_summary: summary,
-        landing_keywords: keywords,
-        landing_doi: doi,
-        landing_details: savedDetails,
-        landing_funding: funding,
-        landing_references: references,
-        manuscript_received_date: receivedDate || null,
-        manuscript_revised_date: revisedDate || null,
-        manuscript_accepted_date: acceptedDate || null,
-        published_date: publishedDate || null,
-        cover_image_path: coverPath || null
-      };
-
-      if (publishedFilePath) {
-        updatePayload.published_file_path = publishedFilePath;
-      }
-
-      const { error } = await db.from('submissions').update(updatePayload).eq('id', id);
-
-      btnSave.textContent = origText;
-      btnSave.disabled = false;
-
-      if (error) {
-        const columnHint = String(error.message || '').includes('published_file_path')
-          ? '\n\nSupabase is missing the published_file_path column. Run academic-press/supabase_landing_page_fields.sql in the Supabase SQL editor, then refresh this dashboard.'
-          : '\n\nIf this mentions missing columns, run the supplied Supabase SQL file first.';
-        alert('Error updating article: ' + error.message + columnHint);
-      } else {
-        document.getElementById('edit-modal-backdrop').style.display = 'none';
-        loadAllSubmissions();
-        const toast = document.getElementById('qs-toast');
-        const msg = document.getElementById('qs-toast-msg');
-        if(toast && msg) {
-          msg.textContent = 'Landing page saved. You can now publish the article.';
-          toast.hidden = false;
-          toast.className = 'qs-toast toast-success';
-          setTimeout(() => toast.hidden = true, 3000);
-        }
-      }
-    });
-  }
-
-  // Tab Switching Logic
-  const tabs = document.querySelectorAll('.dash-tab');
-  const tabContents = document.querySelectorAll('.dash-tab-content');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(c => c.classList.remove('active'));
-      
-      tab.classList.add('active');
-      document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
-    });
-  });
-
-}); // End of DOMContentLoaded
-</script>
-
-<!-- Edit Article Modal -->
-<div class="auth-backdrop" id="edit-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
-  <div class="auth-modal" style="width:100%; max-width:760px; max-height:88vh; overflow-y:auto; padding:30px; border:1px solid rgba(255,255,255,0.1);">
-    <h2 style="color:var(--gold); margin-bottom:20px; font-family:'Cinzel', serif;">Create / Edit Landing Page</h2>
-    <form id="edit-article-form" style="display:flex; flex-direction:column; gap:15px;">
-      <input type="hidden" id="edit-article-id" />
-      <input type="hidden" id="edit-cover-current" />
-      <input type="hidden" id="edit-template-current" />
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Cover Image</label>
-        <input type="file" id="edit-cover-file" accept="image/*" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.95rem;" />
-        <span id="edit-cover-name" style="display:block; margin-top:7px; color:var(--text-muted); font-size:0.82rem;">No cover selected</span>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Published Article File</label>
-        <div class="landing-file-drop" id="landing-file-drop">
-          <strong>Drag and drop the final PDF or DOCX here</strong>
-          <span>or click to browse. The landing page fields will auto-fill.</span>
+  <!-- Edit Article Modal -->
+  <div class="auth-backdrop" id="edit-modal-backdrop"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+    <div class="auth-modal"
+      style="width:100%; max-width:760px; max-height:88vh; overflow-y:auto; padding:30px; border:1px solid rgba(255,255,255,0.1);">
+      <h2 style="color:var(--gold); margin-bottom:20px; font-family:'Cinzel', serif;">Create / Edit Landing Page</h2>
+      <form id="edit-article-form" style="display:flex; flex-direction:column; gap:15px;">
+        <input type="hidden" id="edit-article-id" />
+        <input type="hidden" id="edit-cover-current" />
+        <input type="hidden" id="edit-template-current" />
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Cover
+            Image</label>
+          <input type="file" id="edit-cover-file" accept="image/*"
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.95rem;" />
+          <span id="edit-cover-name"
+            style="display:block; margin-top:7px; color:var(--text-muted); font-size:0.82rem;">No cover selected</span>
         </div>
-        <input type="file" id="edit-template-file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;" />
-        <span id="edit-template-name" style="display:block; margin-top:7px; color:var(--text-muted); font-size:0.82rem;">No published file selected</span>
-        <span id="edit-template-status" class="landing-file-status"></span>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article Title</label>
-        <input type="text" id="edit-article-title" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Authors</label>
-        <input type="text" id="edit-article-authors" placeholder="e.g. Maria Santos, Juan Dela Cruz" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Journal</label>
-        <input type="text" id="edit-article-journal" required readonly title="Journal is locked after assignment/review." style="width:100%; padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); border-radius:4px; font-family:var(--font-body); font-size:1rem; cursor:not-allowed;" />
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article ID / DOI</label>
-        <input type="text" id="edit-article-doi" placeholder="https://doi.org/... or article identifier" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Landing Summary</label>
-        <textarea id="edit-article-summary" rows="3" placeholder="Short intro shown in the article hero..." style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Keywords</label>
-        <input type="text" id="edit-article-keywords" placeholder="education, assessment, learning outcomes" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Details</label>
-        <textarea id="edit-article-details" rows="2" placeholder="Copyright, publisher, issue notes..." style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Research Funding</label>
-        <textarea id="edit-article-funding" rows="2" placeholder="Funding agency, grant number, acknowledgements..." style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Publication History</label>
-        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
-          <input type="date" id="edit-date-received" title="Received" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
-          <input type="date" id="edit-date-revised" title="Revised" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
-          <input type="date" id="edit-date-accepted" title="Accepted" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
-          <input type="date" id="edit-date-published" title="Published" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Published
+            Article File</label>
+          <div class="landing-file-drop" id="landing-file-drop">
+            <strong>Drag and drop the final PDF or DOCX here</strong>
+            <span>or click to browse. The landing page fields will auto-fill.</span>
+          </div>
+          <input type="file" id="edit-template-file"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            style="display:none;" />
+          <span id="edit-template-name"
+            style="display:block; margin-top:7px; color:var(--text-muted); font-size:0.82rem;">No published file
+            selected</span>
+          <span id="edit-template-status" class="landing-file-status"></span>
         </div>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">References</label>
-        <textarea id="edit-article-references" rows="4" placeholder="One reference per line" style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
-      </div>
-      <div class="auth-field">
-        <label style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Abstract</label>
-        <textarea id="edit-article-abstract" required style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; min-height:150px; resize:vertical;"></textarea>
-      </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-        <button type="button" id="btn-preview-landing" class="btn-action" style="background:rgba(214,178,94,0.12); color:var(--gold); border:1px solid rgba(214,178,94,0.45); margin-right:auto;">Preview Landing Page</button>
-        <button type="button" id="btn-cancel-edit" class="btn-action" style="background:transparent; border:1px solid rgba(255,255,255,0.2);">Cancel</button>
-        <button type="submit" id="btn-save-edit" class="btn-action" style="background:var(--gold); color:var(--navy-darkest);">Save Changes</button>
-      </div>
-    </form>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article
+            Title</label>
+          <input type="text" id="edit-article-title" required
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Authors</label>
+          <input type="text" id="edit-article-authors" placeholder="e.g. Maria Santos, Juan Dela Cruz"
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Journal</label>
+          <input type="text" id="edit-article-journal" required readonly
+            title="Journal is locked after assignment/review."
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); border-radius:4px; font-family:var(--font-body); font-size:1rem; cursor:not-allowed;" />
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Article
+            ID / DOI</label>
+          <input type="text" id="edit-article-doi" placeholder="https://doi.org/... or article identifier"
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Landing
+            Summary</label>
+          <textarea id="edit-article-summary" rows="3" placeholder="Short intro shown in the article hero..."
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Keywords</label>
+          <input type="text" id="edit-article-keywords" placeholder="education, assessment, learning outcomes"
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem;" />
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Details</label>
+          <textarea id="edit-article-details" rows="2" placeholder="Copyright, publisher, issue notes..."
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Research
+            Funding</label>
+          <textarea id="edit-article-funding" rows="2" placeholder="Funding agency, grant number, acknowledgements..."
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Publication
+            History</label>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+            <input type="date" id="edit-date-received" title="Received"
+              style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+            <input type="date" id="edit-date-revised" title="Revised"
+              style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+            <input type="date" id="edit-date-accepted" title="Accepted"
+              style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+            <input type="date" id="edit-date-published" title="Published"
+              style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:0.9rem;" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">References</label>
+          <textarea id="edit-article-references" rows="4" placeholder="One reference per line"
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; resize:vertical;"></textarea>
+        </div>
+        <div class="auth-field">
+          <label
+            style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; margin-bottom:5px; display:block;">Abstract</label>
+          <textarea id="edit-article-abstract" required
+            style="width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; font-family:var(--font-body); font-size:1rem; min-height:150px; resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+          <button type="button" id="btn-preview-landing" class="btn-action"
+            style="background:rgba(214,178,94,0.12); color:var(--gold); border:1px solid rgba(214,178,94,0.45); margin-right:auto;">Preview
+            Landing Page</button>
+          <button type="button" id="btn-cancel-edit" class="btn-action"
+            style="background:transparent; border:1px solid rgba(255,255,255,0.2);">Cancel</button>
+          <button type="submit" id="btn-save-edit" class="btn-action"
+            style="background:var(--gold); color:var(--navy-darkest);">Save Changes</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
+
+  <!-- Publish Progress Modal -->
+  <div id="publish-progress-backdrop"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:10000; align-items:center; justify-content:center;">
+    <div
+      style="width:100%; max-width:540px; background:var(--color-bg, #080d1a); border:1px solid rgba(214,178,94,0.3); border-radius:12px; padding:35px 30px; box-shadow:0 8px 40px rgba(0,0,0,0.5); max-height:80vh; overflow-y:auto;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <div
+          style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg, rgba(214,178,94,0.2), rgba(214,178,94,0.08)); display:flex; align-items:center; justify-content:center; font-size:22px;">
+          📜</div>
+        <div>
+          <h3 style="color:var(--color-gold, #d6b25e); margin:0; font-family:'Cinzel', serif; font-size:1.2rem;">
+            Publishing Article</h3>
+          <p id="publish-progress-status"
+            style="color:var(--color-text-muted, #8a8fa0); margin:4px 0 0; font-size:0.85rem;">Initializing...</p>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div
+        style="width:100%; height:4px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; margin-bottom:20px;">
+        <div id="publish-progress-bar"
+          style="height:100%; width:10%; background:linear-gradient(90deg, #d6b25e, #f3d990); border-radius:4px; transition:width 0.4s ease;">
+        </div>
+      </div>
+
+      <!-- Detail log -->
+      <div id="publish-progress-log"
+        style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:15px; font-family:'Inter', sans-serif; font-size:0.82rem; color:var(--color-text-muted, #8a8fa0); max-height:280px; overflow-y:auto; line-height:1.8;">
+      </div>
+
+      <!-- Warning area -->
+      <div id="publish-progress-warning"
+        style="display:none; margin-top:15px; padding:12px 15px; background:rgba(255,165,0,0.08); border:1px solid rgba(255,165,0,0.25); border-radius:8px; color:#ffb347; font-size:0.82rem; line-height:1.5;">
+      </div>
+
+      <!-- Close button (hidden until done) -->
+      <div style="text-align:right; margin-top:20px;">
+        <button id="publish-progress-close" class="btn-action"
+          style="display:none; background:var(--color-gold, #d6b25e); color:var(--color-bg, #080d1a); padding:8px 24px; font-weight:600;"
+          onclick="document.getElementById('publish-progress-backdrop').style.display='none';">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Publish Progress Modal Helpers ──
+    function showPublishProgressModal() {
+      const backdrop = document.getElementById('publish-progress-backdrop');
+      const log = document.getElementById('publish-progress-log');
+      const bar = document.getElementById('publish-progress-bar');
+      const warning = document.getElementById('publish-progress-warning');
+      const closeBtn = document.getElementById('publish-progress-close');
+
+      log.innerHTML = '';
+      bar.style.width = '10%';
+      warning.style.display = 'none';
+      warning.innerHTML = '';
+      closeBtn.style.display = 'none';
+      backdrop.style.display = 'flex';
+    }
+
+    let publishProgressStep = 0;
+    function updatePublishProgress(type, value) {
+      const statusEl = document.getElementById('publish-progress-status');
+      const logEl = document.getElementById('publish-progress-log');
+      const barEl = document.getElementById('publish-progress-bar');
+      const warningEl = document.getElementById('publish-progress-warning');
+      const closeBtn = document.getElementById('publish-progress-close');
+
+      if (type === 'status') {
+        statusEl.textContent = value;
+        publishProgressStep++;
+        const pct = Math.min(10 + publishProgressStep * 20, 95);
+        barEl.style.width = pct + '%';
+      }
+
+      if (type === 'detail') {
+        const line = document.createElement('div');
+        line.textContent = value;
+        line.style.padding = '2px 0';
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      if (type === 'warning') {
+        warningEl.style.display = 'block';
+        warningEl.innerHTML += value + '<br>';
+      }
+
+      if (type === 'done') {
+        barEl.style.width = '100%';
+        closeBtn.style.display = 'inline-block';
+        statusEl.textContent = '✅ All done!';
+      }
+    }
+
+    // ── Build Publication Email HTML ──
+    function buildPublicationEmailHtml(payload) {
+        const { recipientName, recipientRole, articleTitle, articleDoi, articleUrl, journalName, publicationDate } = payload;
+
+        const greeting = recipientRole === 'reviewer'
+          ? "Dear " + recipientName + ",<br><br>Thank you for your invaluable contribution as a peer reviewer."
+          : "Dear " + recipientName + ",<br><br>Congratulations on the publication of your research article!";
+
+        const bodyText = recipientRole === 'reviewer'
+          ? "We are pleased to inform you that the article you reviewed has been successfully published in the <strong>" + journalName + "</strong>. Your rigorous evaluation helped ensure the quality and integrity of this research. Attached is your <strong>Certificate of Peer Review</strong>."
+          : "We are delighted to inform you that your article has been successfully published in the <strong>" + journalName + "</strong>. Attached is your <strong>Certificate of International Publication</strong>.";
+
+        let doiHtml = "";
+        if (articleDoi) {
+          const doiLink = articleDoi.startsWith("http") ? articleDoi : "https://doi.org/" + articleDoi;
+          doiHtml = '<p style="color:#5a4e3a; font-size:14px; margin:0 0 6px;"><strong>DOI:</strong> <a href="' + doiLink + '" style="color:#8B6914;">' + articleDoi + '</a></p>';
+        }
+
+        let urlHtml = "";
+        if (articleUrl) {
+          urlHtml = '<tr><td style="padding:0 40px 35px; text-align:center;">' +
+            '<a href="' + articleUrl + '" style="display:inline-block; background:#d6b25e; color:#0e1629; text-decoration:none; padding:14px 35px; border-radius:6px; font-weight:bold; font-size:15px; letter-spacing:1px; text-transform:uppercase;">View Published Article</a>' +
+            '</td></tr>';
+        }
+
+        return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#0e1629; font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0e1629; padding:40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 30px rgba(0,0,0,0.3);">
+        <tr><td style="background:linear-gradient(135deg,#0e1629,#16213a); padding:35px 40px; text-align:center;">
+          <h1 style="color:#d6b25e; font-size:28px; margin:0 0 8px; font-family:Georgia,serif; letter-spacing:2px;">QualiSearch Academic Press</h1>
+          <p style="color:rgba(214,178,94,0.7); font-size:13px; margin:0; letter-spacing:1px; text-transform:uppercase;">Advancing Knowledge. Improving Education.</p>
+        </td></tr>
+        <tr><td style="background:#d6b25e; height:3px; font-size:0;">&nbsp;</td></tr>
+        <tr><td style="padding:40px 40px 20px;">
+          <p style="color:#2a1f0e; font-size:16px; line-height:1.7; margin:0 0 20px;">${greeting}</p>
+          <p style="color:#2a1f0e; font-size:16px; line-height:1.7; margin:0 0 25px;">${bodyText}</p>
+        </td></tr>
+        <tr><td style="padding:0 40px 30px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ed; border:1px solid #e8dfc8; border-radius:8px; padding:25px;">
+            <tr><td>
+              <p style="color:#8B6914; font-size:12px; text-transform:uppercase; letter-spacing:2px; margin:0 0 12px; font-weight:bold;">Article Details</p>
+              <p style="color:#2a1f0e; font-size:17px; font-weight:bold; margin:0 0 10px; line-height:1.4;">${articleTitle}</p>
+              <p style="color:#5a4e3a; font-size:14px; margin:0 0 6px;"><strong>Journal:</strong> ${journalName}</p>
+              ${doiHtml}
+              <p style="color:#5a4e3a; font-size:14px; margin:0;"><strong>Published:</strong> ${publicationDate}</p>
+            </td></tr>
+          </table>
+        </td></tr>
+        ${urlHtml}
+        <tr><td style="padding:0 40px 30px;">
+          <p style="color:#7a6f5a; font-size:14px; line-height:1.6; margin:0; text-align:center; font-style:italic;">📜 Your personalized certificate is attached to this email as a PNG image.</p>
+        </td></tr>
+        <tr><td style="background:#0e1629; padding:30px 40px; text-align:center;">
+          <p style="color:rgba(214,178,94,0.7); font-size:13px; margin:0 0 8px;">QualiSearch Center for Interdisciplinary Research and Development</p>
+          <p style="color:rgba(255,255,255,0.35); font-size:11px; margin:0;">Open Access · Crossref Member · Creative Commons BY 4.0</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+<\x2Fbody><\x2Fhtml>`;
+    }
+  </script>
 
 </body>
-</html>
 
+</html>
