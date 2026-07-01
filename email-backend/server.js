@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { GoogleAIFileManager } = require('@google/generative-ai/server');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -73,32 +72,26 @@ app.post('/send-email', async (req, res) => {
   }
 });
 
-// PDF Extraction Endpoint using Gemini 1.5 Flash (File API)
+// PDF Extraction Endpoint using Gemini 1.5 Flash (Text Prompt)
 app.post('/api/extract-pdf', async (req, res) => {
-  let tempFilePath = null;
   try {
-    const { pdfBase64, mimeType } = req.body;
+    const { pdfBase64 } = req.body;
     
     if (!pdfBase64 || !process.env.GEMINI_API_KEY) {
       return res.status(400).json({ error: 'Missing PDF payload or GEMINI_API_KEY' });
     }
 
-    // Initialize Gemini and File Manager
+    // Parse the PDF locally first to extract its text
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+    const parsedPdf = await pdfParse(pdfBuffer);
+    const pdfText = parsedPdf.text;
+
+    // Initialize Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY);
-
-    // Write base64 to a temporary file
-    tempFilePath = path.join(os.tmpdir(), `upload-${Date.now()}.pdf`);
-    fs.writeFileSync(tempFilePath, Buffer.from(pdfBase64, 'base64'));
-
-    // Upload the file to Gemini
-    const uploadResult = await fileManager.uploadFile(tempFilePath, {
-      mimeType: mimeType || "application/pdf",
-      displayName: "Article PDF",
-    });
 
     const prompt = `
-    You are a data extractor. Extract the following information from the provided academic journal article PDF.
+    You are a data extractor. Extract the following information from the academic journal article text provided below.
     For 'authors', create a comma-separated list of all authors.
     For 'keywords', create a comma-separated list of keywords.
     For 'summary', write a brief 2-3 sentence abstract/summary.
@@ -122,22 +115,17 @@ app.post('/api/extract-pdf', async (req, res) => {
         "publisher": "string",
         "copyright": "string"
       }
-    }`;
+    }
+
+    --- ARTICLE TEXT ---
+    ${pdfText.substring(0, 30000)} // Limit text to prevent exceeding context window if PDF is huge
+    `;
 
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash"
     });
 
-    // Generate content using the uploaded file URI
-    const response = await model.generateContent([
-      {
-        fileData: {
-          mimeType: uploadResult.file.mimeType,
-          fileUri: uploadResult.file.uri
-        }
-      },
-      prompt
-    ]);
+    const response = await model.generateContent(prompt);
 
     let text = response.response.text();
     text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
@@ -145,11 +133,6 @@ app.post('/api/extract-pdf', async (req, res) => {
   } catch (error) {
     console.error('Error extracting PDF:', error);
     res.status(500).json({ error: error.message || 'Failed to extract PDF data' });
-  } finally {
-    // Clean up temp file
-    if (tempFilePath && fs.existsSync(tempFilePath)) {
-      fs.unlinkSync(tempFilePath);
-    }
   }
 });
 
