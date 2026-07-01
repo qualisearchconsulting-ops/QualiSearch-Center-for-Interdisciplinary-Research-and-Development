@@ -540,8 +540,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const publicPages = ['index.html', 'about.html', 'journals.html', 'publish.html', 'policies.html', 'contact.html', ''];
   const privatePages = ['dashboard_admin.html', 'dashboard_researcher.html', 'dashboard_reviewer.html'];
 
+  // Track recovery state globally because Supabase aggressively clears the URL hash!
+  let isRecoveringPassword = window.location.hash.includes('type=recovery');
+
   async function handlePageAccess(user) {
-    if (window.location.hash.includes('type=recovery')) return; // Prevent redirect during password recovery
+    if (isRecoveringPassword) return; // Prevent redirect during password recovery
 
     const currentPath = window.location.pathname.split('/').pop();
     
@@ -567,6 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (supabase) {
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
+        isRecoveringPassword = true; // explicitly set it just in case
+        
         // Prevent multiple modals if the event fires twice
         if (document.getElementById('pw-recovery-backdrop')) return;
         
@@ -606,8 +611,10 @@ document.addEventListener('DOMContentLoaded', () => {
            } else {
               document.getElementById('pw-recovery-backdrop').remove();
               showToast('Password successfully updated!', 'success');
-              // Clear hash to prevent it from re-triggering
-              window.location.hash = '';
+              
+              // Remove the block!
+              isRecoveringPassword = false;
+              
               if (session?.user) {
                  setNavLoggedIn(session.user);
                  handlePageAccess(session.user);
@@ -628,12 +635,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check existing session on page load
     supabase.auth.getSession().then(({ data: { session } }) => {
-      // Do not redirect if we are in the middle of a password recovery flow
-      const isRecovery = window.location.hash.includes('type=recovery');
-      
       if (session?.user) {
         setNavLoggedIn(session.user);
-        if (!isRecovery) {
+        if (!isRecoveringPassword) {
           handlePageAccess(session.user);
         }
       } else {
