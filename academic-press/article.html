@@ -173,12 +173,12 @@
         <section style="padding:22px 20px;">
           <h3 style="font:800 1.05rem 'Inter', sans-serif; color:#f3d990; margin:0 0 14px;">Publication History</h3>
           <dl style="margin:0; color:#eef2f8; font:400 .9rem/1.55 'Inter', sans-serif;">
-            <dt style="font-weight:700;">Version of Record online:</dt>
-            <dd id="art-history-published" style="margin:0 0 10px;"></dd>
-            <dt style="font-weight:700;">Manuscript accepted:</dt>
+            <dt style="font-weight:700;">Received:</dt>
+            <dd id="art-history-received" style="margin:0 0 10px;"></dd>
+            <dt style="font-weight:700;">Accepted:</dt>
             <dd id="art-history-accepted" style="margin:0 0 10px;"></dd>
-            <dt style="font-weight:700;">Manuscript received:</dt>
-            <dd id="art-history-received" style="margin:0;"></dd>
+            <dt style="font-weight:700;">Published:</dt>
+            <dd id="art-history-published" style="margin:0;"></dd>
           </dl>
         </section>
       </aside>
@@ -241,17 +241,19 @@
         document.getElementById('art-title').textContent = data.title;
         document.getElementById('art-journal-pill').textContent = canPreview ? `Preview - ${data.journal || 'QualiSearch Academic Press'}` : (data.journal || 'QualiSearch Academic Press');
         document.getElementById('art-abstract').textContent = data.abstract;
-        const formatDate = (value) => value ? new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-        const publishedDate = formatDate(data.published_date || data.created_at);
+        
+        const fallbackDate = data.created_at ? new Date(data.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+        const publishedDate = data.published_date || fallbackDate;
         document.getElementById('art-date').textContent = publishedDate;
         document.getElementById('art-doi').textContent = data.landing_doi || `Article ID: ${data.id}`;
         document.getElementById('art-details-text').textContent = data.landing_details || '© 2026 QualiSearch Academic Press.';
         document.getElementById('art-details-journal').textContent = data.journal ? `Published in ${data.journal}.` : 'Published by QualiSearch Academic Press.';
+        
         document.getElementById('art-history-published').textContent = publishedDate;
-        document.getElementById('art-history-accepted').textContent = formatDate(data.manuscript_accepted_date) || publishedDate;
-        document.getElementById('art-history-received').textContent = formatDate(data.manuscript_received_date) || publishedDate;
+        document.getElementById('art-history-accepted').textContent = data.manuscript_accepted_date || publishedDate;
+        document.getElementById('art-history-received').textContent = data.manuscript_received_date || publishedDate;
 
-        const revisedDate = formatDate(data.manuscript_revised_date);
+        const revisedDate = data.manuscript_revised_date;
         if (revisedDate) {
           const acceptedEl = document.getElementById('art-history-accepted');
           acceptedEl.textContent = `${acceptedEl.textContent} | Revised: ${revisedDate}`;
