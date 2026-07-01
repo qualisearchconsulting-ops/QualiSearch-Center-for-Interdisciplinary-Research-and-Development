@@ -3,6 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleAIFileManager } = require('@google/generative-ai/server');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 // Increase JSON payload limit to handle base64 images
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Nodemailer is removed because Render blocks SMTP port 587
 // We will use Brevo REST API (HTTPS on port 443) instead
@@ -68,8 +73,9 @@ app.post('/send-email', async (req, res) => {
   }
 });
 
-// PDF Extraction Endpoint using Gemini 1.5 Flash
+// PDF Extraction Endpoint using Gemini 1.5 Flash (File API)
 app.post('/api/extract-pdf', async (req, res) => {
+  let tempFilePath = null;
   try {
     const { pdfBase64, mimeType } = req.body;
     
@@ -77,8 +83,19 @@ app.post('/api/extract-pdf', async (req, res) => {
       return res.status(400).json({ error: 'Missing PDF payload or GEMINI_API_KEY' });
     }
 
-    // Initialize Gemini
+    // Initialize Gemini and File Manager
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY);
+
+    // Write base64 to a temporary file
+    tempFilePath = path.join(os.tmpdir(), `upload-${Date.now()}.pdf`);
+    fs.writeFileSync(tempFilePath, Buffer.from(pdfBase64, 'base64'));
+
+    // Upload the file to Gemini
+    const uploadResult = await fileManager.uploadFile(tempFilePath, {
+      mimeType: mimeType || "application/pdf",
+      displayName: "Article PDF",
+    });
 
     const schema = {
       type: "object",
@@ -121,11 +138,12 @@ app.post('/api/extract-pdf', async (req, res) => {
       }
     });
 
+    // Generate content using the uploaded file URI
     const response = await model.generateContent([
       {
-        inlineData: {
-          data: pdfBase64,
-          mimeType: mimeType || "application/pdf"
+        fileData: {
+          mimeType: uploadResult.file.mimeType,
+          fileUri: uploadResult.file.uri
         }
       },
       prompt
@@ -136,6 +154,11 @@ app.post('/api/extract-pdf', async (req, res) => {
   } catch (error) {
     console.error('Error extracting PDF:', error);
     res.status(500).json({ error: error.message || 'Failed to extract PDF data' });
+  } finally {
+    // Clean up temp file
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
+    }
   }
 });
 
