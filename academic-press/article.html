@@ -306,7 +306,7 @@
           }
         }
         
-        async function downloadArticle() {
+        function downloadArticle() {
           const path = data.published_file_path;
           if (!path) {
               alert('Published article file is not available yet.');
@@ -315,27 +315,19 @@
           
           const btn = document.getElementById('art-download-btn');
           const originalText = btn.textContent;
-          btn.textContent = 'Downloading...';
+          btn.textContent = 'Opening...';
           btn.disabled = true;
 
-          const { data: fileData, error: fileError } = await sbClient.storage.from('manuscripts').download(path);
+          const { data: publicUrlData } = sbClient.storage.from('manuscripts').getPublicUrl(path);
           
           btn.textContent = originalText;
           btn.disabled = false;
 
-          if (fileError) {
-            alert('Error downloading file: ' + fileError.message);
-            return;
+          if (publicUrlData && publicUrlData.publicUrl) {
+            window.open(publicUrlData.publicUrl, '_blank');
+          } else {
+            alert('Error: Could not retrieve the file link.');
           }
-          const url = URL.createObjectURL(fileData);
-          const a = document.createElement('a');
-          a.href = url;
-          const ext = path.split('.').pop() || 'pdf';
-          a.download = `${data.title} - published.${ext}`;
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(url);
-          document.body.removeChild(a);
         }
 
         document.getElementById('art-download-btn').addEventListener('click', downloadArticle);
