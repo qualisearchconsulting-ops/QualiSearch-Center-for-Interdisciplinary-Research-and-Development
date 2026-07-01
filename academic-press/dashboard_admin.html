@@ -1637,10 +1637,10 @@
       }
 
       function normalizeExtractedReferences(raw) {
-        const boilerplate = /(published by|open\s*-\s*access|open access|creative commons|cc by|copyright|the author\(s\)|distributed under the terms)/i;
+        const boilerplate = /(published by|open\s*-\s*access|open access|creative commons|cc by|copyright|the author\(s\)|distributed under the terms|^Page \d+(?: of \d+)?$|^\d+$)/i;
         const lines = String(raw || '')
           .split(/\r?\n+/)
-          .map(line => line.replace(/\s+/g, ' ').trim())
+          .map(line => line.replace(/\s+/g, ' ').replace(/Page \d+(?: of \d+)?$/, '').trim())
           .filter(line => line.length > 2 && !boilerplate.test(line));
 
         const entries = [];
