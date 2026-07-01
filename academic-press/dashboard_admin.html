@@ -1448,18 +1448,31 @@
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
           const page = await pdf.getPage(pageNumber);
           const content = await page.getTextContent();
+          
+          const items = content.items.map(item => ({
+            str: item.str,
+            x: item.transform[4],
+            y: Math.round(item.transform[5] / 4) * 4
+          }));
+
+          items.sort((a, b) => {
+            if (a.y !== b.y) {
+              return b.y - a.y; // Higher Y first
+            }
+            return a.x - b.x; // Left to right
+          });
+
           let lastY = null;
           let lineText = '';
           let pageText = '';
 
-          content.items.forEach((item) => {
-            const y = item.transform[5];
-            if (lastY !== null && Math.abs(y - lastY) > 3) {
+          items.forEach((item) => {
+            if (lastY !== null && item.y !== lastY) {
               pageText += lineText.trim() + '\n';
               lineText = '';
             }
             lineText += item.str + ' ';
-            lastY = y;
+            lastY = item.y;
           });
 
           pageText += lineText.trim();
